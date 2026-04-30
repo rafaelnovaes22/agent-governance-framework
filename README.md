@@ -1,37 +1,71 @@
 # Acme Forge
 
-> Framework Claude Code-nativo para engenharia de SKUs verticais **SaaS²** seguindo a metodologia Acme.
+> Framework de governança para projetos que constroem **agentes de IA com outcome cobrável**.
+> Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](./CHANGELOG.md)
 [![Phase](https://img.shields.io/badge/phase-Forge--0-orange)](./docs/forge/roadmap.md)
-[![Reviewer](https://img.shields.io/badge/reviewer-DeepAgents%20%2F%20GPT--5.5-purple)](./docs/forge/reviewer-contract.md)
+[![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)
 
 ---
 
-## O que é
+## O que o Forge resolve
 
-Acme Forge transforma a **metodologia Acme SaaS²** em rails operacionais executáveis pelo Claude Code. Cada SKU vertical novo herda automaticamente:
+Construir agentes de IA que **entregam outcome cobrável** (lead qualificado, ticket resolvido, análise gerada, etc.) tem armadilhas que matam projetos silenciosamente:
 
-- **Diagnóstico estruturado** (Fase 0)
-- **Spec contratual de outcome cobrável** (D1+D2)
-- **Gate de unit economics ≤ 25% do preço** (D5)
-- **Threshold de SLA pré-contratual** (D6)
-- **Promoção SHADOW → ASSISTED → AUTONOMOUS** com gates verificáveis
-- **Eval suite obrigatória** antes de billing variável
-- **Camadas Sincra L0 / L1 / L2** com herança de contexto
+- Spec sem cláusula contratual → disputa eterna sobre "o que conta"
+- Custo de inferência > preço do outcome → margem negativa em volume
+- Promoção de "demo" pra "produção" sem eval → drift de qualidade não detectado
+- Customização heroica por cliente → não escala, vira agência
+- Sem telemetria → impossível auditar
 
-> **Tese**: a metodologia Acme já está formalizada em prosa. O Forge **operacionaliza** essa metodologia como artefatos executáveis pelo Claude Code — slash commands, subagents, skills, hooks — para que cada novo SKU/cliente reuse os mesmos rails sem recriar processo.
+Forge resolve isso com:
+
+1. **Constitution versionada** (8 princípios, [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md))
+2. **Templates fundamentais** (spec, ADR, eval-case, unit-economics, lifecycle, audit) — [`templates/`](./templates/)
+3. **Manifest auditável** machine-readable — [`docs/forge/manifest.json`](./docs/forge/manifest.json)
+4. **Reviewer externo independente** (DeepAgent / GPT-5.5) com contrato formal — [`reviewer/`](./reviewer/)
+5. **Hooks de runtime** (em construção, Forge-4)
+
+---
+
+## Audiência: 3 tipos de consumidor
+
+Forge é projetado para 3 tipos de usuário, cada um com seu próprio guia:
+
+| Consumidor | Entry point | O que faz |
+|---|---|---|
+| 👤 **Dev humano** com Claude Code | [`QUICKSTART.md`](./QUICKSTART.md) → [`INSTALL.md`](./INSTALL.md) | Instala em projeto novo ou existente; usa skills/commands no editor |
+| 🤖 **DeepAgent / GPT-5.5** (reviewer autônomo) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) → [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) | Lê manifest, valida princípios, emite relatório mensal |
+| 🛠️ **Mantenedor do Forge** (evoluir o framework) | [`CONTRIBUTING.md`](./CONTRIBUTING.md) → [`CLAUDE.md`](./CLAUDE.md) | Adiciona skills/commands/templates ao framework |
 
 ---
 
 ## O que NÃO é
 
-- ❌ Não é starter kit genérico Claude Code
-- ❌ Não é metodologia de processo (a metodologia já existe nos docs do projeto consumidor)
-- ❌ Não é SDK de agentes (LangGraph cumpre esse papel)
-- ❌ Não é uma plataforma — é um conjunto de **conventions + automations** sobre Claude Code
+- ❌ Não é starter kit genérico Claude Code (existem dezenas)
+- ❌ Não é metodologia de processo (a metodologia vive em quem opera o Forge — ver `examples/acme/`)
+- ❌ Não é SDK de agentes (LangGraph, CrewAI, AutoGen cumprem esse papel)
+- ❌ Não é plataforma — é um conjunto de **conventions + automations** sobre Claude Code
 
 Detalhes em [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md).
+
+---
+
+## Os 8 princípios da Constitution
+
+Versionados em [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md):
+
+1. **C1** — Diagnose-before-design
+2. **C2** — Outcome-first, never tech-first
+3. **C3** — Cost ≤ 25% of price
+4. **C4** — SHADOW antes de cobrar
+5. **C5** — Three-tier context (Strategic / Tactical / Operational)
+6. **C6** — Telemetry-by-default
+7. **C7** — Portability over lock-in
+8. **C8** — Anti-customização heroica
+
+Princípios genéricos. Extensões específicas por domínio vivem em `examples/{domínio}/constitution-extension.md`.
 
 ---
 
@@ -39,80 +73,98 @@ Detalhes em [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md).
 
 | Onda | Status | Entregue |
 |---|---|---|
-| **Forge-0** Fundação | ✅ Concluída | Constitution, settings, manifest, 4 templates, CLAUDE.md template |
-| Forge-1 Skills L0/L1/L2 | ⏳ Próxima | 13 skills Sincra |
+| **Forge-0** Fundação | ✅ Concluída | Constitution, settings, manifest, 9 templates, multi-consumer docs, reviewer enablement, examples/acme |
+| Forge-1 Skills L0/L1/L2 | 🔜 Próxima | 13 skills com path-scoped activation |
 | Forge-2 Slash commands | 🔜 Pendente | 11 commands do pipeline |
-| Forge-3 Subagents Guardian | 🔜 Pendente | 10 guardians + reviewer DeepAgents |
+| Forge-3 Subagents Guardian + Reviewer Implementation | 🔜 Pendente | 10 guardians + DeepAgent reviewer rodando |
 | Forge-4 Hooks runtime | 🔜 Pendente | Governance hooks |
-| Forge-5 Playbooks verticais | 🔜 Pendente | Pós primeiro cliente em AUTONOMOUS |
+| Forge-5 Playbooks verticais | 🔜 Pendente | Pós primeiro caso real em produção |
 
 Roadmap completo em [`docs/forge/roadmap.md`](./docs/forge/roadmap.md).
 
 ---
 
-## Os 8 princípios (Constitution)
+## Estrutura do repositório
 
-Versionados em [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md):
-
-1. **C1** — Diagnose-before-design
-2. **C2** — Outcome-first, never tech-first
-3. **C3** — Custo ≤ 25% do preço
-4. **C4** — SHADOW antes de cobrar
-5. **C5** — Three-tier context (Sincra L0/L1/L2)
-6. **C6** — Telemetry-by-default (Langfuse)
-7. **C7** — Portability over lock-in
-8. **C8** — Anti-customização heroica
-
----
-
-## Como usar em um projeto
-
-Veja [`INSTALL.md`](./INSTALL.md) — instalação manual ou via script (a chegar em Forge-2).
-
-Em resumo:
-
-```bash
-# A partir do diretório do projeto consumidor
-cp -r /path/to/agent-governance-framework/.claude/* ./.claude/
-cp -r /path/to/agent-governance-framework/templates ./
-cp -r /path/to/agent-governance-framework/docs/forge ./docs/
-cp /path/to/agent-governance-framework/CLAUDE.md.template ./CLAUDE.md
-# Adaptar CLAUDE.md ao contexto do projeto
+```
+agent-governance-framework/
+├── README.md                        ← este arquivo
+├── QUICKSTART.md                    ← instalar em 5 min
+├── ARCHITECTURE.md                  ← visão da estrutura e fluxos
+├── INSTALL.md                       ← instalação manual detalhada
+├── CONTRIBUTING.md                  ← como evoluir o framework
+├── DEEPAGENT_GUIDE.md               ← como agent autônomo navega o Forge
+├── GLOSSARY.md                      ← vocabulário compartilhado
+├── CLAUDE.md                        ← meta-doc para devs do framework
+├── CLAUDE.md.template               ← template para projeto consumidor
+├── CHANGELOG.md                     ← histórico de versões
+│
+├── .claude/
+│   ├── CONSTITUTION.md              ← 8 princípios (genéricos)
+│   └── settings.json                ← permissões + hooks (Forge layer)
+│
+├── docs/forge/                      ← documentação interna do framework
+│   ├── README.md                    ← overview
+│   ├── decisions.md                 ← F1-F12 + extensões
+│   ├── roadmap.md                   ← 5 ondas
+│   ├── reviewer-contract.md         ← contrato com reviewer
+│   ├── manifest.json                ← inventory machine-readable
+│   └── out-of-scope.md              ← o que NÃO entra
+│
+├── templates/                       ← templates fundamentais (genéricos)
+│   ├── adr.template.md
+│   ├── platform-sku-spec.template.md
+│   ├── product-spec.template.md
+│   ├── diagnostic-spec.template.md
+│   ├── eval-case.template.md
+│   ├── unit-economics.template.md
+│   ├── lifecycle-stage.template.md
+│   ├── monthly-audit.template.md
+│   └── clickup-blueprint.template.md
+│
+├── reviewer/                        ← enablement do DeepAgent reviewer
+│   ├── prompt.template.md           ← system prompt
+│   ├── output-schema.json           ← JSON schema do relatório
+│   ├── validation-rules.json        ← checks machine-readable
+│   └── example-audit.md             ← exemplo de relatório
+│
+└── examples/                        ← casos de uso reais como referência
+    └── acme/                      ← caso Acme (criadora do Forge)
+        ├── README.md
+        ├── methodology/
+        ├── portfolio.md
+        ├── constitution-extension.md
+        ├── clickup-blueprint.md
+        └── products/
+            ├── acme-fin.md
+            └── acme-educacional.md
 ```
 
-> ⚠️ **Não sobrescreva** `.claude/settings.local.json` do projeto consumidor — ele contém overrides do dev.
-
 ---
 
-## Reviewer externo: DeepAgents / GPT-5.5
+## Como começar
 
-Toda implementação que adota o Forge é auditada mensalmente por um Deep Agent externo (GPT-5.5) que:
+### Sou dev. Quero usar Forge num projeto novo.
 
-- Valida os 8 princípios da Constitution
-- Confere coerência entre `manifest.json` e estado real do repositório
-- Amostra 5–10% dos outcomes de produção e reclassifica
-- Detecta drift (degradação de qualidade ao longo do tempo)
-- Emite relatório `docs/forge/audits/{YYYY-MM-DD}.md`
+```bash
+git clone https://github.com/rafaelnovaes22/agent-governance-framework.git
+cd /caminho/do/seu/projeto
+# segue passos em INSTALL.md
+```
 
-Contrato em [`docs/forge/reviewer-contract.md`](./docs/forge/reviewer-contract.md).
+Consulta também [`QUICKSTART.md`](./QUICKSTART.md) e [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
----
+### Sou DeepAgent. Quero auditar um projeto que usa Forge.
 
-## Documentação
+1. Lê [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) e carrega como system prompt
+2. Recebe `manifest.json` do projeto consumidor como input
+3. Roda os checks definidos em [`reviewer/validation-rules.json`](./reviewer/validation-rules.json)
+4. Emite relatório seguindo [`reviewer/output-schema.json`](./reviewer/output-schema.json)
+5. Detalhe completo em [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md)
 
-| Arquivo | Para quem |
-|---|---|
-| [`README.md`](./README.md) (este) | Visão geral / onboarding |
-| [`INSTALL.md`](./INSTALL.md) | Como instalar em um projeto consumidor |
-| [`CHANGELOG.md`](./CHANGELOG.md) | Histórico de versões |
-| [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md) | Princípios versionados |
-| [`docs/forge/README.md`](./docs/forge/README.md) | Overview interno do framework |
-| [`docs/forge/decisions.md`](./docs/forge/decisions.md) | Decisões F1-F12 |
-| [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) | Roadmap das 5 ondas |
-| [`docs/forge/reviewer-contract.md`](./docs/forge/reviewer-contract.md) | Contrato com reviewer externo |
-| [`docs/forge/manifest.json`](./docs/forge/manifest.json) | Inventory machine-readable |
-| [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md) | O que NÃO entra |
-| [`templates/`](./templates/) | Templates fundamentais (sku-spec, adr, eval-case, unit-economics) |
+### Sou mantenedor. Quero evoluir o Forge.
+
+[`CONTRIBUTING.md`](./CONTRIBUTING.md) descreve o processo (issue → branch → PR → versionamento).
 
 ---
 
@@ -124,28 +176,16 @@ SemVer estrito:
 - **MINOR** — onda Forge concluída (nova capability)
 - **PATCH** — correção de template/doc/hook sem mudar contrato
 
-A versão atual está em `docs/forge/manifest.json` → `framework.version` e em [`CHANGELOG.md`](./CHANGELOG.md).
+Versão atual em [`docs/forge/manifest.json`](./docs/forge/manifest.json) → `framework.version`.
 
 ---
 
-## Contribuição
+## Filosofia em uma frase
 
-Forge é **fechado e versionado**. Mudanças entram via:
-
-1. Issue descrevendo motivação
-2. Branch `forge/{onda}-{slug}`
-3. PR com referência aos princípios afetados
-4. Review humano + (após Forge-3) review do DeepAgents
-5. Bump de versão em `manifest.json` + entrada em `CHANGELOG.md`
+> Cada agente de IA novo em produção herda automaticamente diagnóstico estruturado, spec contratual de outcome, gate de unit economics, threshold de SLA e promoção SHADOW→AUTONOMOUS — com auditoria externa independente por DeepAgent.
 
 ---
 
-## Licença e propriedade
+## Licença
 
-Repositório privado. Propriedade da **Acme / Novais Digital**.
-
----
-
-## Frase-resumo
-
-> O **Acme Forge** transforma a metodologia Acme SaaS² em rails Claude Code-nativos: cada SKU vertical novo herda automaticamente diagnóstico estruturado, spec contratual de outcome, gate de unit economics, threshold de SLA e promoção SHADOW→AUTONOMOUS — com auditoria externa mensal por DeepAgents/GPT-5.5.
+Repositório privado. Propriedade da **Acme / Novais Digital**. Pode ser replicado em projetos terceiros mediante autorização do mantenedor.

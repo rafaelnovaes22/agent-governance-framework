@@ -9,6 +9,81 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.2.0] — 2026-04-30
+
+### Repositioning
+
+**Forge agora é repositório standalone consumível por N projetos** (devs com Claude Code + DeepAgents + outros agentes autônomos), não mais framework embarcado em `acme-governanca-ia`.
+
+### Added (multi-consumer enablement)
+
+- **README.md** reescrito para 3 audiências (dev humano, deep-agent, framework-maintainer)
+- **QUICKSTART.md** — instalar Forge em projeto novo em <5 minutos
+- **ARCHITECTURE.md** — visão estrutural, fluxos, camadas de governança (1-6)
+- **DEEPAGENT_GUIDE.md** — como agente autônomo navega o Forge para auditoria mensal
+- **GLOSSARY.md** — vocabulário compartilhado entre humanos e agentes
+- **CONTRIBUTING.md** — processo de evolução do framework
+
+### Added (templates novos — 5)
+
+- `templates/product-spec.template.md` — produtos self-serve (cliente loga; mensalidade fixa)
+- `templates/diagnostic-spec.template.md` — Diagnóstico/Fase 0 cobrável
+- `templates/lifecycle-stage.template.md` — declaração de stage (Discovery → Sunset) com critérios
+- `templates/monthly-audit.template.md` — output do reviewer DeepAgent
+- `templates/clickup-blueprint.template.md` — estrutura ClickUp aplicando Three-tier (opcional)
+
+### Added (reviewer enablement — pasta `reviewer/`)
+
+- `reviewer/prompt.template.md` — system prompt completo do DeepAgent reviewer
+- `reviewer/output-schema.json` — JSON schema da auditoria mensal (validação machine-readable)
+- `reviewer/validation-rules.json` — checks formais para cada princípio C1-C8
+- `reviewer/example-audit.md` — exemplo sintético de relatório bem-feito (gabarito)
+
+### Added (caso real como exemplo — pasta `examples/acme/`)
+
+- `examples/acme/README.md` — overview do caso Acme
+- `examples/acme/portfolio.md` — 3 categorias formais (Diagnóstico/Plataforma/Produtos)
+- `examples/acme/constitution-extension.md` — princípios C9, C10, C11 específicos Acme (lifecycle, two-track economics, portfolio)
+- `examples/acme/clickup-blueprint.md` — estrutura ClickUp interno Acme
+- `examples/acme/methodology/` — 3 metodologias originais (clássica, SaaS², Sincra)
+- `examples/acme/products/acme-fin.md` — Acme Fin (Beta em produção)
+- `examples/acme/products/acme-educacional.md` — Acme Educacional (Discovery)
+
+### Changed
+
+- **Constitution v0.1.0 → v0.2.0**: princípios C1-C8 desacoplados de Acme específico; vocabulário multi-domínio (Tier 1/2/3 ou L0/L1/L2 ou Strategic/Tactical/Operational); refs Acme hardcoded movidas para `examples/acme/constitution-extension.md`
+- **Manifest enriquecido**: `consumer_types[]`, `principle_extensions_path`, `reviewer.artifacts{}`, `templates[]` expandido para 9, `reviewer_assets[]`, `examples[]`
+- **Decisions F2** atualizado: instalação como projeto-only → repositório standalone consumível externamente
+- **`templates/sku-spec.template.md` → `templates/platform-sku-spec.template.md`**: renomeado para clareza (existem agora 3 tipos de spec: platform-sku, product, diagnostic)
+
+### New decisions registered
+
+- **F13** — Constitution genérica vs Acme-específica (extensões em `examples/`)
+- **F14** — `examples/` como caso real, não conteúdo prescritivo
+- **F15** — SemVer estrito com regras de bump claras
+- **F16** — Distribuição privada por enquanto; reavaliar pós Forge-5
+
+### Constitution principles status
+
+8 princípios genéricos (inalterados em essência, refinados em vocabulário):
+
+- C1 — Diagnose-before-design
+- C2 — Outcome-first, never tech-first
+- C3 — Cost ≤ 25% of price
+- C4 — SHADOW antes de cobrar
+- C5 — Three-tier context
+- C6 — Telemetry-by-default
+- C7 — Portability over lock-in
+- C8 — Anti-customização heroica
+
+Extensões Acme (em `examples/acme/constitution-extension.md`):
+
+- C9 — Lifecycle declarado por produto/SKU
+- C10 — Two-track economics
+- C11 — Portfolio em 3 categorias
+
+---
+
 ## [0.1.0] — 2026-04-30
 
 ### Added (Forge-0 — Fundação)

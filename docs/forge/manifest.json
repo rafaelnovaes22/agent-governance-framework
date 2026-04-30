@@ -1,15 +1,33 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.1.0",
+  "manifest_version": "0.2.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.1.0",
-    "phase": "Forge-0 (in progress)",
+    "version": "0.2.0",
+    "phase": "Forge-0 complete (v0.2.0)",
     "last_updated": "2026-04-30",
-    "constitution_version": "0.1.0",
+    "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
-    "constitution_sha256": "3318375936c7a241",
-    "owner": "Acme Engineering",
+    "constitution_sha256": null,
+    "owner": "Acme / Novais Digital",
+    "license": "private",
+    "consumer_types": [
+      {
+        "type": "human-developer",
+        "entry_point": "QUICKSTART.md",
+        "tooling": "Claude Code IDE"
+      },
+      {
+        "type": "deep-agent",
+        "entry_point": "DEEPAGENT_GUIDE.md",
+        "tooling": "GPT-5.5 via OpenAI SDK (Python deepagents OR Node @langchain/langgraph)"
+      },
+      {
+        "type": "framework-maintainer",
+        "entry_point": "CONTRIBUTING.md",
+        "tooling": "Claude Code IDE + git"
+      }
+    ],
     "reviewer": {
       "type": "deep-agent",
       "model": "gpt-5.5",
@@ -17,143 +35,334 @@
       "frequency": "monthly",
       "contract_path": "docs/forge/reviewer-contract.md",
       "implementation_status": "specified-not-implemented",
-      "implementation_target": "Forge-3"
+      "implementation_target": "Forge-3",
+      "artifacts": {
+        "prompt": "reviewer/prompt.template.md",
+        "output_schema": "reviewer/output-schema.json",
+        "validation_rules": "reviewer/validation-rules.json",
+        "example_audit": "reviewer/example-audit.md"
+      }
     }
   },
   "principles": [
-    {"id": "C1", "name": "Diagnose-before-design", "tier": "all"},
-    {"id": "C2", "name": "Outcome-first, never tech-first", "tier": "all"},
-    {"id": "C3", "name": "Custo ≤ 25% do preço", "tier": "all"},
-    {"id": "C4", "name": "SHADOW antes de cobrar", "tier": "L2"},
-    {"id": "C5", "name": "Three-tier context (Sincra)", "tier": "all"},
-    {"id": "C6", "name": "Telemetry-by-default", "tier": "all"},
-    {"id": "C7", "name": "Portability over lock-in", "tier": "all"},
-    {"id": "C8", "name": "Anti-customização heroica", "tier": "L2"}
+    {"id": "C1", "name": "Diagnose-before-design", "scope": "all-categories"},
+    {"id": "C2", "name": "Outcome-first, never tech-first", "scope": "all-categories"},
+    {"id": "C3", "name": "Cost ≤ 25% of price", "scope": "all-categories", "shadow_exemption": true},
+    {"id": "C4", "name": "SHADOW antes de cobrar", "scope": "platform-skus", "products_alternative": "Beta declared"},
+    {"id": "C5", "name": "Three-tier context", "scope": "all-categories"},
+    {"id": "C6", "name": "Telemetry-by-default", "scope": "all-categories"},
+    {"id": "C7", "name": "Portability over lock-in", "scope": "all-categories", "products_relax": "stack divergente em Beta com plano de migração"},
+    {"id": "C8", "name": "Anti-customização heroica", "scope": "all-categories"}
   ],
+  "principle_extensions_path": "examples/acme/constitution-extension.md",
   "artifacts": {
-    "documentation": [
-      {
-        "id": "forge-readme",
-        "path": "docs/forge/README.md",
-        "type": "documentation",
-        "category": "overview",
-        "version": "0.1.0",
-        "sha256": "c528dcd1a0e1fabe",
-        "owner": "Acme Engineering",
-        "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-        "description": "Overview do framework e ponteiros para todos os outros documentos"
-      },
-      {
-        "id": "forge-decisions",
-        "path": "docs/forge/decisions.md",
-        "type": "documentation",
-        "category": "decisions",
-        "version": "0.1.0",
-        "sha256": "3ecf766be7b05c48",
-        "owner": "CEO + Tech Lead",
-        "linked_principles": [],
-        "description": "Decisões F1-F8 com defaults aprovados e overrides"
-      },
-      {
-        "id": "forge-roadmap",
-        "path": "docs/forge/roadmap.md",
-        "type": "documentation",
-        "category": "planning",
-        "version": "0.1.0",
-        "sha256": "7e112aa3a7a7973d",
-        "owner": "Tech Lead",
-        "linked_principles": [],
-        "description": "Roadmap das 5 ondas Forge-0 a Forge-5 com tasks e critérios de pronto"
-      },
-      {
-        "id": "forge-reviewer-contract",
-        "path": "docs/forge/reviewer-contract.md",
-        "type": "documentation",
-        "category": "contracts",
-        "version": "0.1.0",
-        "sha256": "9dcd73aab76f3be1",
-        "owner": "Tech Lead",
-        "linked_principles": ["C6"],
-        "description": "Contrato formal com reviewer DeepAgents/GPT-5.5"
-      },
-      {
-        "id": "forge-out-of-scope",
-        "path": "docs/forge/out-of-scope.md",
-        "type": "documentation",
-        "category": "scope",
-        "version": "0.1.0",
-        "sha256": "571ceeea1b844220",
-        "owner": "Tech Lead",
-        "linked_principles": [],
-        "description": "O que explicitamente NÃO entra no Forge"
-      },
-      {
-        "id": "forge-manifest",
-        "path": "docs/forge/manifest.json",
-        "type": "manifest",
-        "category": "self",
-        "version": "0.1.0",
-        "sha256": null,
-        "owner": "auto-generated",
-        "linked_principles": ["C6"],
-        "description": "Este arquivo - inventory machine-readable"
-      }
-    ],
+    "documentation": {
+      "core": [
+        {
+          "id": "readme",
+          "path": "README.md",
+          "type": "documentation",
+          "audience": ["human-developer", "deep-agent", "framework-maintainer"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Multi-consumer overview e ponteiros"
+        },
+        {
+          "id": "quickstart",
+          "path": "QUICKSTART.md",
+          "type": "documentation",
+          "audience": ["human-developer"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Instalar Forge em projeto novo em <5 min"
+        },
+        {
+          "id": "architecture",
+          "path": "ARCHITECTURE.md",
+          "type": "documentation",
+          "audience": ["human-developer", "framework-maintainer"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Visão estrutural, fluxos, camadas de governança"
+        },
+        {
+          "id": "install",
+          "path": "INSTALL.md",
+          "type": "documentation",
+          "audience": ["human-developer"],
+          "version": "0.1.0",
+          "sha256": null,
+          "description": "Instalação manual detalhada"
+        },
+        {
+          "id": "contributing",
+          "path": "CONTRIBUTING.md",
+          "type": "documentation",
+          "audience": ["framework-maintainer"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Como evoluir o framework"
+        },
+        {
+          "id": "deepagent-guide",
+          "path": "DEEPAGENT_GUIDE.md",
+          "type": "documentation",
+          "audience": ["deep-agent"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Como agente autônomo navega e audita projetos Forge"
+        },
+        {
+          "id": "glossary",
+          "path": "GLOSSARY.md",
+          "type": "documentation",
+          "audience": ["human-developer", "deep-agent", "framework-maintainer"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Vocabulário compartilhado"
+        },
+        {
+          "id": "claude-md-meta",
+          "path": "CLAUDE.md",
+          "type": "documentation",
+          "audience": ["framework-maintainer"],
+          "version": "0.1.0",
+          "sha256": null,
+          "description": "Meta-doc para devs do framework"
+        },
+        {
+          "id": "claude-md-template",
+          "path": "CLAUDE.md.template",
+          "type": "template",
+          "audience": ["human-developer"],
+          "version": "0.1.0",
+          "sha256": null,
+          "description": "Template para projeto consumidor adaptar como CLAUDE.md raiz"
+        },
+        {
+          "id": "changelog",
+          "path": "CHANGELOG.md",
+          "type": "documentation",
+          "audience": ["all"],
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Histórico de versões"
+        }
+      ],
+      "forge_docs": [
+        {
+          "id": "forge-readme",
+          "path": "docs/forge/README.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+          "description": "Overview interno do framework"
+        },
+        {
+          "id": "forge-decisions",
+          "path": "docs/forge/decisions.md",
+          "type": "documentation",
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "Decisões F1-F16"
+        },
+        {
+          "id": "forge-roadmap",
+          "path": "docs/forge/roadmap.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "description": "Roadmap das 5 ondas"
+        },
+        {
+          "id": "forge-reviewer-contract",
+          "path": "docs/forge/reviewer-contract.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "description": "Contrato formal com reviewer DeepAgent"
+        },
+        {
+          "id": "forge-out-of-scope",
+          "path": "docs/forge/out-of-scope.md",
+          "type": "documentation",
+          "version": "0.2.0",
+          "sha256": null,
+          "description": "O que NÃO entra no Forge"
+        },
+        {
+          "id": "forge-manifest",
+          "path": "docs/forge/manifest.json",
+          "type": "manifest",
+          "version": "0.2.0",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "description": "Este arquivo - inventory machine-readable"
+        }
+      ]
+    },
     "constitution": {
       "id": "constitution",
       "path": ".claude/CONSTITUTION.md",
       "type": "constitution",
-      "version": "0.1.0",
-      "sha256": "3318375936c7a241",
-      "owner": "CEO + Tech Lead",
+      "version": "0.2.0",
+      "sha256": null,
+      "owner": "Mantenedor",
       "approval_required_for_change": true,
-      "description": "8 princípios versionados do Acme Forge"
+      "description": "8 princípios genéricos versionados (C1-C8) — desacoplados de Acme específico"
     },
     "settings": {
       "id": "claude-settings",
       "path": ".claude/settings.json",
       "type": "settings",
       "version": "0.1.0",
-      "sha256": "57af93efa0def49a",
-      "owner": "Tech Lead",
+      "sha256": null,
       "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev)"
     },
     "templates": [
       {
-        "id": "template-sku-spec",
-        "path": "templates/sku-spec.template.md",
+        "id": "template-platform-sku-spec",
+        "path": "templates/platform-sku-spec.template.md",
         "type": "template",
-        "version": "0.1.0",
-        "sha256": "bbae0054ae6fa6d5",
-        "linked_principles": ["C2"],
-        "description": "Template de spec do SKU consolidando D1+D2 da Onda 0"
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2", "C3", "C4"],
+        "use_case": "platform-sku",
+        "description": "Spec de SKU vertical em plataforma high-touch (cliente não loga, entrega async). Renomeado de sku-spec na v0.2.0."
+      },
+      {
+        "id": "template-product-spec",
+        "path": "templates/product-spec.template.md",
+        "type": "template",
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2", "C3", "C8"],
+        "use_case": "self-serve-product",
+        "description": "Spec de produto self-serve (cliente loga, mensalidade fixa) — Acme Fin, Acme Educacional, etc."
+      },
+      {
+        "id": "template-diagnostic-spec",
+        "path": "templates/diagnostic-spec.template.md",
+        "type": "template",
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2"],
+        "use_case": "diagnostic-fase-0",
+        "description": "Spec de Diagnóstico/Fase 0 cobrável"
       },
       {
         "id": "template-adr",
         "path": "templates/adr.template.md",
         "type": "template",
         "version": "0.1.0",
-        "sha256": "5e2b540c6c786091",
+        "sha256": null,
         "linked_principles": ["C7"],
-        "description": "Template de ADR (Architecture Decision Record)"
+        "description": "Architecture Decision Record"
       },
       {
         "id": "template-eval-case",
         "path": "templates/eval-case.template.md",
         "type": "template",
         "version": "0.1.0",
-        "sha256": "b9a98d6a2f027917",
+        "sha256": null,
         "linked_principles": ["C4"],
-        "description": "Template de caso de eval suite por SKU"
+        "description": "Caso de eval suite por SKU/produto"
       },
       {
         "id": "template-unit-economics",
         "path": "templates/unit-economics.template.md",
         "type": "template",
         "version": "0.1.0",
-        "sha256": "6c625d50f9641ffb",
+        "sha256": null,
         "linked_principles": ["C3"],
-        "description": "Template de unit economics consolidando D5"
+        "description": "Validação de unit economics (regra C3)"
+      },
+      {
+        "id": "template-lifecycle-stage",
+        "path": "templates/lifecycle-stage.template.md",
+        "type": "template",
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": [],
+        "description": "Declaração de stage atual (Discovery → MVP → Beta → GA → Maturity → Sunset) com critérios de promoção"
+      },
+      {
+        "id": "template-monthly-audit",
+        "path": "templates/monthly-audit.template.md",
+        "type": "template",
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+        "description": "Output do reviewer DeepAgent — relatório mensal de auditoria"
+      },
+      {
+        "id": "template-clickup-blueprint",
+        "path": "templates/clickup-blueprint.template.md",
+        "type": "template",
+        "version": "0.2.0",
+        "sha256": null,
+        "linked_principles": ["C5"],
+        "description": "Estrutura ClickUp aplicando Three-tier (Sincra) — opcional"
+      }
+    ],
+    "reviewer_assets": [
+      {
+        "id": "reviewer-prompt",
+        "path": "reviewer/prompt.template.md",
+        "type": "reviewer-asset",
+        "version": "0.2.0",
+        "sha256": null,
+        "audience": ["deep-agent"],
+        "description": "System prompt para DeepAgent reviewer"
+      },
+      {
+        "id": "reviewer-output-schema",
+        "path": "reviewer/output-schema.json",
+        "type": "reviewer-asset",
+        "version": "0.2.0",
+        "sha256": null,
+        "audience": ["deep-agent"],
+        "description": "JSON schema do output da auditoria mensal"
+      },
+      {
+        "id": "reviewer-validation-rules",
+        "path": "reviewer/validation-rules.json",
+        "type": "reviewer-asset",
+        "version": "0.2.0",
+        "sha256": null,
+        "audience": ["deep-agent"],
+        "description": "Validation rules machine-readable para os 8 princípios"
+      },
+      {
+        "id": "reviewer-example-audit",
+        "path": "reviewer/example-audit.md",
+        "type": "reviewer-asset",
+        "version": "0.2.0",
+        "sha256": null,
+        "audience": ["deep-agent", "framework-maintainer"],
+        "description": "Exemplo sintético de output bem-feito"
+      }
+    ],
+    "examples": [
+      {
+        "id": "example-acme",
+        "path": "examples/acme/",
+        "type": "example",
+        "version": "0.1.0",
+        "description": "Caso Acme — projeto que originou o Forge",
+        "subartifacts": [
+          {"path": "examples/acme/README.md", "description": "Overview do caso"},
+          {"path": "examples/acme/portfolio.md", "description": "Portfolio em 3 categorias (Diagnóstico/Plataforma/Produtos)"},
+          {"path": "examples/acme/constitution-extension.md", "description": "C9, C10, C11 específicas Acme"},
+          {"path": "examples/acme/clickup-blueprint.md", "description": "ClickUp interno Acme"},
+          {"path": "examples/acme/methodology/metodologia.md", "description": "Metodologia Acme clássica"},
+          {"path": "examples/acme/methodology/metodologia_acme.md", "description": "Metodologia Acme SaaS²"},
+          {"path": "examples/acme/methodology/metodologia_sincra.md", "description": "Metodologia Sincra (origem do C5)"},
+          {"path": "examples/acme/products/acme-fin.md", "description": "Spec do Acme Fin (Beta em produção)"},
+          {"path": "examples/acme/products/acme-educacional.md", "description": "Acme Educacional (Discovery)"}
+        ]
       }
     ],
     "skills": {
@@ -170,36 +379,8 @@
     },
     "hooks": {
       "_status": "Forge-4 not started"
-    },
-    "audits": {
-      "_status": "First audit after Forge-3 complete"
     }
   },
-  "linked_methodology_docs": [
-    {
-      "path": "docs/metodologia.md",
-      "description": "Metodologia Acme clássica (4 fases por engajamento)"
-    },
-    {
-      "path": "docs/metodologia_acme.md",
-      "description": "Metodologia Acme SaaS² (5 fases - referência primária do Forge)"
-    },
-    {
-      "path": "docs/metodologia_sincra.md",
-      "description": "Metodologia Sincra (camadas L0/L1/L2, entidades, artefatos)"
-    }
-  ],
-  "linked_onda_artifacts": [
-    {"path": "docs/adr/001-stack-saas2.md", "wave": "Onda 0", "status": "proposed"},
-    {"path": "docs/onda-0/README.md", "wave": "Onda 0"},
-    {"path": "docs/onda-0/sku_piloto.md", "wave": "Onda 0", "decision_id": "D1+D2"},
-    {"path": "docs/onda-0/unit_economics.md", "wave": "Onda 0", "decision_id": "D5"},
-    {"path": "docs/onda-0/sla_threshold.md", "wave": "Onda 0", "decision_id": "D6"},
-    {"path": "docs/onda-0/diagnostico_fase0.md", "wave": "Onda 0", "decision_id": "D7"},
-    {"path": "docs/onda-0/sunset_pmo.md", "wave": "Onda 0", "decision_id": "D3"},
-    {"path": "docs/onda-0/decisoes_default_tecnicas.md", "wave": "Onda 0"},
-    {"path": "docs/demo_saas2.md", "wave": "Onda 2", "description": "Demo SHADOW end-to-end"}
-  ],
   "external_repos_absorbed": [
     {"repo": "github/spec-kit", "absorbed": ["Constitution pattern", "Pipeline /diagnose → /promote"]},
     {"repo": "vbomfim/sdlc-guardian-agents", "absorbed": ["Spec template structure", "5 quality gates", "Guardian roles"]},
@@ -214,24 +395,18 @@
   ],
   "external_repos_excluded": [
     {"repo": "rohitg00/awesome-claude-code-toolkit", "reason": "meta-list, redundant"},
-    {"repo": "feiskyer/claude-code-settings (multi-provider)", "reason": "ADR 001 fixes Claude primary"},
-    {"repo": "lc-spec-driven", "reason": "repo not found - awaiting CEO confirmation of correct name"}
+    {"repo": "feiskyer/claude-code-settings (multi-provider)", "reason": "ADR 001 fixes Claude primary; OpenAI usado apenas para reviewer DeepAgent"},
+    {"repo": "lc-spec-driven", "reason": "repo not found - awaiting confirmation of correct name"}
   ],
-  "checks_for_reviewer": {
-    "C1_diagnose_before_design": "For every SKU in production, verify docs/onda-0/sku_piloto.md approved AND diagnostic.md exists",
-    "C2_outcome_first": "Every spec must start with 'Cláusula contratual de outcome' (D2.1-D2.5)",
-    "C3_cost_25_percent": "Per SKU: unit_economics.md cost_per_outcome / price_per_outcome ≤ 0.25; cross-check Langfuse 30d",
-    "C4_shadow_before_billing": "Subscription mode change SHADOW→ASSISTED requires eval pass + min outcomes (D6.4)",
-    "C5_three_tier_context": "Every skill in .claude/skills/ declares tier: L0|L1|L2 in frontmatter",
-    "C6_telemetry_by_default": "Every LLM call in src/agents/** must have Langfuse trace (lint regex)",
-    "C7_portability": "No SKU couples to specific model details outside src/llm/",
-    "C8_anti_customization": "Client N of same SKU has no dedicated branch in src/skus/{sku}/"
-  },
+  "checks_for_reviewer_summary": "Detalhe completo em reviewer/validation-rules.json. Reviewer deve carregar esse arquivo como input primário de checks.",
   "_meta": {
     "manifest_generator": "manual (will become hook manifest-sync in Forge-4)",
     "next_update": "after each Forge-X wave completion",
     "validation_schema_url": "https://acme.com.br/forge/manifest-v1.json (to be published in Forge-5)",
     "sha256_truncation": "first 16 hex chars of SHA-256; reviewer should recompute full hash for integrity check",
-    "sha256_method": "sha256sum on file bytes (LF line endings); cross-platform note: Windows CRLF may produce different hashes — normalize to LF for stable hashes"
+    "sha256_method": "sha256sum on file bytes (LF line endings); cross-platform note: Windows CRLF may produce different hashes — normalize to LF for stable hashes",
+    "version_bumps": {
+      "0.1.0_to_0.2.0": "Repositioning as standalone framework consumable by external projects + DeepAgents. Constitution generalized; templates expanded from 4 to 9; reviewer/ folder added; examples/acme/ added."
+    }
   }
 }
