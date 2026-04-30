@@ -1,0 +1,237 @@
+{
+  "$schema": "https://acme.com.br/forge/manifest-v1.json",
+  "manifest_version": "0.1.0",
+  "framework": {
+    "name": "Acme Forge",
+    "version": "0.1.0",
+    "phase": "Forge-0 (in progress)",
+    "last_updated": "2026-04-30",
+    "constitution_version": "0.1.0",
+    "constitution_path": ".claude/CONSTITUTION.md",
+    "constitution_sha256": "3318375936c7a241",
+    "owner": "Acme Engineering",
+    "reviewer": {
+      "type": "deep-agent",
+      "model": "gpt-5.5",
+      "provider": "openai",
+      "frequency": "monthly",
+      "contract_path": "docs/forge/reviewer-contract.md",
+      "implementation_status": "specified-not-implemented",
+      "implementation_target": "Forge-3"
+    }
+  },
+  "principles": [
+    {"id": "C1", "name": "Diagnose-before-design", "tier": "all"},
+    {"id": "C2", "name": "Outcome-first, never tech-first", "tier": "all"},
+    {"id": "C3", "name": "Custo ≤ 25% do preço", "tier": "all"},
+    {"id": "C4", "name": "SHADOW antes de cobrar", "tier": "L2"},
+    {"id": "C5", "name": "Three-tier context (Sincra)", "tier": "all"},
+    {"id": "C6", "name": "Telemetry-by-default", "tier": "all"},
+    {"id": "C7", "name": "Portability over lock-in", "tier": "all"},
+    {"id": "C8", "name": "Anti-customização heroica", "tier": "L2"}
+  ],
+  "artifacts": {
+    "documentation": [
+      {
+        "id": "forge-readme",
+        "path": "docs/forge/README.md",
+        "type": "documentation",
+        "category": "overview",
+        "version": "0.1.0",
+        "sha256": "c528dcd1a0e1fabe",
+        "owner": "Acme Engineering",
+        "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+        "description": "Overview do framework e ponteiros para todos os outros documentos"
+      },
+      {
+        "id": "forge-decisions",
+        "path": "docs/forge/decisions.md",
+        "type": "documentation",
+        "category": "decisions",
+        "version": "0.1.0",
+        "sha256": "3ecf766be7b05c48",
+        "owner": "CEO + Tech Lead",
+        "linked_principles": [],
+        "description": "Decisões F1-F8 com defaults aprovados e overrides"
+      },
+      {
+        "id": "forge-roadmap",
+        "path": "docs/forge/roadmap.md",
+        "type": "documentation",
+        "category": "planning",
+        "version": "0.1.0",
+        "sha256": "7e112aa3a7a7973d",
+        "owner": "Tech Lead",
+        "linked_principles": [],
+        "description": "Roadmap das 5 ondas Forge-0 a Forge-5 com tasks e critérios de pronto"
+      },
+      {
+        "id": "forge-reviewer-contract",
+        "path": "docs/forge/reviewer-contract.md",
+        "type": "documentation",
+        "category": "contracts",
+        "version": "0.1.0",
+        "sha256": "9dcd73aab76f3be1",
+        "owner": "Tech Lead",
+        "linked_principles": ["C6"],
+        "description": "Contrato formal com reviewer DeepAgents/GPT-5.5"
+      },
+      {
+        "id": "forge-out-of-scope",
+        "path": "docs/forge/out-of-scope.md",
+        "type": "documentation",
+        "category": "scope",
+        "version": "0.1.0",
+        "sha256": "571ceeea1b844220",
+        "owner": "Tech Lead",
+        "linked_principles": [],
+        "description": "O que explicitamente NÃO entra no Forge"
+      },
+      {
+        "id": "forge-manifest",
+        "path": "docs/forge/manifest.json",
+        "type": "manifest",
+        "category": "self",
+        "version": "0.1.0",
+        "sha256": null,
+        "owner": "auto-generated",
+        "linked_principles": ["C6"],
+        "description": "Este arquivo - inventory machine-readable"
+      }
+    ],
+    "constitution": {
+      "id": "constitution",
+      "path": ".claude/CONSTITUTION.md",
+      "type": "constitution",
+      "version": "0.1.0",
+      "sha256": "3318375936c7a241",
+      "owner": "CEO + Tech Lead",
+      "approval_required_for_change": true,
+      "description": "8 princípios versionados do Acme Forge"
+    },
+    "settings": {
+      "id": "claude-settings",
+      "path": ".claude/settings.json",
+      "type": "settings",
+      "version": "0.1.0",
+      "sha256": "57af93efa0def49a",
+      "owner": "Tech Lead",
+      "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev)"
+    },
+    "templates": [
+      {
+        "id": "template-sku-spec",
+        "path": "templates/sku-spec.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": "bbae0054ae6fa6d5",
+        "linked_principles": ["C2"],
+        "description": "Template de spec do SKU consolidando D1+D2 da Onda 0"
+      },
+      {
+        "id": "template-adr",
+        "path": "templates/adr.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": "5e2b540c6c786091",
+        "linked_principles": ["C7"],
+        "description": "Template de ADR (Architecture Decision Record)"
+      },
+      {
+        "id": "template-eval-case",
+        "path": "templates/eval-case.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": "b9a98d6a2f027917",
+        "linked_principles": ["C4"],
+        "description": "Template de caso de eval suite por SKU"
+      },
+      {
+        "id": "template-unit-economics",
+        "path": "templates/unit-economics.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": "6c625d50f9641ffb",
+        "linked_principles": ["C3"],
+        "description": "Template de unit economics consolidando D5"
+      }
+    ],
+    "skills": {
+      "L0": [],
+      "L1": [],
+      "L2": [],
+      "_status": "Forge-1 not started"
+    },
+    "agents": {
+      "_status": "Forge-3 not started"
+    },
+    "commands": {
+      "_status": "Forge-2 not started"
+    },
+    "hooks": {
+      "_status": "Forge-4 not started"
+    },
+    "audits": {
+      "_status": "First audit after Forge-3 complete"
+    }
+  },
+  "linked_methodology_docs": [
+    {
+      "path": "docs/metodologia.md",
+      "description": "Metodologia Acme clássica (4 fases por engajamento)"
+    },
+    {
+      "path": "docs/metodologia_acme.md",
+      "description": "Metodologia Acme SaaS² (5 fases - referência primária do Forge)"
+    },
+    {
+      "path": "docs/metodologia_sincra.md",
+      "description": "Metodologia Sincra (camadas L0/L1/L2, entidades, artefatos)"
+    }
+  ],
+  "linked_onda_artifacts": [
+    {"path": "docs/adr/001-stack-saas2.md", "wave": "Onda 0", "status": "proposed"},
+    {"path": "docs/onda-0/README.md", "wave": "Onda 0"},
+    {"path": "docs/onda-0/sku_piloto.md", "wave": "Onda 0", "decision_id": "D1+D2"},
+    {"path": "docs/onda-0/unit_economics.md", "wave": "Onda 0", "decision_id": "D5"},
+    {"path": "docs/onda-0/sla_threshold.md", "wave": "Onda 0", "decision_id": "D6"},
+    {"path": "docs/onda-0/diagnostico_fase0.md", "wave": "Onda 0", "decision_id": "D7"},
+    {"path": "docs/onda-0/sunset_pmo.md", "wave": "Onda 0", "decision_id": "D3"},
+    {"path": "docs/onda-0/decisoes_default_tecnicas.md", "wave": "Onda 0"},
+    {"path": "docs/demo_saas2.md", "wave": "Onda 2", "description": "Demo SHADOW end-to-end"}
+  ],
+  "external_repos_absorbed": [
+    {"repo": "github/spec-kit", "absorbed": ["Constitution pattern", "Pipeline /diagnose → /promote"]},
+    {"repo": "vbomfim/sdlc-guardian-agents", "absorbed": ["Spec template structure", "5 quality gates", "Guardian roles"]},
+    {"repo": "addyosmani/agent-skills", "absorbed": ["Anti-rationalization tables", "Verification gates"]},
+    {"repo": "aj-geddes/claude-code-bmad-skills", "absorbed": ["Helper pattern (token reduction in L0 only)"]},
+    {"repo": "carlrannaberg/claudekit", "absorbed": ["File-guard hook", "Secret scan", "Bash deny list"]},
+    {"repo": "peterkrueck/Claude-Code-Development-Kit", "absorbed": ["Documental structure", "Cross-LLM review pattern"]},
+    {"repo": "VoltAgent/awesome-claude-code-subagents", "absorbed": ["Smart model routing Opus/Sonnet/Haiku"]},
+    {"repo": "anthropics/skills", "absorbed": ["Skill format reference (frontmatter)"]},
+    {"repo": "giuseppe-trisciuoglio/developer-kit", "absorbed": ["Path-scoped auto-activation"]},
+    {"repo": "alirezarezvani/claude-skills", "absorbed": ["Skill security auditor pattern"]}
+  ],
+  "external_repos_excluded": [
+    {"repo": "rohitg00/awesome-claude-code-toolkit", "reason": "meta-list, redundant"},
+    {"repo": "feiskyer/claude-code-settings (multi-provider)", "reason": "ADR 001 fixes Claude primary"},
+    {"repo": "lc-spec-driven", "reason": "repo not found - awaiting CEO confirmation of correct name"}
+  ],
+  "checks_for_reviewer": {
+    "C1_diagnose_before_design": "For every SKU in production, verify docs/onda-0/sku_piloto.md approved AND diagnostic.md exists",
+    "C2_outcome_first": "Every spec must start with 'Cláusula contratual de outcome' (D2.1-D2.5)",
+    "C3_cost_25_percent": "Per SKU: unit_economics.md cost_per_outcome / price_per_outcome ≤ 0.25; cross-check Langfuse 30d",
+    "C4_shadow_before_billing": "Subscription mode change SHADOW→ASSISTED requires eval pass + min outcomes (D6.4)",
+    "C5_three_tier_context": "Every skill in .claude/skills/ declares tier: L0|L1|L2 in frontmatter",
+    "C6_telemetry_by_default": "Every LLM call in src/agents/** must have Langfuse trace (lint regex)",
+    "C7_portability": "No SKU couples to specific model details outside src/llm/",
+    "C8_anti_customization": "Client N of same SKU has no dedicated branch in src/skus/{sku}/"
+  },
+  "_meta": {
+    "manifest_generator": "manual (will become hook manifest-sync in Forge-4)",
+    "next_update": "after each Forge-X wave completion",
+    "validation_schema_url": "https://acme.com.br/forge/manifest-v1.json (to be published in Forge-5)",
+    "sha256_truncation": "first 16 hex chars of SHA-256; reviewer should recompute full hash for integrity check",
+    "sha256_method": "sha256sum on file bytes (LF line endings); cross-platform note: Windows CRLF may produce different hashes — normalize to LF for stable hashes"
+  }
+}

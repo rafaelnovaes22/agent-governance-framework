@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "Acme Forge layer (versioned). Per-developer overrides go in settings.local.json (gitignored).",
+  "_forge_version": "0.1.0",
+  "_constitution_version": "0.1.0",
+  "permissions": {
+    "allow": [
+      "Bash(npm install*)",
+      "Bash(npm run dev*)",
+      "Bash(npm run build*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run format*)",
+      "Bash(npm run test*)",
+      "Bash(npm run test:watch*)",
+      "Bash(npm run test:coverage*)",
+      "Bash(npm run db:generate*)",
+      "Bash(npm run db:migrate*)",
+      "Bash(npm run db:push*)",
+      "Bash(npm run db:studio*)",
+      "Bash(npm run seed:*)",
+      "Bash(npm run demo:*)",
+      "Bash(npx prisma*)",
+      "Bash(npx tsc*)",
+      "Bash(npx tsx*)",
+      "Bash(npx vitest*)",
+      "Bash(docker compose*)",
+      "Bash(docker ps*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(curl http://localhost:*)",
+      "Bash(redis-cli -p 6380*)",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm --recursive --force*)",
+      "Bash(npm publish*)",
+      "Bash(prisma migrate reset --force*)",
+      "Bash(npx prisma migrate reset --force*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(docker system prune*)",
+      "Bash(docker volume rm*)"
+    ]
+  },
+  "hooks": {
+    "_comment": "Hook stubs for Forge-4. PreToolUse/PostToolUse/PreCommit are placeholders documenting intent; concrete commands wired in Forge-4.",
+    "PreToolUse": [
+      {
+        "_id": "outcome-clause-guard",
+        "_status": "planned-forge-4",
+        "_purpose": "Block edits to docs/onda-*/sku_piloto.md sections D2.1-D2.5 if marked approved",
+        "matcher": "Edit|Write",
+        "hooks": []
+      },
+      {
+        "_id": "adr-approval-gate",
+        "_status": "planned-forge-4",
+        "_purpose": "Block edits to signed ADRs without --ceo-approved flag",
+        "matcher": "Edit|Write",
+        "hooks": []
+      },
+      {
+        "_id": "secret-scan",
+        "_status": "planned-forge-4",
+        "_purpose": "Detect ANTHROPIC_API_KEY / OPENAI_API_KEY / DATABASE_URL leakage in edits",
+        "matcher": "Edit|Write",
+        "hooks": []
+      },
+      {
+        "_id": "any-type-guard",
+        "_status": "planned-forge-4",
+        "_purpose": "Block 'any' types in src/skus/** and src/agents/**",
+        "matcher": "Edit|Write",
+        "hooks": []
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_id": "langfuse-trace-check",
+        "_status": "planned-forge-4",
+        "_purpose": "Lint regex in src/agents/** edits ensures Langfuse trace call",
+        "matcher": "Edit|Write",
+        "hooks": []
+      },
+      {
+        "_id": "unit-economics-recalc",
+        "_status": "planned-forge-4",
+        "_purpose": "Detect prompt changes in src/skus/*/prompts/* and trigger /acme:unit-economics recalc",
+        "matcher": "Edit|Write",
+        "hooks": []
+      },
+      {
+        "_id": "manifest-sync",
+        "_status": "planned-forge-4",
+        "_purpose": "Auto-update docs/forge/manifest.json when .claude/, docs/forge/, src/skus/, evals/, or templates/ change",
+        "matcher": "Edit|Write",
+        "hooks": []
+      }
+    ],
+    "Stop": [
+      {
+        "_id": "five-gates-summary",
+        "_status": "planned-forge-4",
+        "_purpose": "On session end, generate report of which Forge gates pass on current branch",
+        "hooks": []
+      }
+    ]
+  },
+  "_planned_features": {
+    "skills_path": ".claude/skills/{L0,L1,L2}/",
+    "agents_path": ".claude/agents/",
+    "commands_path": ".claude/commands/acme/",
+    "bypass_env_var": "ACME_FORGE_BYPASS",
+    "bypass_log_path": "docs/forge/bypass-log/"
+  }
+}

@@ -1,0 +1,234 @@
+# Acme Forge — Roadmap
+
+> **Status**: ✅ Forge-0 em execução (2026-04-30)
+> **Total estimado**: 15–22 dias úteis (paralelo às ondas Acme)
+> **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
+
+---
+
+## Visão geral das 5 ondas
+
+| Onda | Foco | Estimativa | Bloqueia |
+|---|---|---|---|
+| **Forge-0** | Fundação (constitution, settings, templates, manifest) | 2–3 dias | Forge-1 |
+| **Forge-1** | Skills L0/L1/L2 (Sincra) | 3–5 dias | Forge-2 |
+| **Forge-2** | Slash commands do pipeline | 3–5 dias | Forge-3 |
+| **Forge-3** | Subagents Guardian + reviewer DeepAgents | 4–6 dias | Forge-4 |
+| **Forge-4** | Hooks runtime e governança | 3–5 dias | Operação |
+| **Forge-5** | Playbooks verticais (contínuo, pós cliente 1) | — | — |
+
+---
+
+## Forge-0 — Fundação (2–3 dias)
+
+**Objetivo**: o Claude Code abre o projeto e os 8 princípios entram automaticamente no contexto.
+
+### Tasks
+
+- [x] **F0.1** Criar `docs/forge/README.md` (overview)
+- [x] **F0.2** Criar `docs/forge/decisions.md` (F1-F8 com defaults aprovados)
+- [x] **F0.3** Criar `docs/forge/roadmap.md` (este arquivo)
+- [ ] **F0.4** Criar `docs/forge/reviewer-contract.md` (contrato DeepAgents/GPT-5.5)
+- [ ] **F0.5** Criar `docs/forge/manifest.json` (inventory machine-readable)
+- [ ] **F0.6** Criar `docs/forge/out-of-scope.md`
+- [ ] **F0.7** Criar `.claude/CONSTITUTION.md` (8 princípios versionados)
+- [ ] **F0.8** Criar `.claude/settings.json` (hooks placeholders + allow list)
+- [ ] **F0.9** Criar `templates/sku-spec.template.md` (consolida D1+D2)
+- [ ] **F0.10** Criar `templates/adr.template.md`
+- [ ] **F0.11** Criar `templates/eval-case.template.md`
+- [ ] **F0.12** Criar `templates/unit-economics.template.md` (consolida D5)
+- [ ] **F0.13** Criar `CLAUDE.md` raiz (entry point — aponta para CONSTITUTION e manifest)
+
+### Critério de pronto
+
+- ✅ `manifest.json` lista todos os artefatos Forge-0 com paths, hashes e descrições
+- ✅ `CLAUDE.md` raiz referencia `CONSTITUTION.md` e os 8 princípios entram no contexto inicial
+- ✅ DeepAgents/GPT-5.5 (mock — humano simulando) consegue navegar manifest e responder "qual o princípio nº 3?"
+- ✅ Templates D1, D5 da Onda 0 podem ser regenerados a partir dos templates do Forge
+
+---
+
+## Forge-1 — Skills L0/L1/L2 (3–5 dias)
+
+**Objetivo**: `/acme:diagnose` em projeto novo gera relatório Fase 0 estruturado em <10 min.
+
+### Tasks
+
+- [ ] **F1.1** Skills L0 (estratégico):
+  - `company-dna.md` — lê DNA do tenant
+  - `icp-loader.md` — lê ICP cacheado
+  - `offerings-loader.md` — lê catálogo de ofertas
+- [ ] **F1.2** Skills L1 (tático):
+  - `tenant-onboarding.md` — provisiona TenantContext novo
+  - `baseline-cost-builder.md` — calcula `BaselineCost` do cliente
+  - `diagnostic-runner.md` — executa roteiro D7.5 (sessão 90 min CEO)
+  - `process-mapper.md` — mapeia processo as-is em formato agent-ready
+- [ ] **F1.3** Skills L2 (operacional):
+  - `sku-prompt-builder.md` — constrói system prompt do SKU
+  - `eval-case-author.md` — gera casos de eval a partir de inputs reais
+  - `shadow-mode-runner.md` — coordena modo SHADOW
+  - `outcome-classifier.md` — classifica outcome em categoria + confidence
+  - `billing-calculator.md` — calcula receita variável + cap
+  - `flywheel-collector.md` — coleta `OutcomeFlywheelData` (par humano/agente)
+- [ ] **F1.4** Cada skill com:
+  - Frontmatter padrão Anthropic (name, description, activation)
+  - Tabela anti-rationalization (Addy Osmani)
+  - Verification gates ("o que conta como pronto")
+  - Path-scoped auto-activation rules
+- [ ] **F1.5** Helper pattern BMAD em L0 (cache de DNA/ICP)
+
+### Critério de pronto
+
+- ✅ Skills carregam por path correto (path-scoped)
+- ✅ `diagnostic-runner` em sessão simulada produz relatório Fase 0 em formato D7
+- ✅ L0 com helper pattern reduz tokens de prompts L2 em ≥70% (medido via Langfuse)
+- ✅ Manifest atualizado com 13 skills
+
+---
+
+## Forge-2 — Slash commands (3–5 dias)
+
+**Objetivo**: pipeline completo roda do `/diagnose` ao `/promote` em SKU exemplo (`example-triagem-whatsapp`).
+
+### Tasks
+
+- [ ] **F2.1** Comandos de spec/economics:
+  - `/acme:diagnose` — Fase 0 completa
+  - `/acme:spec-sku` — gera spec D1+D2
+  - `/acme:unit-economics` — preenche D5
+  - `/acme:sla-threshold` — preenche D6
+- [ ] **F2.2** Comandos de implementação:
+  - `/acme:plan` — plano técnico
+  - `/acme:tasks` — quebra em tasks
+  - `/acme:implement` — execução guiada
+- [ ] **F2.3** Comandos de validação:
+  - `/acme:eval` — roda eval suite
+  - `/acme:promote` — promove modo (SHADOW→ASSISTED→AUTONOMOUS)
+  - `/acme:audit-monthly` — auditoria 5-10%
+  - `/acme:pre-merge-check` — consolida 5 gates
+- [ ] **F2.4** Cada command com:
+  - Verification gate explícito (não-negociável)
+  - Output structured (markdown ou JSON conforme aplicável)
+  - Logs Langfuse (mesmo para uso manual)
+
+### Critério de pronto
+
+- ✅ Pipeline `/diagnose → /spec → /economics → /sla → /plan → /tasks → /implement → /eval → /promote` roda end-to-end no SKU exemplo
+- ✅ Cada gate produz artefato persistido em `docs/onda-X/` ou `evals/{sku}/`
+- ✅ Manifest atualizado com 11 commands
+
+---
+
+## Forge-3 — Subagents Guardian + Reviewer (4–6 dias)
+
+**Objetivo**: PO Guardian recebe pedido genérico do CEO ("queremos automatizar follow-up") e devolve spec D1+D2 em formato de cláusula contratual em 1 sessão. Reviewer DeepAgents valida tudo.
+
+### Tasks
+
+- [ ] **F3.1** 8 Guardians principais:
+  - `po-guardian.md` (Opus)
+  - `sku-architect.md` (Opus)
+  - `unit-economist.md` (Opus)
+  - `eval-engineer.md` (Sonnet)
+  - `tenant-context-curator.md` (Sonnet)
+  - `observability-guardian.md` (Sonnet)
+  - `promotion-officer.md` (Opus)
+  - `security-privacy-guardian.md` (Sonnet)
+- [ ] **F3.2** 2 Cross-LLM reviewers:
+  - `code-reviewer-claude.md` (Sonnet)
+  - `code-reviewer-cross.md` (delega ao DeepAgents/GPT-5.5)
+- [ ] **F3.3** **ADR-002**: stack do reviewer DeepAgents
+  - Decidir Python `deepagents` vs Node/TS `@langchain/langgraph`
+  - Decidir provedor (OpenAI direto vs OpenRouter)
+  - Decidir local de execução (CI? script local? worker BullMQ?)
+- [ ] **F3.4** Implementar Deep Agent reviewer:
+  - Lê `manifest.json`
+  - Valida cada artefato contra Constitution
+  - Emite relatório `docs/forge/audits/{YYYY-MM-DD}.md`
+- [ ] **F3.5** Smart model routing configurado em cada agent
+
+### Critério de pronto
+
+- ✅ PO Guardian em sessão simulada produz spec D1+D2 completo
+- ✅ Reviewer DeepAgents executa primeira auditoria mensal de teste e gera relatório
+- ✅ ADR-002 assinada
+- ✅ Manifest atualizado com 10 agents
+
+---
+
+## Forge-4 — Hooks runtime (3–5 dias)
+
+**Objetivo**: tentar editar `docs/adr/001-stack-saas2.md` sem flag `--ceo-approved` é bloqueado pelo hook.
+
+### Tasks
+
+- [ ] **F4.1** Hooks PreToolUse:
+  - `outcome-clause-guard` (bloqueia edição de D2 aprovado)
+  - `adr-approval-gate` (bloqueia edição de ADRs assinadas)
+  - `secret-scan` (de claudekit)
+  - `any-type-guard` (bloqueia `any` em `src/skus/**`)
+- [ ] **F4.2** Hooks PostToolUse:
+  - `langfuse-trace-check` (lint regex em chamadas LLM)
+  - `unit-economics-recalc` (detecta mudança de prompts e dispara recalc)
+- [ ] **F4.3** Hooks PreCommit:
+  - `5-gates-summary` (relatório de gates do branch)
+  - `eval-suite-fresh` (bloqueia se evals/{sku}/cases/ <30)
+  - `manifest-sync` (atualiza `manifest.json` automaticamente)
+- [ ] **F4.4** Permissions deny list (rm -rf, prisma reset --force, npm publish)
+- [ ] **F4.5** Skill security auditor (escaneia skills antes de aceitar PR)
+- [ ] **F4.6** Bypass auditado: `ACME_FORGE_BYPASS=incident` em `settings.local.json`
+
+### Critério de pronto
+
+- ✅ Tentativa de edição protegida sem flag é bloqueada
+- ✅ Bypass auditado deixa rastro em `docs/forge/bypass-log/`
+- ✅ Manifest sync hook atualiza `manifest.json` em todo commit que toca `.claude/` ou `docs/forge/`
+- ✅ Reviewer DeepAgents valida que hooks estão configurados conforme Constitution
+
+---
+
+## Forge-5 — Playbooks verticais (contínuo, pós cliente 1)
+
+**Objetivo**: cliente 2 do mesmo vertical custa <30% do esforço do cliente 1.
+
+### Tasks
+
+- [ ] **F5.1** Após primeiro SKU em AUTONOMOUS, extrair playbook vertical em `docs/playbooks/{vertical}/`
+- [ ] **F5.2** Catalogar SKUs como "blocos remontáveis" (estágio atual #4 da metodologia)
+- [ ] **F5.3** Retrospective em `docs/retrospectives/{sku}/`
+- [ ] **F5.4** Refinar Constitution se princípios precisarem evolução (versionado, exige ADR)
+- [ ] **F5.5** Reavaliar F2 (promoção do Forge ao `~/.claude/` global)
+- [ ] **F5.6** Reavaliar F5 (publicação como plugin)
+
+### Critério de pronto
+
+- ✅ Cliente 2 do mesmo vertical consome ≤30% das horas do cliente 1
+- ✅ Playbook vertical valida métricas reais
+- ✅ Retrospective publicada
+
+---
+
+## Dependências entre Forge e ondas Acme
+
+```
+Onda Acme 0 (Cenário B)        ←  Forge-0  ✅ paralelo, não bloqueia
+Onda Acme 1 (fundação arquit.) ←  Forge-1  ✅ paralelo
+Onda Acme 2 (SKU piloto E2E)   ←  Forge-2  ⚠️ Forge-2 acelera mas não bloqueia
+Onda Acme 3 (eval suite real)  ←  Forge-3  🔴 Forge-3 entrega gates de eval
+Onda Acme 4 (billing/dashboard)←  Forge-4  ⚠️ Forge-4 adiciona governança
+Onda Acme 5 (limpeza legado)   ←  Forge-5  🟢 Forge-5 só faz sentido pós-Acme-3
+```
+
+---
+
+## Métricas de sucesso do framework (KPIs do Forge)
+
+Medidas mensalmente após Forge-3:
+
+| Métrica | Meta |
+|---|---|
+| Tempo de criação de SKU novo (do `/diagnose` ao SHADOW) | ≤ 10 dias úteis |
+| Tokens médios por outcome em produção | ≤ 25% do baseline pré-helper-pattern |
+| % de PRs bloqueados por hooks Forge | 5–15% (saudável; <5% = hooks fracos; >15% = atrito) |
+| % de auditorias mensais com SLA passando | ≥ 90% após Forge-4 maduro |
+| Esforço cliente N+1 / cliente 1 (mesmo vertical) | ≤ 30% após Forge-5 |

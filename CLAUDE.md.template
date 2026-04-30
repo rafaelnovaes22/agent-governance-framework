@@ -1,0 +1,211 @@
+# acme-governanca-ia — Guia para Claude Code
+
+> Backend multi-tenant de governança de projetos via IA. Plataforma **Acme SaaS²**.
+> Operado pelo framework **Acme Forge** ([`docs/forge/README.md`](docs/forge/README.md)).
+
+---
+
+## Antes de qualquer coisa: leia a Constitution
+
+**Arquivo obrigatório**: [`.claude/CONSTITUTION.md`](.claude/CONSTITUTION.md)
+
+Os 8 princípios listados ali são **não-negociáveis** e orientam toda decisão de design, implementação e revisão neste repositório:
+
+1. **C1** — Diagnose-before-design
+2. **C2** — Outcome-first, never tech-first
+3. **C3** — Custo ≤ 25% do preço
+4. **C4** — SHADOW antes de cobrar
+5. **C5** — Three-tier context (Sincra L0/L1/L2)
+6. **C6** — Telemetry-by-default (Langfuse obrigatório)
+7. **C7** — Portability over lock-in
+8. **C8** — Anti-customização heroica
+
+Se uma instrução do usuário entrar em conflito com a Constitution, **levante o conflito** antes de executar.
+
+---
+
+## Contexto do projeto
+
+### O que é a Acme
+
+Consultoria de IA aplicada que pivotou para **plataforma Service-as-a-Software (SaaS²)**: vende **outcomes cobráveis** entregues por agentes de IA, não horas/seats.
+
+- **ICP**: PMEs R$2M+ com CEO bombeiro (caos operacional, falta de processo, dependência do CEO)
+- **Modelo**: setup fee + plataforma fixa mensal + variável por outcome com SLA contratual
+- **Modos por subscription**: SHADOW → ASSISTED → AUTONOMOUS (com gates de promoção)
+- **Stack core**: Node/TS, LangGraph, Langfuse, PostgreSQL/Prisma, BullMQ/Redis, Fastify, Anthropic SDK
+- **Cliente nunca loga** — admin é via API + ClickUp interno da Acme
+
+### Documentos canônicos da metodologia
+
+Leia conforme contexto da tarefa:
+
+- [`docs/metodologia.md`](docs/metodologia.md) — Metodologia Acme clássica (4 fases por engajamento)
+- [`docs/metodologia_acme.md`](docs/metodologia_acme.md) — **Metodologia Acme SaaS² (referência primária)**
+- [`docs/metodologia_sincra.md`](docs/metodologia_sincra.md) — Camadas L0/L1/L2, entidades, artefatos, handoffs
+
+### Documentos do Forge
+
+- [`docs/forge/README.md`](docs/forge/README.md) — Overview e ponteiros
+- [`docs/forge/decisions.md`](docs/forge/decisions.md) — Decisões F1-F8
+- [`docs/forge/roadmap.md`](docs/forge/roadmap.md) — 5 ondas Forge
+- [`docs/forge/reviewer-contract.md`](docs/forge/reviewer-contract.md) — Contrato com DeepAgents/GPT-5.5
+- [`docs/forge/manifest.json`](docs/forge/manifest.json) — Inventory machine-readable
+- [`docs/forge/out-of-scope.md`](docs/forge/out-of-scope.md) — O que NÃO entra no Forge
+
+### Decisões arquiteturais
+
+- [`docs/adr/001-stack-saas2.md`](docs/adr/001-stack-saas2.md) — Stack arquitetural SaaS² (LangGraph + Langfuse + Postgres + BullMQ + webhook adapters customizados)
+
+### Onda 0 (decisões estratégicas pós-pivot)
+
+- [`docs/onda-0/README.md`](docs/onda-0/README.md) — Ordem de preenchimento
+- [`docs/onda-0/sku_piloto.md`](docs/onda-0/sku_piloto.md) — D1+D2: SKU vertical e outcome cobrável
+- [`docs/onda-0/unit_economics.md`](docs/onda-0/unit_economics.md) — D5: regra custo ≤ 25%
+- [`docs/onda-0/sla_threshold.md`](docs/onda-0/sla_threshold.md) — D6: threshold SLA contratual
+- [`docs/onda-0/diagnostico_fase0.md`](docs/onda-0/diagnostico_fase0.md) — D7: Diagnóstico como produto
+- [`docs/onda-0/sunset_pmo.md`](docs/onda-0/sunset_pmo.md) — D3: sunset do PMO clássico
+
+### Demo SaaS²
+
+- [`docs/demo_saas2.md`](docs/demo_saas2.md) — Como rodar o SKU `example-triagem-whatsapp` em modo SHADOW
+
+---
+
+## Stack do projeto (resumo do package.json)
+
+- **Runtime**: Node.js ≥20, TypeScript 5.7, ESM
+- **Web**: Fastify 5
+- **Orquestração de agentes**: `@langchain/langgraph` 1.2
+- **LLM**: `@anthropic-ai/sdk` 0.39 (primário); reviewer GPT-5.5 via OpenAI (Forge-3)
+- **Observability**: `langfuse` 3.38
+- **DB**: PostgreSQL via Prisma 6
+- **Filas**: BullMQ 5 + ioredis 5
+- **Validação**: Zod 3
+- **Logs**: Pino 9
+
+### Comandos npm úteis
+
+```bash
+npm run dev              # tsx watch + .env
+npm run build            # tsup
+npm run db:migrate       # prisma migrate dev
+npm run db:studio        # prisma studio
+npm run seed:example     # seed SKU example-triagem-whatsapp + tenant demo
+npm run demo:send        # envia 5 mensagens de teste
+npm test                 # vitest run
+```
+
+---
+
+## Padrões a seguir
+
+### Onde mora cada coisa
+
+```
+src/
+├── skus/{sku-code}/         # SKUs verticais (spec.md + prompts/ + nodes/)
+├── agents/                  # implementação LangGraph dos pipelines
+├── adapters/webhook/        # adapters de canais (WhatsApp, email, webhooks)
+├── llm/                     # camada de abstração de modelos (C7)
+├── billing/                 # cálculo de outcomes/invoices
+├── eval/                    # eval suite runner
+└── legacy-pmo/              # ⚠️ sunset: leitura apenas (até Onda 5 Acme)
+docs/
+├── adr/                     # Architecture Decision Records
+├── forge/                   # Documentação do framework
+├── onda-0/                  # Decisões estratégicas Cenário B
+└── ...
+templates/                   # Templates Forge (sku-spec, adr, eval-case, unit-economics)
+evals/{sku-code}/            # Eval suites versionadas por SKU
+.claude/
+├── CONSTITUTION.md          # Princípios versionados (LER PRIMEIRO)
+├── settings.json            # Forge layer (versionado)
+├── settings.local.json      # Overrides do dev (gitignored)
+├── commands/acme/         # Slash commands (Forge-2)
+├── agents/                  # Subagents Guardian (Forge-3)
+└── skills/{L0,L1,L2}/       # Skills herdadas Sincra (Forge-1)
+```
+
+### Regras de toque
+
+| Path | Regra |
+|---|---|
+| `.claude/CONSTITUTION.md` | Mudança exige ADR + bump de versão (Forge-4 hook bloqueia) |
+| `docs/adr/*.md` | ADR assinada não muda; abrir nova ADR (Forge-4 hook bloqueia) |
+| `docs/onda-0/*.md` (D2 aprovado) | Cláusula contratual de outcome aprovada não muda sem reaprovação CEO |
+| `src/legacy-pmo/**` | Leitura apenas; sem features novas |
+| `src/skus/{sku}/**` | Edição livre; segue templates Forge |
+| `src/llm/**` | Camada de abstração — toda dependência de modelo vive aqui (C7) |
+
+### Telemetria (C6)
+
+Toda chamada LLM em `src/agents/**` deve estar instrumentada com Langfuse:
+
+```ts
+import { langfuseTrace } from "@/observability/langfuse";
+
+const trace = langfuseTrace.observe({
+  name: "outcome-classifier",
+  input: { tenantId, payload },
+});
+const response = await anthropic.messages.create(...);
+trace.end({ output: response, costBrl: calculateCost(response.usage) });
+```
+
+Sem trace, **não conta como outcome auditável**.
+
+### Three-tier context (C5)
+
+| Tier | Lê de | Conteúdo |
+|---|---|---|
+| L0 | apenas L0 | DNA, ICP, ofertas (cacheado, helper pattern) |
+| L1 | L0 + L1 | Tenant, Cliente, Briefing, BaselineCost |
+| L2 | L0 + L1 + L2 | SKU, Outcome, AgentRun, EvalCase |
+
+Quebrar a hierarquia (ex: skill L0 lendo Outcome) **viola C5** e bloqueia merge.
+
+---
+
+## Convenções de código
+
+- **TypeScript estrito**: nada de `any` em `src/skus/**` ou `src/agents/**` (Forge-4 hook bloqueia)
+- **Comentários**: só quando o WHY é não-óbvio. Não comentar o que já é claro do nome
+- **ESM**: `import` apenas; sem `require`
+- **Datas em commits/docs**: YYYY-MM-DD absoluto (não "ontem", "semana que vem")
+- **Pino logger**: usar logger estruturado, não `console.log`
+
+---
+
+## Reviewer externo: DeepAgents/GPT-5.5
+
+Este projeto é auditado mensalmente por um **Deep Agent externo** (GPT-5.5) que valida os 8 princípios da Constitution e a coerência entre artefatos. Veja [`docs/forge/reviewer-contract.md`](docs/forge/reviewer-contract.md).
+
+Para que o reviewer funcione:
+- Toda mudança no Forge atualiza `docs/forge/manifest.json`
+- Toda LLM call tem trace Langfuse
+- Toda promoção de modo (SHADOW → ASSISTED → AUTONOMOUS) é registrada via `/acme:promote`
+
+---
+
+## Quando pedir confirmação ao usuário
+
+A Constitution define hard gates. Mas **sempre confirme** antes de:
+
+- Editar `.claude/CONSTITUTION.md` (precisa nova ADR)
+- Editar `docs/adr/*.md` assinada
+- Editar `docs/onda-0/sku_piloto.md` em sessões D2.1-D2.5 aprovadas
+- Modificar `src/legacy-pmo/**` (em sunset)
+- Promover subscription de modo
+- Executar `npm publish`, `prisma migrate reset`, `git push --force`, `rm -rf` (Forge nega via `settings.json`)
+
+Operações reversíveis e locais (edição em `src/skus/`, criação de eval cases, mudanças em prompts) não exigem confirmação prévia — só siga os padrões.
+
+---
+
+## Ondas em andamento
+
+- ✅ **Onda 0 (Acme)**: decisões estratégicas pós-pivot — D1, D2, D5, D6, D7 em preenchimento
+- 🟡 **Forge-0**: fundação do framework em curso
+- 🔴 **Onda 1 (Acme)**: bloqueada por ADR 001 assinatura
+- 🔴 **Forge-1 a Forge-5**: dependentes em sequência

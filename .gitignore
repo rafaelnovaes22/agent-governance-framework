@@ -1,0 +1,33 @@
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# Claude Code per-developer overrides (NUNCA commitar)
+.claude/settings.local.json
+
+# Audit outputs (geram localmente; contêm dados de produção)
+docs/forge/audits/
+docs/forge/bypass-log/
+
+# Node (caso Forge-3 traga build de reviewer Node/TS)
+node_modules/
+dist/
+*.log
+.env
+.env.local
+.env.*.local
+
+# Python (caso Forge-3 use deepagents Python)
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Tooling
+.tsbuildinfo
+coverage/
