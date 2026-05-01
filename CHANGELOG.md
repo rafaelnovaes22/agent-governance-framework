@@ -157,7 +157,55 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ---
 
-## [Unreleased] — Forge-3 em execução (reviewer DeepAgent infraestrutura)
+## [Unreleased] — Forge-3 em execução
+
+### Added (2026-05-01) — 10 subagents Claude Code (`.claude/agents/`)
+
+- **4 Guardians Opus** (decisão estratégica):
+  - `po-guardian` — Product Owner; valida cláusula de outcome (C2), ICP fit, catalog fit; cross-approver mandatório do `/acme:promote` Gate 5
+  - `artifact-architect` — **renomeado de `sku-architect`** (alinhamento v0.2.0 — multi-type artifact); plan 8 seções, `agent_readiness_score`, abstração C5/C7/C8; `target_model` advisory apenas
+  - `unit-economist` — economic firewall; valida `c3_check`, baseline-cost, força recalc quando `prompt_hash` muda; bloqueia `/acme:sla-threshold` se unviable
+  - `promotion-officer` — autoridade de transição de modo; Gate 5 do `/acme:promote`; cross-approval com `po-guardian`; refuta self-approval; gate adicional para `assisted_to_autonomous`
+- **4 Guardians Sonnet** (validação técnica):
+  - `eval-engineer` — eval suite quality; coverage por outcome_category, source_mode breakdown (real/synthetic/edge/adversarial), ground-truth justified, regressão por `prompt_hash`
+  - `tenant-context-curator` — anti-customização (C8); lint regex de `tenantId === '...'`, `switch(tenantName)`, pastas `clients/{nome}/`; valida TenantContext schema
+  - `observability-guardian` — telemetry-by-default (C6); Section 8 dos prompts, `observe()` wrapper, trace_coverage ≥99%, `prompt_hash` drift detection
+  - `security-privacy-guardian` — PII/LGPD/secrets; lint em eval-cases, prompts, traces sample; **assinatura terceira mandatória** para `assisted_to_autonomous`
+- **2 cross-LLM reviewers**:
+  - `code-reviewer-claude` (Sonnet) — code review nativo Claude para PRs (focado em src/, prompts/, evals/)
+  - `code-reviewer-cross` (Haiku, delegator) — **bridge** para o DeepAgent externo (`forge-auditor` via deepagents CLI); não revisa diretamente; orquestra invocação + traduz output
+
+### Added — Template ADR-002
+
+- `templates/adr-reviewer-runtime.template.md` — template para projeto consumidor adaptar como `docs/adr/002-reviewer-runtime.md`. Cobre 7 decisões (D1-D7): local de execução, modelo do DeepAgent, provedor de telemetria, cadência, output, auto-rollback, credenciais
+
+### Smart routing
+
+| Tier de decisão | Modelo | Quantidade |
+|---|---|---|
+| Estratégico (outcome, arquitetura, economics, promotion) | Opus | 4 |
+| Validação técnica (eval, tenant, telemetry, security) | Sonnet | 4 |
+| Code review nativo | Sonnet | 1 |
+| Delegator para DeepAgent externo | Haiku | 1 |
+
+### Renaming registrado
+
+- `sku-architect` → `artifact-architect` (v0.2.0 já abriu caminho com `templates/{platform-sku,product,diagnostic}-spec.template.md`; agora consistente também nos guardians). Histórico em `naming_history` no frontmatter.
+
+### Manifest
+
+- `artifacts.agents{}` populado com 3 grupos (`guardians_opus`, `guardians_sonnet`, `cross_llm_reviewers`) — total 10 entradas
+- `artifacts.templates[]` cresce de 9 para 10 (adiciona `template-adr-reviewer-runtime`)
+- `framework.phase` indica "Forge-3 in progress — 10 SKILL.md + 8 Guardians + 2 cross-LLM reviewers delivered"
+
+### Pendente em Forge-3 (responsabilidade do consumer)
+
+- ADR-002 efetiva no projeto consumidor (template entregue)
+- Primeira auditoria mensal de teste com `forge-auditor` rodando contra repo real
+
+---
+
+## [Pré-Forge-3 agents] — Reviewer DeepAgent infraestrutura
 
 ### Added (2026-05-01) — Reviewer DeepAgent (F17 + F18)
 

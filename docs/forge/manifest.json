@@ -4,7 +4,7 @@
   "framework": {
     "name": "Acme Forge",
     "version": "0.2.0",
-    "phase": "Forge-3 in progress — reviewer DeepAgent infrastructure delivered (10 SKILL.md in reviewer/deepagents/) per F17/F18. Subagent Guardians pending.",
+    "phase": "Forge-3 in progress — reviewer DeepAgent (10 SKILL.md) + 8 Guardians + 2 cross-LLM reviewers delivered. Pending: ADR-002 in consumer, first monthly audit run.",
     "last_updated": "2026-04-30",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -331,6 +331,16 @@
         "sha256": null,
         "linked_principles": ["C5"],
         "description": "Estrutura ClickUp aplicando Three-tier (Sincra) — opcional"
+      },
+      {
+        "id": "template-adr-reviewer-runtime",
+        "path": "templates/adr-reviewer-runtime.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C6"],
+        "use_case": "consumer-adr-002",
+        "description": "Template para ADR-002 do projeto consumidor — runtime do reviewer DeepAgent (D1-D7: local de execução, modelo, telemetry, cadência, output, auto-rollback, credenciais)"
       }
     ],
     "reviewer_assets": [
@@ -533,7 +543,114 @@
       "_status": "Forge-1 generic complete — Tier 1 (L0) 3/3 + Tier 2 (L1) 3/3 + Tier 3 (L2) 3/3. Acme-specific skills (tenant-onboarding, outcome-classifier, billing-calculator, flywheel-collector) reserved for examples/acme/skills/ scope per F13/F14."
     },
     "agents": {
-      "_status": "Forge-3 not started"
+      "guardians_opus": [
+        {
+          "id": "agent-po-guardian",
+          "path": ".claude/agents/po-guardian.md",
+          "type": "subagent",
+          "model": "claude-opus-4-7",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C8"],
+          "description": "Product Owner — valida outcome clause, ICP fit, scope. Cross-approver of /acme:promote (par com promotion-officer)."
+        },
+        {
+          "id": "agent-artifact-architect",
+          "path": ".claude/agents/artifact-architect.md",
+          "type": "subagent",
+          "model": "claude-opus-4-7",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C7", "C8"],
+          "description": "Technical architect — valida agent_readiness, layers, abstractions. Renomeado de sku-architect (v0.2.0)."
+        },
+        {
+          "id": "agent-unit-economist",
+          "path": ".claude/agents/unit-economist.md",
+          "type": "subagent",
+          "model": "claude-opus-4-7",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C3"],
+          "description": "Economic firewall — c3_check, baseline-cost, recalc_unit_economics. Bloqueia /acme:sla-threshold se unviable."
+        },
+        {
+          "id": "agent-promotion-officer",
+          "path": ".claude/agents/promotion-officer.md",
+          "type": "subagent",
+          "model": "claude-opus-4-7",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4"],
+          "description": "Promotion authority — assina transição de modo (Gate 5 do /acme:promote). Cross-approval mandatório com po-guardian."
+        }
+      ],
+      "guardians_sonnet": [
+        {
+          "id": "agent-eval-engineer",
+          "path": ".claude/agents/eval-engineer.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C4", "C6"],
+          "description": "Eval suite quality — coverage por outcome_category, source_mode breakdown, ground-truth justification, regressão por prompt_hash."
+        },
+        {
+          "id": "agent-tenant-context-curator",
+          "path": ".claude/agents/tenant-context-curator.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C8"],
+          "description": "Anti-customização — TenantContext schema, lint regex C8 em src/skus, src/products, src/skills."
+        },
+        {
+          "id": "agent-observability-guardian",
+          "path": ".claude/agents/observability-guardian.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "description": "Telemetry coverage — Section 8 dos prompts, observe() wrapper, trace_coverage ≥99%, prompt_hash drift detection."
+        },
+        {
+          "id": "agent-security-privacy-guardian",
+          "path": ".claude/agents/security-privacy-guardian.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6", "C8"],
+          "description": "PII/LGPD/secrets — lint em eval-cases, prompts, traces. Assinatura terceira mandatória para assisted_to_autonomous."
+        }
+      ],
+      "cross_llm_reviewers": [
+        {
+          "id": "agent-code-reviewer-claude",
+          "path": ".claude/agents/code-reviewer-claude.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Code review nativo Claude — focado em PR diff (src/, prompts/, evals/) com checks C5-C8."
+        },
+        {
+          "id": "agent-code-reviewer-cross",
+          "path": ".claude/agents/code-reviewer-cross.md",
+          "type": "subagent",
+          "model": "claude-haiku-4-5-20251001",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+          "delegates_to": "forge-auditor (DeepAgent skill)",
+          "description": "Bridge Claude Code → LangChain DeepAgent. Não revisa código diretamente — invoca deepagents CLI e traduz output. F17/F18."
+        }
+      ],
+      "_status": "Forge-3 — 10/10 agents delivered (4 Opus Guardians + 4 Sonnet Guardians + 2 cross-LLM reviewers). Pending: ADR-002 in consumer + first monthly audit run."
     },
     "commands": {
       "spec_economics": [

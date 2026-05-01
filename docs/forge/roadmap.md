@@ -132,27 +132,28 @@
 
 ### Tasks
 
-- [ ] **F3.1** 8 Guardians principais:
-  - `po-guardian.md` (Opus)
-  - `sku-architect.md` (Opus)
-  - `unit-economist.md` (Opus)
-  - `eval-engineer.md` (Sonnet)
-  - `tenant-context-curator.md` (Sonnet)
-  - `observability-guardian.md` (Sonnet)
-  - `promotion-officer.md` (Opus)
-  - `security-privacy-guardian.md` (Sonnet)
-- [ ] **F3.2** 2 Cross-LLM reviewers:
-  - `code-reviewer-claude.md` (Sonnet)
-  - `code-reviewer-cross.md` (delega ao DeepAgents/GPT-5.5)
-- [ ] **F3.3** **ADR-002**: stack do reviewer DeepAgents
-  - Decidir Python `deepagents` vs Node/TS `@langchain/langgraph`
-  - Decidir provedor (OpenAI direto vs OpenRouter)
-  - Decidir local de execução (CI? script local? worker BullMQ?)
-- [ ] **F3.4** Implementar Deep Agent reviewer:
-  - Lê `manifest.json`
-  - Valida cada artefato contra Constitution
-  - Emite relatório `docs/forge/audits/{YYYY-MM-DD}.md`
-- [ ] **F3.5** Smart model routing configurado em cada agent
+- [x] **F3.1** 8 Guardians principais — **8/8 concluídas em 2026-05-01**:
+  - [x] `po-guardian.md` (Opus) — outcome clause + ICP fit + cross-approver de promoção
+  - [x] `artifact-architect.md` (Opus) — renomeado de `sku-architect` (alinhamento v0.2.0); plan 8 seções + agent_readiness
+  - [x] `unit-economist.md` (Opus) — c3_check + recalc_unit_economics
+  - [x] `eval-engineer.md` (Sonnet) — coverage + source_mode + regressão
+  - [x] `tenant-context-curator.md` (Sonnet) — TenantContext schema + lint C8
+  - [x] `observability-guardian.md` (Sonnet) — Section 8 + observe() lint + trace_coverage
+  - [x] `promotion-officer.md` (Opus) — Gate 5 do promote, cross-approval mandatório
+  - [x] `security-privacy-guardian.md` (Sonnet) — PII/LGPD/secrets + 3ª assinatura para AUTONOMOUS
+- [x] **F3.2** 2 Cross-LLM reviewers — **2/2 concluídas**:
+  - [x] `code-reviewer-claude.md` (Sonnet) — code review nativo de PR
+  - [x] `code-reviewer-cross.md` (Haiku, delegator) — bridge para DeepAgent `forge-auditor`
+- [x] **F3.3** **Stack do reviewer decidida** — F17/F18 em `decisions.md`:
+  - Stack: `deepagents` CLI (Python, LangChain) v0.0.34+
+  - Tradução: `andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter` (MIT)
+  - Local de execução: a definir em ADR-002 do consumidor (template `templates/adr-reviewer-runtime.template.md`)
+- [x] **F3.4** Reviewer DeepAgent infraestrutura:
+  - 9 skills convertidas + `forge-auditor` (skill orquestradora nativa) em `reviewer/deepagents/skills/`
+  - Output em `docs/forge/audits/{YYYY-MM}.md` validado contra `reviewer/output-schema.json`
+- [x] **F3.5** Smart model routing aplicado: 4 Opus + 4 Sonnet + 1 Haiku + 1 sem modelo direto (DeepAgent externo)
+- [ ] **F3.6** ADR-002 do projeto consumidor (responsabilidade do consumer; template entregue)
+- [ ] **F3.7** Primeira auditoria mensal de teste (responsabilidade do consumer)
 
 ### Critério de pronto
 
