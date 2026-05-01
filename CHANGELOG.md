@@ -157,13 +157,61 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ---
 
-## [Unreleased] — Próximas ondas
+## [Unreleased] — Forge-1 em execução
 
-### Forge-1 (próxima) — Skills L0/L1/L2
+### Added (Forge-1 — Tier 1 entregue, 2026-04-30)
 
-- 13 skills Sincra com path-scoped auto-activation
-- Helper pattern BMAD em L0 (cache de DNA/ICP)
-- `/acme:diagnose` produz relatório Fase 0 estruturado em <10 min
+- **3 skills L0 (Tier 1 estratégico)** em `.claude/skills/L0/` com helper pattern BMAD:
+  - `company-dna.md` — carrega DNA da organização (purpose, mission, values, north-star) em YAML compacto cacheável
+  - `icp-loader.md` — carrega Ideal Customer Profile com sinais de qualificação e **anti-ICP** mandatório
+  - `offerings-loader.md` — carrega catálogo de ofertas com `lifecycle_stage` e `pricing_model` declarados
+- **`docs/forge/helper-pattern.md`** — documenta padrão BMAD (cache `ephemeral-strong`, namespace `__forge_cache.<key>`, regras hard R1-R4) com meta de ≥70% redução de tokens
+- **Manifest** atualizado: `artifacts.skills.L0[]` populado com 3 entradas; `framework.phase` mudada para `Forge-1 in progress`
+
+### Padrão das skills L0 (canonical reference)
+
+Cada skill segue estrutura:
+- Frontmatter Anthropic (`name`, `description`) + extensões Forge (`tier`, `linked_principles`, `helper_pattern`, `cache_strategy`, `reads_from_tier`, `must_not_read`, `activation.{paths,keywords,explicit_invocation}`)
+- Tabela anti-rationalization (Addy Osmani) — 5 tentações comuns × resposta correta
+- Verification gate com checklist
+- C5 hard rule (Tier 1 **não** lê Tier 2/3)
+- Saída de erro estruturada com enum
+
+### Scope decision
+
+Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme-específicas (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`) ficam em `examples/acme/skills/` (consumidas por `acme-governanca-ia`), respeitando F13/F14.
+
+### Added (Forge-1 — Tier 3 entregue, 2026-04-30) — todas as skills genéricas concluídas (9/9)
+
+- **3 skills L2 (Tier 3 operacional)** em `.claude/skills/L2/` fechando a cadeia operacional:
+  - `artifact-prompt-builder.md` — constrói system prompt versionado em **9 seções canônicas** (identidade, contexto Tier 1 cacheado, cláusula de outcome literal, schema de input/output, processo do mapper, guard-rails C3, instrumentação C6 obrigatória, anti-hardcode C8). Persiste em `prompts/{artifact}/v{version}/system.md` com `prompt_hash` (sha256:16) e flag `recalc_unit_economics_required: true` em todo build
+  - `eval-case-author.md` — gera eval cases em 4 source modes (`real | synthetic | edge | adversarial`), enforça sanitização PII pré-persistência, exige justificativa do gabarito, persiste em `evals/{artifact}/cases/`. Cap default ≤ 40% sintético; alvo ≥ 60% real após 90 dias
+  - `shadow-mode-runner.md` — coordena SHADOW em 3 ações (`start | tick | report`), enforça mecanicamente C4 (≥ 14 dias, `delivered: false` em todo trace, `prompt_hash` imutável durante janela), produz `report-{artifact}-{date}.md` com recomendação **mas não auto-promove** (assinatura humana mandatória)
+- **Padrão Tier 3** estabelecido: `reads_from_tier: [1, 2, 3]`, `must_not_read: []`, output em paths versionados ou cliente-específicos, hash sha256:16 para imutabilidade auditável
+
+---
+
+### Added (Forge-1 — Tier 2 entregue, 2026-04-30)
+
+- **3 skills L1 (Tier 2 tático)** em `.claude/skills/L1/` com handoffs declarados entre si:
+  - `baseline-cost-builder.md` — calcula custo humano (volume × tempo × custo-hora) e deriva `min_price_per_outcome` para satisfazer C3 (custo ≤ 25%); persiste em `docs/clients/{client}/baseline-cost-{process}.md`
+  - `diagnostic-runner.md` — roteiro estruturado de **10 blocos** (problema, custo do não-resolvido, baseline, tentativas, outcome candidato, métrica, tolerância, ICP fit, catálogo fit, próximos passos) com handoff para `baseline-cost-builder` e `process-mapper`; persiste `diagnostic.md`
+  - `process-mapper.md` — mapeia processo as-is em formato agent-ready (trigger, atores, steps tabulares, decision points, métricas) + `agent_readiness_score` heurístico; persiste `process-{name}.md`
+- **Padrão Tier 2** (canonical para Tier 3): `helper_pattern: none` (consome cache L0, não cacheia), `reads_from_tier: [1, 2]`, `must_not_read: [3]`, `requires_helper:` declara dependências L0, parâmetros obrigatórios incluem `client_id`/`process_id`, output persistido em arquivo (não in-memory)
+- **Manifest** atualizado: `artifacts.skills.L1[]` populado; `framework.phase` → `Tier 1 + Tier 2 generic skills delivered: 6/9`
+
+### Pendente em Forge-1
+
+- 4 skills Acme-específicas em `examples/acme/skills/` (F1.6 — escopo opcional)
+- Validação empírica do `≥70% redução de tokens` (medível só em Forge-3 com Langfuse)
+
+---
+
+## [Próximas ondas]
+
+### Forge-1 (resíduo) — Acme examples
+
+- 4 skills em `examples/acme/skills/` (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`)
 
 ### Forge-2 — Slash commands
 

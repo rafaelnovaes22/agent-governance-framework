@@ -4,7 +4,7 @@
   "framework": {
     "name": "Acme Forge",
     "version": "0.2.0",
-    "phase": "Forge-0 complete (v0.2.0)",
+    "phase": "Forge-1 generic skills complete (9/9). Acme-specific skills (4) reserved for examples/acme/skills/.",
     "last_updated": "2026-04-30",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -200,6 +200,15 @@
           "sha256": null,
           "linked_principles": ["C6"],
           "description": "Este arquivo - inventory machine-readable"
+        },
+        {
+          "id": "forge-helper-pattern",
+          "path": "docs/forge/helper-pattern.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5"],
+          "description": "Helper pattern (BMAD) — cache strategy para skills Tier 1 com meta de ≥70% redução de tokens"
         }
       ]
     },
@@ -366,10 +375,145 @@
       }
     ],
     "skills": {
-      "L0": [],
-      "L1": [],
-      "L2": [],
-      "_status": "Forge-1 not started"
+      "L0": [
+        {
+          "id": "skill-company-dna",
+          "path": ".claude/skills/L0/company-dna.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C7"],
+          "helper_pattern": "bmad",
+          "cache_strategy": "ephemeral-strong",
+          "reads_from_tier": [1],
+          "must_not_read": [2, 3],
+          "description": "Carrega DNA da organização (purpose, mission, values, north-star) em YAML compacto cacheável."
+        },
+        {
+          "id": "skill-icp-loader",
+          "path": ".claude/skills/L0/icp-loader.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C7"],
+          "helper_pattern": "bmad",
+          "cache_strategy": "ephemeral-strong",
+          "reads_from_tier": [1],
+          "must_not_read": [2, 3],
+          "description": "Carrega ICP (Ideal Customer Profile) com sinais de qualificação e anti-ICP."
+        },
+        {
+          "id": "skill-offerings-loader",
+          "path": ".claude/skills/L0/offerings-loader.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C5", "C7"],
+          "helper_pattern": "bmad",
+          "cache_strategy": "ephemeral-strong",
+          "reads_from_tier": [1],
+          "must_not_read": [2, 3],
+          "description": "Carrega catálogo de ofertas (produtos, SKUs, diagnósticos) com lifecycle_stage e pricing_model."
+        }
+      ],
+      "L1": [
+        {
+          "id": "skill-baseline-cost-builder",
+          "path": ".claude/skills/L1/baseline-cost-builder.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C3"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2],
+          "must_not_read": [3],
+          "requires_helper": ["company-dna", "offerings-loader"],
+          "description": "Calcula custo humano baseline (volume × tempo × custo-hora) e deriva preço de venda mínimo para cumprir hard gate C3."
+        },
+        {
+          "id": "skill-diagnostic-runner",
+          "path": ".claude/skills/L1/diagnostic-runner.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2],
+          "must_not_read": [3],
+          "requires_helper": ["company-dna", "icp-loader", "offerings-loader"],
+          "description": "Executa roteiro estruturado de diagnóstico Fase 0 (10 blocos) — produz docs/clients/{client}/diagnostic.md. Critério: relatório em ≤10 min."
+        },
+        {
+          "id": "skill-process-mapper",
+          "path": ".claude/skills/L1/process-mapper.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C5", "C7"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2],
+          "must_not_read": [3],
+          "requires_helper": ["offerings-loader"],
+          "description": "Mapeia processo as-is em formato agent-ready (trigger, steps, decision points, métricas, automatable hypotheses + agent_readiness_score)."
+        }
+      ],
+      "L2": [
+        {
+          "id": "skill-artifact-prompt-builder",
+          "path": ".claude/skills/L2/artifact-prompt-builder.md",
+          "type": "skill",
+          "tier": 3,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C5", "C6", "C7", "C8"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2, 3],
+          "must_not_read": [],
+          "requires_helper": ["company-dna", "offerings-loader"],
+          "description": "Constrói system prompt versionado em 9 seções canônicas com prompt_hash, instrumentação C6 obrigatória e zero hardcode por tenant. Disparou recalc_unit_economics_required."
+        },
+        {
+          "id": "skill-eval-case-author",
+          "path": ".claude/skills/L2/eval-case-author.md",
+          "type": "skill",
+          "tier": 3,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C4", "C6"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2, 3],
+          "must_not_read": [],
+          "requires_helper": ["offerings-loader"],
+          "description": "Gera eval cases (real/synthetic/edge/adversarial) com sanitização PII, gabarito justificado e cobertura por outcome_category (≥30 para passar C4)."
+        },
+        {
+          "id": "skill-shadow-mode-runner",
+          "path": ".claude/skills/L2/shadow-mode-runner.md",
+          "type": "skill",
+          "tier": 3,
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4", "C6"],
+          "helper_pattern": "none",
+          "cache_strategy": "none",
+          "reads_from_tier": [1, 2, 3],
+          "must_not_read": [],
+          "requires_helper": ["offerings-loader"],
+          "description": "Coordena modo SHADOW (start/tick/report) com mínimo 14 dias mandatórios, output isolado em runs/{client}/shadow/, métricas de concordância e recomendação de promoção (decisão humana)."
+        }
+      ],
+      "_status": "Forge-1 generic complete — Tier 1 (L0) 3/3 + Tier 2 (L1) 3/3 + Tier 3 (L2) 3/3. Acme-specific skills (tenant-onboarding, outcome-classifier, billing-calculator, flywheel-collector) reserved for examples/acme/skills/ scope per F13/F14."
     },
     "agents": {
       "_status": "Forge-3 not started"

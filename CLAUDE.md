@@ -186,7 +186,9 @@ git diff HEAD --stat
 
 ## Status atual
 
-- ✅ Forge-0 entregue (v0.1.0)
-- ⏳ Próximo: Forge-1 (skills L0/L1/L2)
+- ✅ Forge-0 entregue (v0.1.0 + reposicionamento v0.2.0)
+- ✅ Forge-1 genéricas concluídas: **9/9 skills** (3 L0 + 3 L1 + 3 L2) com helper pattern documentado
+- ⏳ Resíduo Forge-1: 4 skills Acme-específicas em `examples/acme/skills/` (F1.6, opcional)
+- ⏳ Próximo: **Forge-2 — Slash commands** (`/acme:diagnose`, `/acme:spec-sku`, `/acme:promote`, etc — pipeline completo)
 
 Veja [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) para detalhes.
