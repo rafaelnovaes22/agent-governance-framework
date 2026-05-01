@@ -9,6 +9,38 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.3.0] — 2026-05-01
+
+### Added (Forge-4 — Hooks runtime)
+
+**9 hooks ativos em `.claude/settings.json`:**
+
+| Hook | Tipo | Exit | Propósito |
+|---|---|---|---|
+| `outcome-clause-guard` | PreToolUse | 2 (block) | Bloqueia edição de outcome clauses aprovadas |
+| `adr-approval-gate` | PreToolUse | 2 (block) | Bloqueia edição de ADRs assinadas |
+| `secret-scan` | PreToolUse | 2 (block) | Detecta API keys / connection strings |
+| `any-type-guard` | PreToolUse | 2 (block) | Bloqueia `any` TypeScript em src/skus + src/agents |
+| `langfuse-trace-check` | PostToolUse | 1 (warn) | LLM calls sem trace Langfuse (C6) |
+| `unit-economics-recalc` | PostToolUse | 1 (warn) | Prompts mudaram — recalc C3 necessário |
+| `manifest-sync` | PostToolUse | 0 (info) | Artefatos Forge mudaram sem update de manifest |
+| `5-gates-summary` | Stop | 0/1 | Relatório dos 5 gates ao fim de sessão |
+| `eval-suite-fresh` | Stop | 0/1 | Eval suites < 30 casos (C4) ao fim de sessão |
+
+**Bypass auditado:** `ACME_FORGE_BYPASS=<motivo>` em env ou `settings.local.json` (gitignored). Todos os bypasses registrados em `docs/forge/bypass-log/YYYY-MM-DD.md`.
+
+**Skill security scan standalone:** `hooks/scripts/skill-security-scan.sh` — 5 checks (S1-S5: secrets, URLs, destrutivos, bypass, frontmatter) — para uso em CI/PR.
+
+**Relatórios de sessão:** `docs/forge/session-gate-reports/` — persistidos pelo `5-gates-summary` hook.
+
+### Changed
+
+- `settings.json` `_forge_version` bumped `0.1.0 → 0.3.0`
+- `settings.json` `_planned_features` → `_forge_features` (hooks_path adicionado)
+- `manifest.json` versão `0.2.0 → 0.3.0`
+
+---
+
 ## [0.2.0] — 2026-04-30
 
 ### Repositioning

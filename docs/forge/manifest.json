@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.2.0",
+  "manifest_version": "0.3.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.2.0",
-    "phase": "Forge-3 in progress — reviewer DeepAgent (10 SKILL.md) + 8 Guardians + 2 cross-LLM reviewers delivered. Pending: ADR-002 in consumer, first monthly audit run.",
-    "last_updated": "2026-04-30",
+    "version": "0.3.0",
+    "phase": "Forge-4 complete — 9 runtime hooks active (PreToolUse x4, PostToolUse x3, Stop x2), bypass auditado, skill-security-scan, bypass-log. Pending: Forge-5 playbooks verticais.",
+    "last_updated": "2026-05-01",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
@@ -243,9 +243,9 @@
       "id": "claude-settings",
       "path": ".claude/settings.json",
       "type": "settings",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "sha256": null,
-      "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev)"
+      "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev). Forge-4: 9 hooks ativos."
     },
     "templates": [
       {
@@ -789,7 +789,137 @@
       "_status": "Forge-2 complete — all 11 commands delivered (spec_economics 4/4 + implementation 3/3 + validation 4/4)."
     },
     "hooks": {
-      "_status": "Forge-4 not started"
+      "_status": "Forge-4 complete — 9 hooks ativos + skill-security-scan + bypass auditado",
+      "bypass_env_var": "ACME_FORGE_BYPASS",
+      "bypass_log_path": "docs/forge/bypass-log/",
+      "pre_tool_use": [
+        {
+          "id": "hook-outcome-clause-guard",
+          "path": "hooks/pre-tool-use/outcome-clause-guard.sh",
+          "type": "hook",
+          "hook_type": "PreToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2"],
+          "exit_block": 2,
+          "bypass_aware": true,
+          "description": "Bloqueia edição de cláusulas de outcome aprovadas em docs/onda-*/clients/**."
+        },
+        {
+          "id": "hook-adr-approval-gate",
+          "path": "hooks/pre-tool-use/adr-approval-gate.sh",
+          "type": "hook",
+          "hook_type": "PreToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C7"],
+          "exit_block": 2,
+          "bypass_aware": true,
+          "description": "Bloqueia edição de ADRs com aprovação já assinada."
+        },
+        {
+          "id": "hook-secret-scan",
+          "path": "hooks/pre-tool-use/secret-scan.sh",
+          "type": "hook",
+          "hook_type": "PreToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6", "C8"],
+          "exit_block": 2,
+          "bypass_aware": true,
+          "description": "Detecta API keys, tokens e connection strings hardcoded antes de escrever."
+        },
+        {
+          "id": "hook-any-type-guard",
+          "path": "hooks/pre-tool-use/any-type-guard.sh",
+          "type": "hook",
+          "hook_type": "PreToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C7", "C8"],
+          "exit_block": 2,
+          "bypass_aware": true,
+          "description": "Bloqueia uso de 'any' TypeScript em src/skus/** e src/agents/**."
+        }
+      ],
+      "post_tool_use": [
+        {
+          "id": "hook-langfuse-trace-check",
+          "path": "hooks/post-tool-use/langfuse-trace-check.sh",
+          "type": "hook",
+          "hook_type": "PostToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "exit_warn": 1,
+          "description": "Avisa quando chamadas LLM em src/agents/** não têm trace Langfuse."
+        },
+        {
+          "id": "hook-unit-economics-recalc",
+          "path": "hooks/post-tool-use/unit-economics-recalc.sh",
+          "type": "hook",
+          "hook_type": "PostToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C3"],
+          "exit_warn": 1,
+          "description": "Avisa quando prompt files mudam e /acme:unit-economics recalc é necessário."
+        },
+        {
+          "id": "hook-manifest-sync",
+          "path": "hooks/post-tool-use/manifest-sync.sh",
+          "type": "hook",
+          "hook_type": "PostToolUse",
+          "matcher": "Edit|Write",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "exit_warn": 0,
+          "description": "Informa quando artefatos Forge mudam e manifest.json precisa ser atualizado."
+        }
+      ],
+      "stop": [
+        {
+          "id": "hook-5-gates-summary",
+          "path": "hooks/stop/5-gates-summary.sh",
+          "type": "hook",
+          "hook_type": "Stop",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C3", "C4", "C6", "C7", "C8"],
+          "exit_warn": 1,
+          "description": "Gera relatório dos 5 gates Forge (manifest, any, evals, secrets, ADRs) ao fim da sessão."
+        },
+        {
+          "id": "hook-eval-suite-fresh",
+          "path": "hooks/stop/eval-suite-fresh.sh",
+          "type": "hook",
+          "hook_type": "Stop",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4"],
+          "exit_warn": 1,
+          "description": "Avisa ao fim da sessão se eval suites têm menos de 30 casos (mínimo C4)."
+        }
+      ],
+      "scripts": [
+        {
+          "id": "script-skill-security-scan",
+          "path": "hooks/scripts/skill-security-scan.sh",
+          "type": "script",
+          "usage": "standalone CI/PR",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6", "C7", "C8"],
+          "description": "Escaneia skill files (S1-S5: secrets, URLs, comandos destrutivos, bypass, frontmatter). Uso: bash hooks/scripts/skill-security-scan.sh"
+        }
+      ]
     }
   },
   "external_repos_absorbed": [
@@ -817,7 +947,8 @@
     "sha256_truncation": "first 16 hex chars of SHA-256; reviewer should recompute full hash for integrity check",
     "sha256_method": "sha256sum on file bytes (LF line endings); cross-platform note: Windows CRLF may produce different hashes — normalize to LF for stable hashes",
     "version_bumps": {
-      "0.1.0_to_0.2.0": "Repositioning as standalone framework consumable by external projects + DeepAgents. Constitution generalized; templates expanded from 4 to 9; reviewer/ folder added; examples/acme/ added."
+      "0.1.0_to_0.2.0": "Repositioning as standalone framework consumable by external projects + DeepAgents. Constitution generalized; templates expanded from 4 to 9; reviewer/ folder added; examples/acme/ added.",
+      "0.2.0_to_0.3.0": "Forge-4 hooks runtime: 9 hooks activated (PreToolUse x4, PostToolUse x3, Stop x2), skill-security-scan script, bypass auditado em bypass-log/, settings.json _forge_version bumped to 0.3.0."
     }
   }
 }

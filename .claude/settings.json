@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "_comment": "Acme Forge layer (versioned). Per-developer overrides go in settings.local.json (gitignored).",
-  "_forge_version": "0.1.0",
+  "_forge_version": "0.3.0",
   "_constitution_version": "0.1.0",
   "permissions": {
     "allow": [
@@ -54,71 +54,83 @@
   "hooks": {
     "PreToolUse": [
       {
-        "_id": "outcome-clause-guard",
-        "_status": "planned-forge-4",
-        "_purpose": "Block edits to docs/onda-*/sku_piloto.md sections D2.1-D2.5 if marked approved",
+        "_forge_hooks": "active-forge-4",
+        "_ids": ["outcome-clause-guard", "adr-approval-gate", "secret-scan", "any-type-guard"],
         "matcher": "Edit|Write",
-        "hooks": []
-      },
-      {
-        "_id": "adr-approval-gate",
-        "_status": "planned-forge-4",
-        "_purpose": "Block edits to signed ADRs without --ceo-approved flag",
-        "matcher": "Edit|Write",
-        "hooks": []
-      },
-      {
-        "_id": "secret-scan",
-        "_status": "planned-forge-4",
-        "_purpose": "Detect ANTHROPIC_API_KEY / OPENAI_API_KEY / DATABASE_URL leakage in edits",
-        "matcher": "Edit|Write",
-        "hooks": []
-      },
-      {
-        "_id": "any-type-guard",
-        "_status": "planned-forge-4",
-        "_purpose": "Block 'any' types in src/skus/** and src/agents/**",
-        "matcher": "Edit|Write",
-        "hooks": []
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/pre-tool-use/outcome-clause-guard.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/pre-tool-use/adr-approval-gate.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/pre-tool-use/secret-scan.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/pre-tool-use/any-type-guard.sh",
+            "timeout": 5000
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "_id": "langfuse-trace-check",
-        "_status": "planned-forge-4",
-        "_purpose": "Lint regex in src/agents/** edits ensures Langfuse trace call",
+        "_forge_hooks": "active-forge-4",
+        "_ids": ["langfuse-trace-check", "unit-economics-recalc", "manifest-sync"],
         "matcher": "Edit|Write",
-        "hooks": []
-      },
-      {
-        "_id": "unit-economics-recalc",
-        "_status": "planned-forge-4",
-        "_purpose": "Detect prompt changes in src/skus/*/prompts/* and trigger /acme:unit-economics recalc",
-        "matcher": "Edit|Write",
-        "hooks": []
-      },
-      {
-        "_id": "manifest-sync",
-        "_status": "planned-forge-4",
-        "_purpose": "Auto-update docs/forge/manifest.json when .claude/, docs/forge/, src/skus/, evals/, or templates/ change",
-        "matcher": "Edit|Write",
-        "hooks": []
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/post-tool-use/langfuse-trace-check.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/post-tool-use/unit-economics-recalc.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/post-tool-use/manifest-sync.sh",
+            "timeout": 5000
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "_id": "five-gates-summary",
-        "_status": "planned-forge-4",
-        "_purpose": "On session end, generate report of which Forge gates pass on current branch",
-        "hooks": []
+        "_forge_hooks": "active-forge-4",
+        "_ids": ["five-gates-summary", "eval-suite-fresh"],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/stop/5-gates-summary.sh",
+            "timeout": 30000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/stop/eval-suite-fresh.sh",
+            "timeout": 10000
+          }
+        ]
       }
     ]
   },
-  "_planned_features": {
+  "_forge_features": {
     "skills_path": ".claude/skills/{L0,L1,L2}/",
     "agents_path": ".claude/agents/",
     "commands_path": ".claude/commands/acme/",
+    "hooks_path": "hooks/",
     "bypass_env_var": "ACME_FORGE_BYPASS",
-    "bypass_log_path": "docs/forge/bypass-log/"
+    "bypass_log_path": "docs/forge/bypass-log/",
+    "bypass_note": "Set ACME_FORGE_BYPASS=<reason> in settings.local.json or env. All bypasses are logged."
   }
 }

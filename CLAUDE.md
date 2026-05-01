@@ -189,9 +189,10 @@ git diff HEAD --stat
 - ✅ Forge-0 entregue (v0.1.0 + reposicionamento v0.2.0)
 - ✅ Forge-1 genéricas concluídas: **9/9 skills** (3 L0 + 3 L1 + 3 L2) com helper pattern documentado
 - ✅ Forge-2 concluída: **11/11 slash commands** (spec/economics 4 + implementation 3 + validation 4); pipeline end-to-end de `/diagnose` a `/audit-monthly`
-- 🔄 Forge-3 em execução: **reviewer DeepAgent (10 SKILL.md) + 8 Guardians + 2 cross-LLM reviewers entregues** (F17/F18)
+- ✅ Forge-3 concluída: **reviewer DeepAgent (10 SKILL.md) + 8 Guardians + 2 cross-LLM reviewers** (F17/F18); ADR-002 template entregue
+- ✅ Forge-4 concluída (v0.3.0): **9 hooks ativos** (PreToolUse x4, PostToolUse x3, Stop x2), bypass auditado, `skill-security-scan.sh`, `bypass-log/`
 - ⏳ Pendências do consumidor: ADR-002 efetiva (template entregue) + primeira auditoria mensal de teste
-- ⏳ Próximo no framework: **Forge-4 — Hooks runtime** (PreToolUse, PostToolUse, PreCommit, manifest-sync, deepagents-resync)
+- ⏳ Próximo no framework: **Forge-5 — Playbooks verticais** (pós cliente 1 em AUTONOMOUS)
 - ⏳ Resíduo Forge-1 (opcional): 4 skills Acme-específicas em `examples/acme/skills/`
 
 Veja [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) para detalhes.

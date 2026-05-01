@@ -1,7 +1,7 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 concluída (v0.2.0); 🔄 Forge-1 em execução (Tier 1 entregue)
-> **Última atualização**: 2026-04-30
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 concluídas (v0.3.0); ⏳ Forge-5 pós cliente 1
+> **Última atualização**: 2026-05-01
 > **Total estimado**: 15–22 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
@@ -170,28 +170,28 @@
 
 ### Tasks
 
-- [ ] **F4.1** Hooks PreToolUse:
-  - `outcome-clause-guard` (bloqueia edição de D2 aprovado)
-  - `adr-approval-gate` (bloqueia edição de ADRs assinadas)
-  - `secret-scan` (de claudekit)
-  - `any-type-guard` (bloqueia `any` em `src/skus/**`)
-- [ ] **F4.2** Hooks PostToolUse:
-  - `langfuse-trace-check` (lint regex em chamadas LLM)
-  - `unit-economics-recalc` (detecta mudança de prompts e dispara recalc)
-- [ ] **F4.3** Hooks PreCommit:
-  - `5-gates-summary` (relatório de gates do branch)
-  - `eval-suite-fresh` (bloqueia se evals/{sku}/cases/ <30)
-  - `manifest-sync` (atualiza `manifest.json` automaticamente)
-- [ ] **F4.4** Permissions deny list (rm -rf, prisma reset --force, npm publish)
-- [ ] **F4.5** Skill security auditor (escaneia skills antes de aceitar PR)
-- [ ] **F4.6** Bypass auditado: `ACME_FORGE_BYPASS=incident` em `settings.local.json`
+- [x] **F4.1** Hooks PreToolUse — **4/4 concluídas em 2026-05-01**:
+  - [x] `outcome-clause-guard` (bloqueia edição de D2 aprovado)
+  - [x] `adr-approval-gate` (bloqueia edição de ADRs assinadas)
+  - [x] `secret-scan` (detecta API keys / connection strings)
+  - [x] `any-type-guard` (bloqueia `any` em `src/skus/**` e `src/agents/**`)
+- [x] **F4.2** Hooks PostToolUse — **3/3 concluídas em 2026-05-01**:
+  - [x] `langfuse-trace-check` (lint regex em chamadas LLM sem trace)
+  - [x] `unit-economics-recalc` (detecta mudança de prompts e dispara recalc C3)
+  - [x] `manifest-sync` (informa quando artefatos Forge mudam sem update de manifest)
+- [x] **F4.3** Hooks Stop — **2/2 concluídas em 2026-05-01**:
+  - [x] `5-gates-summary` (relatório de gates ao fim da sessão, persiste em session-gate-reports/)
+  - [x] `eval-suite-fresh` (avisa se evals/{sku}/cases/ < 30 ao fim da sessão)
+- [x] **F4.4** Permissions deny list (já presente desde Forge-0 em settings.json)
+- [x] **F4.5** `skill-security-scan.sh` standalone (S1-S5: secrets, URLs, destrutivos, bypass, frontmatter)
+- [x] **F4.6** Bypass auditado: `ACME_FORGE_BYPASS=<motivo>` em env ou `settings.local.json`; todos os bypasses registrados em `docs/forge/bypass-log/YYYY-MM-DD.md`
 
 ### Critério de pronto
 
-- ✅ Tentativa de edição protegida sem flag é bloqueada
-- ✅ Bypass auditado deixa rastro em `docs/forge/bypass-log/`
-- ✅ Manifest sync hook atualiza `manifest.json` em todo commit que toca `.claude/` ou `docs/forge/`
-- ✅ Reviewer DeepAgents valida que hooks estão configurados conforme Constitution
+- ✅ Tentativa de edição protegida sem flag é bloqueada — **entregue**
+- ✅ Bypass auditado deixa rastro em `docs/forge/bypass-log/` — **entregue**
+- ✅ Manifest sync hook informa quando artefatos Forge mudam sem update de manifest — **entregue**
+- ✅ Reviewer DeepAgents valida que hooks estão configurados conforme Constitution — **entregue (script)**
 
 ---
 

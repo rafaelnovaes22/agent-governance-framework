@@ -11,7 +11,9 @@ Thumbs.db
 
 # Audit outputs (geram localmente; contêm dados de produção)
 docs/forge/audits/
+docs/forge/session-gate-reports/
 docs/forge/bypass-log/
+!docs/forge/bypass-log/.gitkeep
 
 # Node (caso Forge-3 traga build de reviewer Node/TS)
 node_modules/
