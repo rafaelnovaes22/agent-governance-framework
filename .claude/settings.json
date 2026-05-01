@@ -52,7 +52,6 @@
     ]
   },
   "hooks": {
-    "_comment": "Hook stubs for Forge-4. PreToolUse/PostToolUse/PreCommit are placeholders documenting intent; concrete commands wired in Forge-4.",
     "PreToolUse": [
       {
         "_id": "outcome-clause-guard",
