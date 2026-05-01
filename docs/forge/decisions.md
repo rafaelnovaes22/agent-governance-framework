@@ -263,6 +263,69 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F19 (NOVO 2026-05-01) — Estratégia de playbooks verticais
+
+**Decisão**: ✅ **Playbooks como artefatos de primeira classe no Forge**
+
+**Formato**: `docs/playbooks/{vertical}/playbook.md` no projeto consumidor, gerado via `/acme:playbook-extract` após o primeiro SKU do vertical atingir `AUTONOMOUS`.
+
+**Critério de sucesso do playbook**: cliente 2 do mesmo vertical consome **≤ 30% do esforço do cliente 1**. Se não atingir, o playbook deve registrar os blocos que falharam em reutilização e atualizar estimativas.
+
+**O que entra no playbook**:
+1. Blocos com **alta confiança de reutilização** (sem hardcode, sem persona cliente-específica)
+2. Padrão de TenantContext do vertical
+3. Seed de eval categorizado (≥ 30 casos)
+4. Métricas reais de esforço do cliente 1
+
+**O que NÃO entra**:
+- Dados do cliente (PII, nomes, volumes comerciais) — anonimizar antes de incluir
+- Seções da Constitution — são compartilhadas via Forge, não por playbook
+- Prompts com tenant hardcoded — se existe, é bug C8, não bloco
+
+---
+
+## F20 (NOVO 2026-05-01) — Reavaliação F5.5: Deploy global em `~/.claude/`
+
+**Status**: ✅ **Avaliado em 2026-05-01 (Forge-5) — manter projeto-scoped por ora**
+
+**Contexto**: F2 decidiu repo standalone com `cp -r` para projetos consumidores. F5.5 questiona se faz sentido promover para `~/.claude/` global do desenvolvedor.
+
+**Avaliação**:
+
+| Critério | Global `~/.claude/` | Projeto-scoped (atual) |
+|---|---|---|
+| Versão por projeto | ❌ todos na mesma versão | ✅ cada projeto na versão que adotou |
+| Atualizações | ❌ riscos de breaking change silencioso | ✅ sync explícito e controlado |
+| Múltiplos projetos paralelos | ⚠️ mesmas skills para projetos diferentes | ✅ isolamento natural |
+| Onboarding novo dev | ⚠️ precisa instalar globalmente | ✅ vem com o repo |
+
+**Decisão**: **Manter projeto-scoped**. Criar `forge-global-install.sh` como opt-in experimental para devs que preferem global — mas o padrão e o caso de uso primário é projeto-scoped.
+
+**Reavaliar**: quando ≥ 5 projetos diferentes adotarem o mesmo Forge e a manutenção de `cp -r` por projeto for demonstravelmente onerosa.
+
+---
+
+## F21 (NOVO 2026-05-01) — Reavaliação F5.6: Publicação como plugin
+
+**Status**: ✅ **Avaliado em 2026-05-01 (Forge-5) — não publicar ainda**
+
+**Contexto**: F5 decidiu "não na Forge-0, reavaliar após Forge-3". Forge-5 é o momento de avaliar.
+
+**Critérios para publicar**:
+1. ≥ 3 projetos de **domínios diferentes** adotando com sucesso
+2. Reviewer DeepAgent executando ≥ 3 auditorias mensais com resultados validados
+3. Constitution estável (nenhum MAJOR bump) por ≥ 6 meses
+4. Nenhum dado proprietário da Acme nos artefatos canônicos
+
+**Status atual**:
+- Projetos: 1 (Acme apenas) — abaixo do mínimo ❌
+- Auditorias reais: 0 — abaixo do mínimo ❌
+- Constitution: estável desde 0.2.0 (< 6 meses) ⚠️
+
+**Decisão**: **Não publicar**. Reavaliar após cliente 2 de vertical diferente em AUTONOMOUS.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -271,3 +334,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.1.0 | 2026-04-30 | F4 override: Gemini → DeepAgents/GPT-5.5 | Diretiva direta |
 | 0.2.0 | 2026-04-30 | F2 atualizado para repo standalone | Reposicionamento como produto distribuível |
 | 0.2.0 | 2026-04-30 | F13-F16 adicionadas | Generalização da Constitution + estrutura examples/ + versionamento + distribuição |
+| 0.4.0 | 2026-05-01 | F19-F21 adicionadas | Forge-5: estratégia de playbooks + reavaliação de deploy global e plugin |

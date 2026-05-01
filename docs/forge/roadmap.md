@@ -201,18 +201,26 @@
 
 ### Tasks
 
-- [ ] **F5.1** Após primeiro SKU em AUTONOMOUS, extrair playbook vertical em `docs/playbooks/{vertical}/`
-- [ ] **F5.2** Catalogar SKUs como "blocos remontáveis" (estágio atual #4 da metodologia)
-- [ ] **F5.3** Retrospective em `docs/retrospectives/{sku}/`
-- [ ] **F5.4** Refinar Constitution se princípios precisarem evolução (versionado, exige ADR)
-- [ ] **F5.5** Reavaliar F2 (promoção do Forge ao `~/.claude/` global)
-- [ ] **F5.6** Reavaliar F5 (publicação como plugin)
+- [x] **F5.1** Infraestrutura para playbooks verticais — **entregue em 2026-05-01**:
+  - [x] `templates/playbook.template.md` — template com blocos, padrões, métricas de esforço
+  - [x] `/acme:playbook-extract` — command que guia extração a partir de SKU em AUTONOMOUS
+  - [x] `docs/playbooks/README.md` — estrutura esperada + critérios de sucesso
+  - [ ] Playbook real do primeiro vertical — **pendente: aguardando cliente 1 em AUTONOMOUS**
+- [x] **F5.2** Catalogação de blocos reutilizáveis — **entregue via template** (tiers 1/2/3 com confiança)
+- [x] **F5.3** Infraestrutura para retrospectivas — **entregue em 2026-05-01**:
+  - [x] `templates/retrospective.template.md` — template C1-C8 + gate failures + métricas reais
+  - [x] `docs/retrospectives/` — diretório criado
+  - [ ] Retrospectiva real do primeiro SKU — **pendente: aguardando AUTONOMOUS**
+- [x] **F5.4** Processo de refinamento da Constitution documentado em `CLAUDE.md` (exige ADR + MAJOR)
+- [x] **F5.5** Reavaliado em F20 — manter projeto-scoped; `forge-global-install.sh` como opt-in futuro
+- [x] **F5.6** Reavaliado em F21 — não publicar ainda; reavaliar com ≥ 3 projetos em AUTONOMOUS
 
 ### Critério de pronto
 
-- ✅ Cliente 2 do mesmo vertical consome ≤30% das horas do cliente 1
-- ✅ Playbook vertical valida métricas reais
-- ✅ Retrospective publicada
+- ✅ Templates e command de extração entregues (infraestrutura do framework) — **entregue**
+- ⏳ Cliente 2 do mesmo vertical consome ≤30% das horas do cliente 1 — **pendente: aguardando dados reais**
+- ⏳ Playbook vertical com métricas reais — **pendente: aguardando cliente 1 em AUTONOMOUS**
+- ⏳ Retrospectiva publicada com gate failures reais — **pendente**
 
 ---
 

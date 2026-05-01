@@ -9,6 +9,29 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.4.0] — 2026-05-01
+
+### Added (Forge-5 — Playbooks verticais)
+
+**Infraestrutura para reutilização vertical (meta: cliente 2 ≤ 30% esforço do cliente 1):**
+
+- `templates/playbook.template.md` — template de playbook vertical com blocos reutilizáveis por tier (confiança alta/média/baixa), padrão de TenantContext, métricas de esforço cliente 1 vs. cliente 2
+- `templates/retrospective.template.md` — retrospectiva por SKU com compliance C1-C8, gate failures, métricas reais (C3 custo/preço, C4 SHADOW, C6 trace coverage), lições aprendidas
+- `/acme:playbook-extract` — slash command que guia extração de playbook a partir de SKU em AUTONOMOUS; gera `docs/playbooks/{vertical}/playbook.md` + `docs/retrospectives/{sku}/`
+- `docs/playbooks/README.md` + `docs/retrospectives/` — estrutura de diretórios no framework
+
+**Decisões adicionadas:**
+- **F19** — Estratégia de playbooks: blocos classificados por tier e confiança; PII fora do playbook; critério ≤30% obrigatório
+- **F20** — Reavaliação F5.5 (deploy global `~/.claude/`): manter projeto-scoped; reavaliar com ≥5 projetos
+- **F21** — Reavaliação F5.6 (plugin publication): não publicar ainda; critérios definidos (≥3 projetos AUTONOMOUS, ≥3 auditorias reais, Constitution estável ≥6 meses)
+
+### Changed
+
+- `manifest.json` versão `0.3.0 → 0.4.0` (12 commands: +playbook-extract; 12 templates: +playbook + retrospective)
+- `docs/forge/decisions.md` — F19, F20, F21 adicionadas; histórico atualizado
+
+---
+
 ## [0.3.0] — 2026-05-01
 
 ### Added (Forge-4 — Hooks runtime)
