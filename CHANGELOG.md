@@ -181,6 +181,67 @@ Cada skill segue estrutura:
 
 Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme-específicas (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`) ficam em `examples/acme/skills/` (consumidas por `acme-governanca-ia`), respeitando F13/F14.
 
+### Added (Forge-2 — validation entregue, 2026-04-30) — **Forge-2 completa: 11/11 commands**
+
+- **4 slash commands** em `.claude/commands/acme/` fechando o pipeline:
+  - `/acme:eval` — executa eval suite com **pass rate por outcome_category** + **source_mode breakdown** (real/synthetic/edge/adversarial) + detecção de **regressão** vs último run com mesmo `prompt_hash`. Sub-trace por case (100%, sem amostragem)
+  - `/acme:promote` — **único caminho legítimo** para mudar `subscription.mode`; valida **5 gates** obrigatórios (C2 outcome clause hash match, C3 viable + recalc clean, C4 SLA pré-contratada com signature, eval recente verde, aprovação cruzada PO × Promotion Officer). Append-only log em `subscriptions/{id}/promotions.md`
+  - `/acme:audit-monthly` — sample 5-10% de runs ASSISTED/AUTONOMOUS, audit estrutural C1-C8 (lint regex C7/C8 + correspondência prompt ↔ baseline-cost), drift detection, formato consumível pelo reviewer DeepAgent (`reviewer/output-schema.json`). Suporta `auto_rollback_on_breach: false` (default — bypass exige flag explícita)
+  - `/acme:pre-merge-check` — **read-only**, < 30s, **5 gates** mecânicos (G1 C7 imports, G2 C8 hardcode, G3 C6 observe, G4 manifest sync, G5 eval green). Exit code 0/1/2 para CI/pre-commit; integração com hook `pre-merge-check` virá em Forge-4
+
+- **Pipeline completo end-to-end** agora encadeado nos 11 commands:
+  ```
+  /diagnose → /spec → /unit-economics → /sla-threshold
+            → /plan → /tasks → /implement
+            → /eval → /promote --to_mode=start_shadow
+            → (14+ dias) → /eval → /promote --to_mode=shadow_to_assisted
+            → (30+ dias) → /promote --to_mode=assisted_to_autonomous
+            → /audit-monthly (mensal)
+  /pre-merge-check em todo PR
+  ```
+
+- **Bloqueio mecânico de promoção**: nenhuma skill ou command (exceto `/acme:promote`) pode mudar `subscription.mode`. `@shadow-mode-runner.start` checked twice (pre-condição em command + skill).
+
+### Pendente em Forge-2
+
+- Nenhum item — onda concluída.
+
+- **3 slash commands** em `.claude/commands/acme/` para a fase de implementação:
+  - `/acme:plan` — gera plano técnico em **8 seções canônicas** (escopo derivado da spec, camadas C5/C7, fluxo input→output, pontos de instrumentação C6, TenantContext schema C8, cronograma com faixas, riscos enumerados, critérios de pronto). `target_model_advisory` apenas — escolha de modelo concreto fica para ADR-002 ou config (C7)
+  - `/acme:tasks` — quebra plan em **DAG validado** (sem ciclos) distribuído em 5 ondas: (1) scaffolding C5/C6/C7/C8, (2) prompt build via `@artifact-prompt-builder`, (3) eval seed via `@eval-case-author` em loop até `c4_threshold_met: true` por categoria, (4) SHADOW prep (sem iniciar), (5) métricas e alertas. Cada task tem gate de pronto verificável (lint, test, hash)
+  - `/acme:implement` — executa as 5 ondas em ordem topológica do DAG, gera **stubs boilerplate** (`src/llm/adapters/`, `src/observability/trace.ts`, `src/tenants/context.ts`, `src/skus/{id}/index.ts`, `src/skus/{id}/prompt.ts`), enforce mecânico de C6/C7/C8 (lint regex), pausa em gates subjetivos. **Nunca inicia SHADOW** — bloqueio enforced via `error: shadow_start_attempted`
+
+- **Princípio de design**: implement gera estrutura mínima viável com `TODO` explícito; conhecimento de domínio fica com o dev. Provider e modelo concretos são decisão do consumidor, não do framework
+
+### Pendente em Forge-2
+
+- F2.3 validação: `/acme:eval`, `/acme:promote`, `/acme:audit-monthly`, `/acme:pre-merge-check` (4 commands)
+
+---
+
+### Added (Forge-2 — spec/economics entregue, 2026-04-30) — 4/11 commands
+
+- **4 slash commands** em `.claude/commands/acme/` orquestrando as skills do Forge-1:
+  - `/acme:diagnose` — Fase 0 cobrável; orquestra `@diagnostic-runner` + helpers L0; persiste `docs/clients/{client_id}/diagnostic.md`
+  - `/acme:spec` — **renomeada de `/acme:spec-sku`**; aceita `--type=platform-sku|product|diagnostic` resolvendo o template correto pós-v0.2.0; cláusula de outcome copiada literalmente do diagnostic com hash registrado
+  - `/acme:unit-economics` — invoca `@baseline-cost-builder`; **bloqueia** `/acme:sla-threshold` se `c3_check.status == unviable`; cross-valida volume diagnostic vs process-map (±20%)
+  - `/acme:sla-threshold` — pré-contrata `c4_thresholds` com **aprovação humana explícita + signature_hash**, hard floor `min_window_days >= 14`, validação de consistência com C3, bloqueio de self-approval (checks-and-balances comercial × engenharia)
+
+- **Padrão de slash command** estabelecido (canonical para F2.2/F2.3):
+  - Frontmatter: `description`, `allowed-tools`, `arguments.{required,optional}`, `linked_principles`, `invokes_skills`, `output_artifact`, `trace_required`, opcional `human_approval_required`
+  - Pre-conditions explícitas (estado do repo necessário antes de iniciar)
+  - Sequência de execução numerada (start trace → helpers → tier 2 reads → core skill → persist → end trace)
+  - Output structured (YAML) com `next_step` apontando próximo command
+  - Verification gate com checklist
+  - Tabela anti-rationalization
+  - Saída de erro estruturada com enum
+  - Trace Langfuse mesmo em uso manual (C6)
+
+- **Decisão de naming**: `/acme:spec-sku` → `/acme:spec` para alinhar ao reposicionamento v0.2.0 (3 templates de spec disponíveis). Mudança documentada no histórico do command.
+
+
+---
+
 ### Added (Forge-1 — Tier 3 entregue, 2026-04-30) — todas as skills genéricas concluídas (9/9)
 
 - **3 skills L2 (Tier 3 operacional)** em `.claude/skills/L2/` fechando a cadeia operacional:

@@ -188,7 +188,8 @@ git diff HEAD --stat
 
 - ✅ Forge-0 entregue (v0.1.0 + reposicionamento v0.2.0)
 - ✅ Forge-1 genéricas concluídas: **9/9 skills** (3 L0 + 3 L1 + 3 L2) com helper pattern documentado
-- ⏳ Resíduo Forge-1: 4 skills Acme-específicas em `examples/acme/skills/` (F1.6, opcional)
-- ⏳ Próximo: **Forge-2 — Slash commands** (`/acme:diagnose`, `/acme:spec-sku`, `/acme:promote`, etc — pipeline completo)
+- ✅ Forge-2 concluída: **11/11 slash commands** (spec/economics 4 + implementation 3 + validation 4); pipeline end-to-end de `/diagnose` a `/audit-monthly`
+- ⏳ Próximo: **Forge-3 — Subagents Guardian + Reviewer DeepAgent** (10 agents + ADR-002 do reviewer)
+- ⏳ Resíduo Forge-1 (opcional): 4 skills Acme-específicas em `examples/acme/skills/`
 
 Veja [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) para detalhes.

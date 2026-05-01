@@ -4,7 +4,7 @@
   "framework": {
     "name": "Acme Forge",
     "version": "0.2.0",
-    "phase": "Forge-1 generic skills complete (9/9). Acme-specific skills (4) reserved for examples/acme/skills/.",
+    "phase": "Forge-2 complete — all 11 slash commands delivered (spec/economics 4/4 + implementation 3/3 + validation 4/4).",
     "last_updated": "2026-04-30",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -519,7 +519,140 @@
       "_status": "Forge-3 not started"
     },
     "commands": {
-      "_status": "Forge-2 not started"
+      "spec_economics": [
+        {
+          "id": "command-diagnose",
+          "path": ".claude/commands/acme/diagnose.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2"],
+          "invokes_skills": ["company-dna", "icp-loader", "offerings-loader", "diagnostic-runner"],
+          "trace_required": true,
+          "description": "Conduz Fase 0 cobrável (10 blocos) — porta de entrada do pipeline. Output: docs/clients/{client_id}/diagnostic.md."
+        },
+        {
+          "id": "command-spec",
+          "path": ".claude/commands/acme/spec.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C8"],
+          "invokes_skills": ["company-dna", "offerings-loader", "process-mapper"],
+          "trace_required": true,
+          "description": "Gera spec do artefato com cláusula de outcome literal. --type ∈ {platform-sku, product, diagnostic} resolve template. Renomeada de /acme:spec-sku."
+        },
+        {
+          "id": "command-unit-economics",
+          "path": ".claude/commands/acme/unit-economics.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C3"],
+          "invokes_skills": ["offerings-loader", "baseline-cost-builder"],
+          "trace_required": true,
+          "description": "Calcula baseline humano e deriva preço mínimo C3. Bloqueia /acme:sla-threshold se c3_check.status == unviable."
+        },
+        {
+          "id": "command-sla-threshold",
+          "path": ".claude/commands/acme/sla-threshold.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C3", "C4"],
+          "invokes_skills": ["offerings-loader"],
+          "trace_required": true,
+          "human_approval_required": true,
+          "description": "Pré-contrata SLA mensurável (agreement_rate, latency_p95, cost_per_outcome, min_run_count, min_window_days). Persiste em spec.c4_thresholds com signature_hash."
+        }
+      ],
+      "implementation": [
+        {
+          "id": "command-plan",
+          "path": ".claude/commands/acme/plan.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "invokes_skills": ["offerings-loader"],
+          "trace_required": true,
+          "description": "Plano técnico em 8 seções canônicas (escopo, camadas, fluxo, instrumentação, tenant, cronograma, riscos, critérios). Não escolhe modelo final."
+        },
+        {
+          "id": "command-tasks",
+          "path": ".claude/commands/acme/tasks.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C5", "C6"],
+          "invokes_skills": [],
+          "trace_required": true,
+          "description": "Quebra plan em DAG de tasks ordenadas em 5 ondas (scaffolding → prompt → eval seed → SHADOW prep → metrics) com gate de pronto por task."
+        },
+        {
+          "id": "command-implement",
+          "path": ".claude/commands/acme/implement.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "invokes_skills": ["artifact-prompt-builder", "eval-case-author", "offerings-loader"],
+          "trace_required": true,
+          "description": "Executa as 5 ondas do tasks.md, gera scaffolding com instrumentação obrigatória e camada de abstração; pausa em gates subjetivos. NÃO inicia SHADOW (responsabilidade de /acme:promote)."
+        }
+      ],
+      "validation": [
+        {
+          "id": "command-eval",
+          "path": ".claude/commands/acme/eval.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C2", "C4", "C6"],
+          "invokes_skills": ["offerings-loader"],
+          "trace_required": true,
+          "description": "Executa eval suite contra prompt atual; pass rate por outcome_category, source_mode breakdown, regressão vs último run com mesmo prompt_hash. Output: evals/{id}/runs/{date}-eval-{prompt_hash}.md."
+        },
+        {
+          "id": "command-promote",
+          "path": ".claude/commands/acme/promote.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C2", "C3", "C4", "C6"],
+          "invokes_skills": ["offerings-loader", "shadow-mode-runner"],
+          "trace_required": true,
+          "human_approval_required": true,
+          "gate_count": 5,
+          "description": "Único caminho legítimo para mudar subscription.mode. 5 gates obrigatórios + aprovação cruzada PO × Promotion Officer com signature_hash. Append-only log em subscriptions/{id}/promotions.md."
+        },
+        {
+          "id": "command-audit-monthly",
+          "path": ".claude/commands/acme/audit-monthly.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C3", "C4", "C6", "C7", "C8"],
+          "invokes_skills": ["offerings-loader"],
+          "trace_required": true,
+          "deep_agent_consumable": true,
+          "description": "Sample 5-10% de runs ASSISTED/AUTONOMOUS, drift detection, audit estrutural C5-C8, formato consumível pelo reviewer DeepAgent. Output: docs/forge/audits/{YYYY-MM}.md."
+        },
+        {
+          "id": "command-pre-merge-check",
+          "path": ".claude/commands/acme/pre-merge-check.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "invokes_skills": [],
+          "trace_required": false,
+          "read_only": true,
+          "gate_count": 5,
+          "description": "Read-only consolidação de 5 gates (C7 imports, C8 hardcode, C6 observe, manifest sync, eval green) — go/no-go para CI/pre-commit. Exit code 0/1/2 conforme overall."
+        }
+      ],
+      "_status": "Forge-2 complete — all 11 commands delivered (spec_economics 4/4 + implementation 3/3 + validation 4/4)."
     },
     "hooks": {
       "_status": "Forge-4 not started"

@@ -97,30 +97,32 @@
 
 ### Tasks
 
-- [ ] **F2.1** Comandos de spec/economics:
-  - `/acme:diagnose` — Fase 0 completa
-  - `/acme:spec-sku` — gera spec D1+D2
-  - `/acme:unit-economics` — preenche D5
-  - `/acme:sla-threshold` — preenche D6
-- [ ] **F2.2** Comandos de implementação:
-  - `/acme:plan` — plano técnico
-  - `/acme:tasks` — quebra em tasks
-  - `/acme:implement` — execução guiada
-- [ ] **F2.3** Comandos de validação:
-  - `/acme:eval` — roda eval suite
-  - `/acme:promote` — promove modo (SHADOW→ASSISTED→AUTONOMOUS)
-  - `/acme:audit-monthly` — auditoria 5-10%
-  - `/acme:pre-merge-check` — consolida 5 gates
-- [ ] **F2.4** Cada command com:
-  - Verification gate explícito (não-negociável)
-  - Output structured (markdown ou JSON conforme aplicável)
-  - Logs Langfuse (mesmo para uso manual)
+- [x] **F2.1** Comandos de spec/economics — **4/4 concluídas em 2026-04-30**:
+  - [x] `/acme:diagnose` — Fase 0 cobrável (10 blocos) com handoff para spec/unit-economics
+  - [x] `/acme:spec` — gera spec do artefato (renomeada de `spec-sku`); `--type ∈ {platform-sku, product, diagnostic}` resolve template
+  - [x] `/acme:unit-economics` — calcula baseline + deriva preço mínimo C3; bloqueia avanço se unviable
+  - [x] `/acme:sla-threshold` — pré-contrata C4 thresholds com aprovação humana + signature_hash imutável
+- [x] **F2.2** Comandos de implementação — **3/3 concluídas em 2026-04-30**:
+  - [x] `/acme:plan` — plano técnico em 8 seções canônicas (camadas, fluxo, instrumentação, tenant, cronograma, riscos)
+  - [x] `/acme:tasks` — DAG em 5 ondas (scaffolding → prompt → eval seed → SHADOW prep → metrics) com gate por task
+  - [x] `/acme:implement` — executa ondas com pausas humanas; NÃO inicia SHADOW (responsabilidade de `/acme:promote`)
+- [x] **F2.3** Comandos de validação — **4/4 concluídas em 2026-04-30**:
+  - [x] `/acme:eval` — eval suite com pass rate por categoria, source_mode breakdown, detecção de regressão por `prompt_hash`
+  - [x] `/acme:promote` — único caminho para mudar `subscription.mode`; 5 gates + aprovação cruzada com `signature_hash`
+  - [x] `/acme:audit-monthly` — sample 5-10%, drift detection, audit C1-C8, output consumível pelo reviewer DeepAgent
+  - [x] `/acme:pre-merge-check` — read-only consolidação de 5 gates (C7/C8/C6/manifest/eval) com exit code 0/1/2
+- [x] **F2.4** Cada command com (validado nas 11):
+  - [x] Verification gate explícito (não-negociável)
+  - [x] Output structured (YAML)
+  - [x] Trace Langfuse mesmo para uso manual (exceto `pre-merge-check` que é read-only)
+  - [x] Tabela anti-rationalization
+  - [x] Saída de erro estruturada com enum
 
 ### Critério de pronto
 
-- ✅ Pipeline `/diagnose → /spec → /economics → /sla → /plan → /tasks → /implement → /eval → /promote` roda end-to-end no SKU exemplo
-- ✅ Cada gate produz artefato persistido em `docs/onda-X/` ou `evals/{sku}/`
-- ✅ Manifest atualizado com 11 commands
+- ✅ Pipeline `/diagnose → /spec → /unit-economics → /sla-threshold → /plan → /tasks → /implement → /eval → /promote` validável end-to-end nos artefatos do framework
+- ✅ Cada gate produz artefato persistido em `docs/clients/{client_id}/`, `docs/specs/`, `prompts/`, `evals/`, `subscriptions/` ou `docs/forge/audits/`
+- ✅ Manifest atualizado com 11 commands organizados em 3 grupos (spec_economics, implementation, validation)
 
 ---
 
