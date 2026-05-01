@@ -98,13 +98,11 @@ Aplicação local da Acme. Outros projetos consumidores podem ignorar.
 
 ## F9 — Stack técnica do reviewer DeepAgent
 
-**Status**: Pendente — decisão em ADR-002 do projeto consumidor (Forge-3)
+**Status**: ✅ **Decidida em 2026-05-01** (substitui F17/F18 — ver abaixo)
 
-**Opções**:
-- (a) Python `deepagents` (LangChain) — alinhado ao curso Scoras estudado
-- (b) Node/TS `@langchain/langgraph` — alinhado ao stack do `acme-governanca-ia`
+**Decisão**: **Python `deepagents` (LangChain)** + **Deep Agents CLI v0.0.34+** + **Anderson Amaral converter** para tradução Claude Code → Deep Agents.
 
-**Default sugerido**: (a) Python `deepagents` — foco em planejamento e filesystem virtual.
+Histórico: opção (b) Node/TS `@langchain/langgraph` foi descartada porque o Deep Agents CLI é Python-first; alinhamento com o stack TS do `acme-governanca-ia` é feito via boundary HTTP/CLI (reviewer roda como processo separado, não como dependência do consumidor).
 
 ---
 
@@ -205,6 +203,63 @@ Mantenedor (Acme / Novais Digital) controla quem pode adotar. Adoção por terce
 - Após Forge-5 concluída
 - Após pelo menos 3 projetos de domínios diferentes adotarem com sucesso
 - Após reviewer DeepAgent estar implementado e testado
+
+---
+
+## F17 (NOVO 2026-05-01) — Stack do reviewer: Deep Agents CLI
+
+**Decisão**: ✅ **`deepagents` CLI (Python, LangChain) v0.0.34+**
+
+**Justificativa**:
+- Filesystem virtual e tools tipados (`write_file`, `execute`, `read_file`, `task`) batem com a auditoria que precisamos: ler artefatos do consumidor, rodar lints, paralelizar checks por princípio
+- Suporte nativo a sub-agents via `task` permite paralelizar audit C1, C2, C3, ..., C8
+- Modelo agnóstico — pode usar Claude (Sonnet/Opus), GPT (4.x/5.5), Gemini conforme custo/qualidade
+- Maturidade do framework + comunidade ativa (LangChain)
+
+**Local de execução**:
+- Reviewer roda como **processo Python separado** no projeto consumidor (ou CI), não como dependência embarcada do framework Forge
+- Acesso aos artefatos via filesystem (consumidor monta o repo no working directory do agent)
+- Output gravado em `docs/forge/audits/{YYYY-MM}.md` (consumido posteriormente pelo `/acme:audit-monthly` do Forge ou disparado por ele)
+
+**Provedor de modelo**: ainda **F10** (default OpenAI direto). Reviewer respeita variável de ambiente `DEEPAGENTS_MODEL` para flexibilidade.
+
+**Implicação para Forge**:
+- Skills do Forge (`.claude/skills/`) ficam em formato Claude Code (uso pelo dev em sessão)
+- Para o reviewer ler/executar essas skills, precisamos **versão paralela** em `reviewer/deepagents/skills/` no formato Deep Agents
+- Conversão é feita via F18 abaixo
+
+---
+
+## F18 (NOVO 2026-05-01) — Tradução Claude Code → Deep Agents
+
+**Decisão**: ✅ **Adotar `andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter` como ferramenta de tradução**
+
+**Repositório**: https://github.com/andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter (MIT, ativo)
+
+**Por que**:
+- Skill que vive no Deep Agents CLI; instalação via one-liner ou `curl | bash`
+- Aplica **8 transformações estruturadas (T1-T8)** + tabela de semantic replacements (CLAUDE.md → AGENTS.md, `.claude/` → `.deepagents/`, implicit bash → `execute`, etc)
+- Suporta batch conversion e dry-run; pode ser auditado em CI
+
+**Como aplicamos**:
+- Manter skills do Forge no formato Claude Code (`.claude/skills/`) como **fonte canônica**
+- Versão Deep Agents fica em `reviewer/deepagents/skills/{tier}/{name}/SKILL.md` — gerada por conversão
+- Toda mudança numa skill canônica dispara re-conversão (Forge-4 hook futuro)
+- **Zero divergência manual**: a versão Deep Agents nunca é editada à mão; sempre vem do converter
+
+**Não abraçamos como dependência hard**: se o converter sair de manutenção, podemos manter a versão Deep Agents à mão temporariamente — formato é estável (frontmatter + 8 seções).
+
+**Output esperado** (estrutura por skill):
+
+```
+reviewer/deepagents/skills/L0/company-dna/
+  └── SKILL.md         ← gerado, com frontmatter Deep Agents + T1-T8
+
+reviewer/deepagents/skills/reviewer/forge-auditor/
+  └── SKILL.md         ← skill orquestradora, escrita direto em formato Deep Agents
+```
+
+**Conversion log**: cada execução do converter registra em `reviewer/deepagents/conversion-log.md` (origem, hash da skill original, data, versão do converter, transformações aplicadas).
 
 ---
 

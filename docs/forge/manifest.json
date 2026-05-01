@@ -4,7 +4,7 @@
   "framework": {
     "name": "Acme Forge",
     "version": "0.2.0",
-    "phase": "Forge-2 complete — all 11 slash commands delivered (spec/economics 4/4 + implementation 3/3 + validation 4/4).",
+    "phase": "Forge-3 in progress — reviewer DeepAgent infrastructure delivered (10 SKILL.md in reviewer/deepagents/) per F17/F18. Subagent Guardians pending.",
     "last_updated": "2026-04-30",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -30,17 +30,34 @@
     ],
     "reviewer": {
       "type": "deep-agent",
-      "model": "gpt-5.5",
-      "provider": "openai",
+      "stack": "deepagents-cli (LangChain Python, v0.0.34+)",
+      "model": "configurable via DEEPAGENTS_MODEL env",
+      "provider": "openai (default — F10)",
       "frequency": "monthly",
       "contract_path": "docs/forge/reviewer-contract.md",
-      "implementation_status": "specified-not-implemented",
-      "implementation_target": "Forge-3",
+      "implementation_status": "infrastructure-complete (10 skills converted; runtime invocation pending in consumer project)",
+      "implementation_decisions": ["F17", "F18"],
+      "converter_repo": "https://github.com/andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter",
       "artifacts": {
         "prompt": "reviewer/prompt.template.md",
         "output_schema": "reviewer/output-schema.json",
         "validation_rules": "reviewer/validation-rules.json",
-        "example_audit": "reviewer/example-audit.md"
+        "example_audit": "reviewer/example-audit.md",
+        "deepagents_root": "reviewer/deepagents/",
+        "deepagents_readme": "reviewer/deepagents/README.md",
+        "deepagents_conversion_log": "reviewer/deepagents/conversion-log.md",
+        "deepagents_skills": [
+          "reviewer/deepagents/skills/L0/company-dna/SKILL.md",
+          "reviewer/deepagents/skills/L0/icp-loader/SKILL.md",
+          "reviewer/deepagents/skills/L0/offerings-loader/SKILL.md",
+          "reviewer/deepagents/skills/L1/baseline-cost-builder/SKILL.md",
+          "reviewer/deepagents/skills/L1/diagnostic-runner/SKILL.md",
+          "reviewer/deepagents/skills/L1/process-mapper/SKILL.md",
+          "reviewer/deepagents/skills/L2/artifact-prompt-builder/SKILL.md",
+          "reviewer/deepagents/skills/L2/eval-case-author/SKILL.md",
+          "reviewer/deepagents/skills/L2/shadow-mode-runner/SKILL.md",
+          "reviewer/deepagents/skills/reviewer/forge-auditor/SKILL.md"
+        ]
       }
     }
   },

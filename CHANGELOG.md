@@ -157,7 +157,46 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ---
 
-## [Unreleased] — Forge-1 em execução
+## [Unreleased] — Forge-3 em execução (reviewer DeepAgent infraestrutura)
+
+### Added (2026-05-01) — Reviewer DeepAgent (F17 + F18)
+
+- **Decisões F17/F18 registradas** em `docs/forge/decisions.md`:
+  - F17: stack do reviewer = **`deepagents` CLI (Python, LangChain) v0.0.34+**; processo separado, modelo configurável via `DEEPAGENTS_MODEL`
+  - F18: tradução Claude Code → Deep Agents via `andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter` (MIT); skills do Forge ficam canônicas em `.claude/skills/`, versão Deep Agents em `reviewer/deepagents/skills/` é **gerada** (nunca editada à mão)
+
+- **Estrutura `reviewer/deepagents/`** criada:
+  - `README.md` — guia de instalação (Deep Agents CLI + converter + 10 skills) e uso
+  - `conversion-log.md` — histórico de conversões com hash da origem para detectar drift
+  - `skills/L0/{company-dna,icp-loader,offerings-loader}/SKILL.md` — 3 skills Tier 1 convertidas
+  - `skills/L1/{baseline-cost-builder,diagnostic-runner,process-mapper}/SKILL.md` — 3 skills Tier 2 convertidas
+  - `skills/L2/{artifact-prompt-builder,eval-case-author,shadow-mode-runner}/SKILL.md` — 3 skills Tier 3 convertidas
+  - `skills/reviewer/forge-auditor/SKILL.md` — **skill nativa Deep Agents** (não convertida) que orquestra a auditoria mensal C1-C8 via 9 sub-agents `task` paralelos
+
+- **8 transformações T1-T8** aplicadas em cada conversão:
+  - T1 Execution Context (tabela de tools `read_file/write_file/execute/task`)
+  - T2 Execution Plan (`write_todos` checklist)
+  - T3 Prerequisites (verificação tools/env via `execute`)
+  - T4 Explicit `write_file`
+  - T5 Inline tests via `execute`
+  - T6 Sub-agents via `task` (quando aplicável)
+  - T7 Usage guide (3 modos: interactive, one-shot, CI/CD)
+  - T8 Troubleshooting
+
+- **Manifest** atualizado: `framework.reviewer.stack` declarado, `implementation_status` mudado de `specified-not-implemented` para `infrastructure-complete`, lista completa dos 10 SKILL.md em `deepagents_skills[]`
+
+- **Output do reviewer**: `forge-auditor` produz `docs/forge/audits/{YYYY-MM}.md` validado contra `reviewer/output-schema.json`. Auditoria roda 9 checks em paralelo (C1-C8 + structural drift) via `task`.
+
+### Pendente em Forge-3
+
+- 8 Subagent Guardians (`po-guardian`, `sku-architect`, `unit-economist`, `eval-engineer`, `tenant-context-curator`, `observability-guardian`, `promotion-officer`, `security-privacy-guardian`)
+- 2 Cross-LLM reviewers (`code-reviewer-claude`, `code-reviewer-cross`)
+- ADR-002 do projeto consumidor (decisão de runtime do reviewer no consumer)
+- Primeira auditoria mensal de teste
+
+---
+
+## [Pré-Forge-3] — Forge-1 em execução
 
 ### Added (Forge-1 — Tier 1 entregue, 2026-04-30)
 
