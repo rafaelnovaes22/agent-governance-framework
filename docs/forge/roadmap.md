@@ -1,7 +1,7 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 concluídas (v0.3.0); ⏳ Forge-5 pós cliente 1
-> **Última atualização**: 2026-05-01
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura (v0.4.1); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
+> **Última atualização**: 2026-05-04
 > **Total estimado**: 15–22 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 

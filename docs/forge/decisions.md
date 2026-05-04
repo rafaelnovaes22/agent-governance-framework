@@ -1,7 +1,7 @@
-# Acme Forge — Decisões F1–F16
+# Acme Forge — Decisões F1–F22
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em 2026-04-30 (v0.2.0)
-> **Versão atual**: 0.2.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.4.1
+> **Versão atual**: 0.4.1
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
 
@@ -326,6 +326,27 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F22 (NOVO 2026-05-04) — Sincronização de metadados (v0.4.1)
+
+**Status**: ✅ **Aplicado em 2026-05-04**
+
+**Contexto**: auditoria interna (pré-CI) identificou 6 divergências de versão/status acumuladas desde Forge-4:
+1. `README.md` badges e tabela de status travadas em Forge-0/v0.2.0
+2. `settings.json._forge_version` = `0.3.0` (framework em 0.4.0)
+3. `settings.json._constitution_version` = `0.1.0` enquanto `CONSTITUTION.md` declara `0.2.0`
+4. `decisions.md` título e header em "F1-F16 / v0.2.0"
+5. `manifest.json` sem política explícita de sha256 (`sha256: null` ambíguo)
+6. `reviewer/README.md` inexistente (README root linka `reviewer/` como entrypoint)
+
+**Decisões tomadas**:
+- **sha256_policy = "post-install"**: hashes ficam `null` no repo; consumidor/reviewer recomputa na auditoria. Fonte canônica: `_meta.sha256_policy` no manifest.
+- `settings.json._constitution_version` era a fonte errada — `CONSTITUTION.md` é canônico. settings.json reflete o valor, não o define.
+- `reviewer/README.md` criado como índice do diretório (entrypoint para humanos e deep-agents).
+
+**Implicação**: qualquer divergência futura entre `settings.json._forge_version`, `manifest.framework.version`, badge do README e topo do CHANGELOG é tratada como bug — detectada por `scripts/forge-doctor.sh` (Fase 5 planejada).
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -335,3 +356,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.2.0 | 2026-04-30 | F2 atualizado para repo standalone | Reposicionamento como produto distribuível |
 | 0.2.0 | 2026-04-30 | F13-F16 adicionadas | Generalização da Constitution + estrutura examples/ + versionamento + distribuição |
 | 0.4.0 | 2026-05-01 | F19-F21 adicionadas | Forge-5: estratégia de playbooks + reavaliação de deploy global e plugin |
+| 0.4.1 | 2026-05-04 | F22 adicionada; sincronização de metadados | Auditoria interna pré-CI detectou 6 divergências acumuladas |

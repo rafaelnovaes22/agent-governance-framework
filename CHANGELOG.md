@@ -9,6 +9,25 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.4.1] — 2026-05-04
+
+### Fixed (sincronização de metadados — F22)
+
+**6 divergências de versão/status corrigidas após auditoria interna pré-CI:**
+
+- `README.md` — badges atualizados (`version-0.2.0` → `0.4.1`, `phase-Forge-0` → `Forge-5`); tabela "Status atual" corrigida para refletir Forge-1..5 concluídas; seção "Forge resolve com" expandida (items 5-8 adicionados: hooks, commands, agents, skills); "Estrutura do repositório" expandida com `.claude/{skills,agents,commands}/`, `hooks/`, `docs/playbooks/`, `docs/retrospectives/`, 3 templates novos e `reviewer/deepagents/`
+- `.claude/settings.json` — `_forge_version: "0.3.0"` → `"0.4.1"`; `_constitution_version: "0.1.0"` → `"0.2.0"` (Constitution é fonte canônica — settings espelha)
+- `docs/forge/decisions.md` — título e header atualizados para "F1–F22 / v0.4.1"; F22 adicionada documentando a sincronização e a política sha256
+- `docs/forge/roadmap.md` — header de status atualizado para v0.4.1
+- `docs/forge/manifest.json` — `manifest_version` e `framework.version` bumped para `0.4.1`; versões individuais de readme, changelog, forge-decisions, forge-roadmap, forge-manifest, claude-settings atualizadas; `sha256_policy: "post-install"` adicionado em `_meta`; `path_kind: "directory"` adicionado em `examples/acme/`; `version_bumps.0.4.0_to_0.4.1` adicionado
+
+### Added
+
+- `reviewer/README.md` — índice do diretório `reviewer/`, ordem de leitura para deep-agent e dev humano, tabela de assets, ponteiro para `deepagents/README.md` e `reviewer-contract.md`
+- `docs/forge/manifest.json` — entry `reviewer-readme` em `artifacts.reviewer_assets`
+
+---
+
 ## [0.4.0] — 2026-05-01
 
 ### Added (Forge-5 — Playbooks verticais)

@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.4.0",
+  "manifest_version": "0.4.1",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.4.0",
-    "phase": "Forge-5 infrastructure delivered — playbook + retrospective templates, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/ stubs, F19-F21 decisions. Full Forge-5 (real playbook content) pending first SKU in AUTONOMOUS in consumer.",
-    "last_updated": "2026-05-01",
+    "version": "0.4.1",
+    "phase": "Forge-5 infrastructure delivered — playbook + retrospective templates, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/ stubs, F19-F22 decisions. Full Forge-5 (real playbook content) pending first SKU in AUTONOMOUS in consumer.",
+    "last_updated": "2026-05-04",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
@@ -80,9 +80,9 @@
           "path": "README.md",
           "type": "documentation",
           "audience": ["human-developer", "deep-agent", "framework-maintainer"],
-          "version": "0.2.0",
+          "version": "0.4.1",
           "sha256": null,
-          "description": "Multi-consumer overview e ponteiros"
+          "description": "Multi-consumer overview e ponteiros — atualizado para v0.4.1 (badges, status, estrutura expandida)"
         },
         {
           "id": "quickstart",
@@ -161,7 +161,7 @@
           "path": "CHANGELOG.md",
           "type": "documentation",
           "audience": ["all"],
-          "version": "0.2.0",
+          "version": "0.4.1",
           "sha256": null,
           "description": "Histórico de versões"
         }
@@ -180,15 +180,15 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.2.0",
+          "version": "0.4.1",
           "sha256": null,
-          "description": "Decisões F1-F16"
+          "description": "Decisões F1-F22"
         },
         {
           "id": "forge-roadmap",
           "path": "docs/forge/roadmap.md",
           "type": "documentation",
-          "version": "0.1.0",
+          "version": "0.4.1",
           "sha256": null,
           "description": "Roadmap das 5 ondas"
         },
@@ -213,7 +213,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.2.0",
+          "version": "0.4.1",
           "sha256": null,
           "linked_principles": ["C6"],
           "description": "Este arquivo - inventory machine-readable"
@@ -243,9 +243,9 @@
       "id": "claude-settings",
       "path": ".claude/settings.json",
       "type": "settings",
-      "version": "0.3.0",
+      "version": "0.4.1",
       "sha256": null,
-      "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev). Forge-4: 9 hooks ativos."
+      "description": "Permissões e hooks do Claude Code (Forge layer; settings.local.json continua para overrides do dev). Forge-4: 9 hooks ativos. _forge_version e _constitution_version espelham manifest — não são fonte canônica."
     },
     "templates": [
       {
@@ -365,6 +365,15 @@
     ],
     "reviewer_assets": [
       {
+        "id": "reviewer-readme",
+        "path": "reviewer/README.md",
+        "type": "reviewer-asset",
+        "version": "0.4.1",
+        "sha256": null,
+        "audience": ["deep-agent", "human-developer"],
+        "description": "Índice do diretório reviewer/ — ordem de leitura, links para assets e deepagents/"
+      },
+      {
         "id": "reviewer-prompt",
         "path": "reviewer/prompt.template.md",
         "type": "reviewer-asset",
@@ -405,6 +414,7 @@
       {
         "id": "example-acme",
         "path": "examples/acme/",
+        "path_kind": "directory",
         "type": "example",
         "version": "0.1.0",
         "description": "Caso Acme — projeto que originou o Forge",
@@ -944,6 +954,16 @@
       ],
       "scripts": [
         {
+          "id": "script-forge-doctor",
+          "path": "scripts/forge-doctor.sh",
+          "type": "script",
+          "usage": "standalone CI/PR/pre-push",
+          "version": "0.4.1",
+          "sha256": null,
+          "linked_principles": ["C6"],
+          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity. Exit 0/1/2."
+        },
+        {
           "id": "script-skill-security-scan",
           "path": "hooks/scripts/skill-security-scan.sh",
           "type": "script",
@@ -975,15 +995,17 @@
   ],
   "checks_for_reviewer_summary": "Detalhe completo em reviewer/validation-rules.json. Reviewer deve carregar esse arquivo como input primário de checks.",
   "_meta": {
-    "manifest_generator": "manual (will become hook manifest-sync in Forge-4)",
+    "manifest_generator": "manual (hook manifest-sync informa quando atualizar)",
     "next_update": "after each Forge-X wave completion",
     "validation_schema_url": "https://acme.com.br/forge/manifest-v1.json (to be published in Forge-5)",
+    "sha256_policy": "post-install — hashes ficam null neste repo; consumidor e reviewer recomputam na auditoria via sha256sum no arquivo local (LF line endings). settings.json não é fonte canônica de versão — manifest é.",
     "sha256_truncation": "first 16 hex chars of SHA-256; reviewer should recompute full hash for integrity check",
     "sha256_method": "sha256sum on file bytes (LF line endings); cross-platform note: Windows CRLF may produce different hashes — normalize to LF for stable hashes",
     "version_bumps": {
       "0.1.0_to_0.2.0": "Repositioning as standalone framework consumable by external projects + DeepAgents. Constitution generalized; templates expanded from 4 to 9; reviewer/ folder added; examples/acme/ added.",
       "0.2.0_to_0.3.0": "Forge-4 hooks runtime: 9 hooks activated (PreToolUse x4, PostToolUse x3, Stop x2), skill-security-scan script, bypass auditado em bypass-log/, settings.json _forge_version bumped to 0.3.0.",
-      "0.3.0_to_0.4.0": "Forge-5 infrastructure: playbook.template.md + retrospective.template.md, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/, decisions F19-F21 (playbook strategy, global deploy eval, plugin eval)."
+      "0.3.0_to_0.4.0": "Forge-5 infrastructure: playbook.template.md + retrospective.template.md, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/, decisions F19-F21 (playbook strategy, global deploy eval, plugin eval).",
+      "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/."
     }
   }
 }
