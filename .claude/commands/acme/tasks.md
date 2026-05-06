@@ -107,9 +107,50 @@ total_waves: 5
 - **Tier**: 3
 - **Trace required**: false
 
-## Wave 2 — Prompt build
+## Wave 2-AIOS — Setup e execução de agentes (emitida quando `spec.aios_tier` presente)
 
-### T2.1 — Invocar @artifact-prompt-builder
+> Esta onda **substitui parcialmente** Wave 2 quando o artefato usa AIOS como camada de implementação.
+> Se `aios_tier` não estiver definido na spec, esta onda não é gerada e Wave 2 padrão é usada.
+
+### T2-AIOS-1 — Inicializar agentes AIOS para o módulo
+
+- **Skill/tool**: `/acme:aios-init --module {módulo} --tier {A|B|C}`
+- **Output**: `aios/agents/{módulo}_spec_agent/`, `aios/agents/{módulo}_backend_agent/`, `aios/agents/{módulo}_frontend_agent/`
+- **Gate de pronto**: `aios/agents/{módulo}_spec_agent/entry.py` existe + `config.json` com `"tier": "{A|B|C}"` + `/acme:aios-init` retornou `status: ok`
+- **Depends on**: T1.5 (scaffolding base completo) — `aios/config.yaml` e `.env` existem
+- **Tier**: 3
+- **Trace required**: false
+
+### T2-AIOS-2 — Executar build (backend + frontend em paralelo)
+
+- **Skill/tool**: `/acme:aios-run --module {módulo} --step build` (ou `python aios/orchestrator.py build --module {módulo}`)
+- **Output**: `docs/specs/_backend_{módulo}.md` + `docs/specs/_frontend_{módulo}.md`
+- **Gate de pronto**: Rafael revisa e aprova `_backend_{módulo}.md` e `_frontend_{módulo}.md` (gate humano C4 via `/acme:aios-run`)
+- **Depends on**: T2-AIOS-1
+- **Tier**: 3
+- **Trace required**: true
+
+### T2-AIOS-3 — Executar testes e review
+
+- **Skill/tool**: `/acme:aios-run --module {módulo} --step test` + `--step review` (ou `python aios/orchestrator.py test --module {módulo} && python aios/orchestrator.py review --module {módulo}`)
+- **Output**: `docs/specs/_tests_{módulo}.md` + `docs/specs/_review_{módulo}.md`
+- **Gate de pronto**: `_review_{módulo}.md` existe e **não contém** a string "BLOCKER" — verificado por Rafael
+- **Depends on**: T2-AIOS-2
+- **Tier**: 3
+- **Trace required**: true
+
+### T2-AIOS-4 — Mover código aprovado para src/
+
+- **Skill/tool**: Rafael move manualmente após revisar `_review_{módulo}.md`
+- **Output**: `src/{módulo}/` com código aprovado commitado
+- **Gate de pronto**: `src/{módulo}/` existe com commit `feat({módulo}): código aprovado pós-review AIOS`
+- **Depends on**: T2-AIOS-3
+- **Tier**: 3
+- **Trace required**: false
+
+---
+
+## Wave 2 — Prompt build
 - **Skill/tool**: `@artifact-prompt-builder`
 - **Inputs**: artifact_id, artifact_type, spec_path, process_map_path, baseline_cost_path
 - **Output**: `prompts/{artifact_id}/v0.1.0/system.md` + `prompt_hash`

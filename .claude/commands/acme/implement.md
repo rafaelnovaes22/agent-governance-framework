@@ -10,6 +10,7 @@ arguments:
     - to_wave
     - dry_run
     - auto_continue
+    - via_aios
 forge_command_version: 0.1.0
 linked_principles: [C5, C6, C7, C8]
 invokes_skills:
@@ -21,6 +22,37 @@ trace_required: true
 ---
 
 # /acme:implement — Execução guiada
+
+## Modo de implementação
+
+> Verificar antes de executar se o artefato usa AIOS como camada de implementação.
+
+**Se `--via aios` for passado OU se spec tem `aios_tier` definido (não vazio):**
+
+```
+1. Verificar que kernel AIOS está rodando:
+   curl -s --max-time 3 http://localhost:8000/health
+
+2. Se kernel offline: instruir o usuário a iniciar com:
+   bash .aios-kernel/runtime/launch_kernel.sh
+   Então parar — não prosseguir sem kernel.
+
+3. Verificar que agentes do módulo estão inicializados:
+   aios/agents/{módulo}_spec_agent/ existe?
+   → Se não: executar /acme:aios-init --module {módulo} primeiro.
+
+4. Executar pipeline via AIOS:
+   /acme:aios-run --module {módulo}
+   (ou: python aios/orchestrator.py pipeline --module {módulo})
+
+5. Aguardar aprovação humana em cada gate antes de prosseguir para próxima onda.
+   Gates definidos em /acme:aios-run — não pular.
+```
+
+**Se `--via aios` NÃO for passado E spec NÃO tem `aios_tier`:**
+- Comportamento original abaixo (Claude Code direto, 5 ondas padrão).
+
+---
 
 ## Propósito
 
@@ -54,6 +86,7 @@ from_wave: 1               # default 1
 to_wave: 5                 # default 5
 dry_run: false             # se true, simula sem escrever
 auto_continue: false       # se true, não pausa entre ondas
+# via_aios: detectado automaticamente se spec tem aios_tier; ou passado como --via aios
 ```
 
 ## Execução
@@ -288,3 +321,4 @@ trace_id: <>
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1.0 | 2026-04-30 | Versão inicial — Forge-2 onda 2 (implementation) |
+| 0.2.0 | 2026-05-06 | Forge-6: suporte a `--via aios` + detecção automática de `spec.aios_tier` |

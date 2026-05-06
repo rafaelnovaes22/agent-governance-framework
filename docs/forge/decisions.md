@@ -347,6 +347,36 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+---
+
+## F23 (NOVO 2026-05-06) — AIOS Server como camada de implementação multiagente (Forge-6)
+
+**Status**: ✅ **Formalizado em 2026-05-06 — Forge-6 infraestrutura entregue**
+
+**Contexto**: projeto consumidor SchoolPlatform/EDIX adotou **AIOS Server** (arXiv 2403.16971, `agiresearch/AIOS` v0.2.2) como kernel LLM OS para orquestrar 6 agentes especializados com contexto isolado em paralelo. Esta decisão foi formalizada como **Forge-6** e precisou de suporte nativo nos artefatos do framework.
+
+**O que é AIOS**: kernel LLM OS com scheduler, gerenciador de contexto e memória isolada por agente. Em vez de implementação módulo a módulo, 6 agentes (spec, schema, backend, frontend, test, review) executam o pipeline com contexto estritamente isolado.
+
+**Mapeamento com a Constitution (não muda princípios, apenas aplica)**:
+
+| Princípio | Como AIOS aplica |
+|---|---|
+| C5 (Three-tier) | Tier A = L2 (autônomo), Tier B = L1 (iteração humana), Tier C = L0 (dev dirige) |
+| C6 (Telemetry) | `send_request()` de cada agente deve ter trace Langfuse — ver `docs/forge/aios-telemetry-pattern.md` |
+| C7 (Portability) | SYSTEM_PROMPTs funcionam standalone sem o kernel; kernel offline ≠ agente inutilizável |
+| C8 (Anti-heroic) | `tenantId` vai em `task_input`, nunca hardcoded em SYSTEM_PROMPT |
+
+**Decisão de versionamento**: AIOS é camada de implementação do consumidor, não princípio novo da Constitution. Não exige MAJOR bump. Forge-6 é MINOR (0.4.x → 0.5.0).
+
+**Artefatos Forge-6 entregues**:
+- F6.1/F6.2: no projeto consumidor (orchestrator.py, setup guide, ADR-003) — F6.1/F6.2 entregues lá
+- F6.3: `/acme:plan` (seção 9 condicional), `/acme:tasks` (Wave 2-AIOS), `/acme:implement` (`--via aios`)
+- F6.4: `/acme:aios-init`, `/acme:aios-run`, `/acme:aios-status`
+- F6.5: `docs/forge/aios-telemetry-pattern.md` — padrão Langfuse + mock + campos obrigatórios
+- F6.6: `templates/platform-sku-spec.template.md` com `aios_tier` + `aios_context_boundaries` no frontmatter
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -357,3 +387,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.2.0 | 2026-04-30 | F13-F16 adicionadas | Generalização da Constitution + estrutura examples/ + versionamento + distribuição |
 | 0.4.0 | 2026-05-01 | F19-F21 adicionadas | Forge-5: estratégia de playbooks + reavaliação de deploy global e plugin |
 | 0.4.1 | 2026-05-04 | F22 adicionada; sincronização de metadados | Auditoria interna pré-CI detectou 6 divergências acumuladas |
+| 0.5.0 | 2026-05-06 | F23 adicionada; Forge-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |

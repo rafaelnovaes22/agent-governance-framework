@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.4.1",
+  "manifest_version": "0.5.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.4.1",
-    "phase": "Forge-5 infrastructure delivered — playbook + retrospective templates, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/ stubs, F19-F22 decisions. Full Forge-5 (real playbook content) pending first SKU in AUTONOMOUS in consumer.",
-    "last_updated": "2026-05-04",
+    "version": "0.5.0",
+    "phase": "Forge-6 AIOS infrastructure delivered — 3 new commands (aios-init/run/status), AIOS section in plan/tasks/implement, aios-telemetry-pattern.md, aios_tier in spec template, F23 in decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
+    "last_updated": "2026-05-06",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
@@ -180,17 +180,26 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.4.1",
+          "version": "0.5.0",
           "sha256": null,
-          "description": "Decisões F1-F22"
+          "description": "Decisões F1-F23"
         },
         {
           "id": "forge-roadmap",
           "path": "docs/forge/roadmap.md",
           "type": "documentation",
-          "version": "0.4.1",
+          "version": "0.5.0",
           "sha256": null,
-          "description": "Roadmap das 5 ondas"
+          "description": "Roadmap das 6 ondas (incluindo Forge-6 AIOS)"
+        },
+        {
+          "id": "forge-aios-telemetry-pattern",
+          "path": "docs/forge/aios-telemetry-pattern.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6", "C7", "C8"],
+          "description": "Padrão oficial de telemetria Langfuse para agentes AIOS — campos obrigatórios, mock fallback, integração com hook langfuse-trace-check"
         },
         {
           "id": "forge-reviewer-contract",
@@ -213,7 +222,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.4.1",
+          "version": "0.5.0",
           "sha256": null,
           "linked_principles": ["C6"],
           "description": "Este arquivo - inventory machine-readable"
@@ -816,7 +825,43 @@
           "description": "Read-only consolidação de 5 gates (C7 imports, C8 hardcode, C6 observe, manifest sync, eval green) — go/no-go para CI/pre-commit. Exit code 0/1/2 conforme overall."
         }
       ],
-      "_status": "Forge-2+5 — 12 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1.",
+      "_status": "Forge-2+5+6 — 15 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1 + aios 3/3.",
+      "aios": [
+        {
+          "id": "command-aios-init",
+          "path": ".claude/commands/acme/aios-init.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "invokes_skills": [],
+          "trace_required": false,
+          "description": "Scaffolda estrutura aios/agents/{module}/ (spec_agent + backend_agent + frontend_agent). Pré-requisito: spec existente + aios/config.yaml. Gate: 4 checks antes de criar qualquer arquivo."
+        },
+        {
+          "id": "command-aios-run",
+          "path": ".claude/commands/acme/aios-run.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4", "C6", "C7"],
+          "invokes_skills": [],
+          "trace_required": true,
+          "description": "Wrapper para python aios/orchestrator.py pipeline. Health check, execução com gates humanos C4 obrigatórios, telemetria C6. Não re-executa automaticamente após gate rejeitado."
+        },
+        {
+          "id": "command-aios-status",
+          "path": ".claude/commands/acme/aios-status.md",
+          "type": "slash-command",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4", "C6"],
+          "invokes_skills": [],
+          "trace_required": false,
+          "read_only": true,
+          "description": "Read-only — exibe tabela de status de todos os módulos AIOS (spec/backend/frontend/testes/review/kernel). Detecta BLOCKERs em review. Fallback filesystem sem kernel."
+        }
+      ],
       "playbooks": [
         {
           "id": "command-playbook-extract",
@@ -1005,7 +1050,8 @@
       "0.1.0_to_0.2.0": "Repositioning as standalone framework consumable by external projects + DeepAgents. Constitution generalized; templates expanded from 4 to 9; reviewer/ folder added; examples/acme/ added.",
       "0.2.0_to_0.3.0": "Forge-4 hooks runtime: 9 hooks activated (PreToolUse x4, PostToolUse x3, Stop x2), skill-security-scan script, bypass auditado em bypass-log/, settings.json _forge_version bumped to 0.3.0.",
       "0.3.0_to_0.4.0": "Forge-5 infrastructure: playbook.template.md + retrospective.template.md, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/, decisions F19-F21 (playbook strategy, global deploy eval, plugin eval).",
-      "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/."
+      "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/.",
+      "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section."
     }
   }
 }

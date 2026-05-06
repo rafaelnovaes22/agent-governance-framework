@@ -1,7 +1,7 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura (v0.4.1); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
-> **Última atualização**: 2026-05-04
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura (v0.5.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
+> **Última atualização**: 2026-05-06
 > **Total estimado**: 15–22 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
@@ -17,6 +17,7 @@
 | **Forge-3** | Subagents Guardian + reviewer DeepAgents | 4–6 dias | Forge-4 |
 | **Forge-4** | Hooks runtime e governança | 3–5 dias | Operação |
 | **Forge-5** | Playbooks verticais (contínuo, pós cliente 1) | — | — |
+| **Forge-6** | AIOS Server — camada de implementação multiagente | 2 dias | — |
 
 ---
 
@@ -221,6 +222,42 @@
 - ⏳ Cliente 2 do mesmo vertical consome ≤30% das horas do cliente 1 — **pendente: aguardando dados reais**
 - ⏳ Playbook vertical com métricas reais — **pendente: aguardando cliente 1 em AUTONOMOUS**
 - ⏳ Retrospectiva publicada com gate failures reais — **pendente**
+
+---
+
+---
+
+## Forge-6 — AIOS Server (camada de implementação multiagente) ✅ (v0.5.0)
+
+**Objetivo**: projeto consumidor que adota AIOS Server tem suporte nativo nos artefatos do Forge — sem precisar adaptá-los manualmente.
+
+> **Contexto**: projeto SchoolPlatform/EDIX adotou AIOS Server (arXiv 2403.16971, `agiresearch/AIOS` v0.2.2) como kernel LLM OS. F6.1/F6.2 entregues no consumidor; F6.3–F6.6 entregues aqui no Forge.
+
+### Tasks
+
+- [x] **F6.1** *(no consumidor)* ADR-003 + orchestrator.py + aios/agents/ base — entregue em SchoolPlatform
+- [x] **F6.2** *(no consumidor)* docs/aios-setup.md + config.yaml + .aios-kernel/ runtime — entregue em SchoolPlatform
+- [x] **F6.3** Atualizar slash commands existentes — **3/3 concluídas em 2026-05-06**:
+  - [x] `/acme:plan` — seção 9 condicional "Classificação AIOS" (quando `spec.aios_tier` definido)
+  - [x] `/acme:tasks` — Wave 2-AIOS com 4 tasks (T2-AIOS-1 a T2-AIOS-4) quando `aios_tier` presente
+  - [x] `/acme:implement` — bloco "Modo de implementação" com detecção de `--via aios` + `spec.aios_tier`
+- [x] **F6.4** Criar novos slash commands AIOS — **3/3 concluídas em 2026-05-06**:
+  - [x] `/acme:aios-init` — scaffolda `aios/agents/{module}/` com validation gate (4 checks pré-criação)
+  - [x] `/acme:aios-run` — wrapper para orchestrator.py com gates humanos C4 obrigatórios
+  - [x] `/acme:aios-status` — tabela read-only de status dos módulos + BLOCKER detection
+- [x] **F6.5** `docs/forge/aios-telemetry-pattern.md` — padrão Langfuse oficial (campos obrigatórios, mock, integração com hook langfuse-trace-check)
+- [x] **F6.6** `templates/platform-sku-spec.template.md` — `aios_tier` + `aios_context_boundaries` no frontmatter (após `owners:`)
+
+### Critério de pronto
+
+- ✅ `/acme:plan` tem seção 9 AIOS (condicional) — **entregue**
+- ✅ `/acme:tasks` emite Wave 2-AIOS quando `aios_tier` presente — **entregue**
+- ✅ `/acme:implement` suporta `--via aios` com detecção automática — **entregue**
+- ✅ 3 novos commands AIOS criados com padrão completo (verification gate, anti-rationalization, output structured) — **entregue**
+- ✅ `aios-telemetry-pattern.md` com padrão Langfuse + mock + mapeamento Constitution — **entregue**
+- ✅ Spec template com `aios_tier` no frontmatter — **entregue**
+- ✅ `manifest.json` v0.5.0 atualizado com novos artefatos — **entregue**
+- ✅ `decisions.md` com F23 (mapeamento AIOS ↔ Constitution) — **entregue**
 
 ---
 

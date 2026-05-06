@@ -14,6 +14,12 @@ linked_eval_suite: "evals/{{ sku_code }}/"
 owners:
   po_guardian: ""
   sku_architect: ""
+# Forge-6 — AIOS Server (preencher apenas se o projeto consumidor usa AIOS como camada de implementação)
+aios_tier: ""              # A (autônomo) | B (iterativo) | C (Rafael-dirige) | "" (sem AIOS)
+aios_context_boundaries:
+  spec_agent: ""           # o que o Spec Agent pode ler (ex: "docs/specs/{module}.md apenas")
+  backend_agent: ""        # ex: "spec do módulo + schema — sem outros módulos"
+  frontend_agent: ""       # ex: "spec do módulo, seção UI apenas"
 created_at: "{{ YYYY-MM-DD }}"
 last_updated: "{{ YYYY-MM-DD }}"
 version: "0.1.0"

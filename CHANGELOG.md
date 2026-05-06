@@ -9,6 +9,48 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.5.0] — 2026-05-06
+
+### Added (Forge-6 — AIOS Server camada de implementação multiagente)
+
+**Suporte nativo no framework para projetos consumidores que adotam AIOS Server (`agiresearch/AIOS` v0.2.2, arXiv 2403.16971) como kernel LLM OS:**
+
+**3 novos slash commands em `.claude/commands/acme/`:**
+
+- `/acme:aios-init` — scaffolda estrutura `aios/agents/{module}/` (spec_agent + backend_agent + frontend_agent) com 4 checks pré-criação (spec existe, aios/config.yaml existe, Python 3.10+, ANTHROPIC_API_KEY)
+- `/acme:aios-run` — wrapper para `python aios/orchestrator.py pipeline` com health check do kernel + **gates humanos C4 obrigatórios** após cada step (spec/build/test/review). Não re-executa automaticamente após gate rejeitado
+- `/acme:aios-status` — comando read-only que exibe tabela de status de todos os módulos (spec/backend/frontend/testes/review/kernel) com detecção de BLOCKERs em review e fallback filesystem sem kernel
+
+**3 commands existentes atualizados (mudanças condicionais — comportamento original preservado quando `aios_tier` ausente):**
+
+- `/acme:plan` — seção 9 condicional "Classificação AIOS" com tabela de módulos, aviso C7 portabilidade (SYSTEM_PROMPTs standalone), próximos passos por tier
+- `/acme:tasks` — Wave 2-AIOS com 4 tasks (T2-AIOS-1 init → T2-AIOS-2 build → T2-AIOS-3 test+review → T2-AIOS-4 mover para src/) emitida quando `spec.aios_tier` presente
+- `/acme:implement` — bloco "Modo de implementação" no topo com detecção de `--via aios` ou `spec.aios_tier`, health check do kernel, redirecionamento para `/acme:aios-run`. Argumento opcional `via_aios` adicionado ao frontmatter
+
+**Padrão de telemetria oficial:**
+
+- `docs/forge/aios-telemetry-pattern.md` — Langfuse `trace.generation()` → `generation.end()` em cada `send_request()`, campos obrigatórios (`name`, `agent`, `module`, `tier`, `aios_version`, `trace_id`), mock fallback `_MockTrace` para dev local sem `LANGFUSE_PUBLIC_KEY`, integração com hook existente `langfuse-trace-check.sh`, mapeamento explícito C6/C7/C8
+
+**Template atualizado:**
+
+- `templates/platform-sku-spec.template.md` — campos `aios_tier` (A=autônomo, B=iterativo, C=Rafael-dirige) e `aios_context_boundaries` (spec_agent/backend_agent/frontend_agent) adicionados ao frontmatter após `owners:`. Defaults vazios — opt-in apenas se projeto consumidor usa AIOS
+
+**Decisão registrada (F23):**
+
+- `docs/forge/decisions.md` — F23 documenta adoção de AIOS pelo projeto consumidor SchoolPlatform/EDIX e o **mapeamento com a Constitution sem alterar princípios**: Tier A/B/C ↔ C5; `send_request()` + Langfuse ↔ C6; SYSTEM_PROMPTs standalone ↔ C7; `tenantId` em `task_input` ↔ C8
+
+### Changed
+
+- `manifest.json` versão `0.4.1 → 0.5.0`; nova seção `artifacts.commands.aios[]` com 3 entradas; `forge-aios-telemetry-pattern` adicionado em `forge_docs[]`; `_status` de commands atualizado para "Forge-2+5+6 — 15 commands"; `version_bumps.0.4.1_to_0.5.0` adicionado
+- `docs/forge/roadmap.md` — header status atualizado para v0.5.0; tabela de visão geral expandida com Forge-6; nova seção **"Forge-6 — AIOS Server"** completa com tasks F6.1–F6.6 e critério de pronto (todas marcadas `[x]`)
+- `docs/forge/decisions.md` — histórico expandido com linha v0.5.0 / F23
+
+### Constitution
+
+8 princípios C1–C8 **inalterados**. Forge-6 é camada de implementação no consumidor, não princípio novo — não exige MAJOR bump.
+
+---
+
 ## [0.4.1] — 2026-05-04
 
 ### Fixed (sincronização de metadados — F22)

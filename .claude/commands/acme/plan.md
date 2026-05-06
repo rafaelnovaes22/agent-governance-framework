@@ -147,6 +147,34 @@ generated_at: 2026-04-30T...
 - Próximo passo: `/acme:tasks --artifact_id=<>`
 ```
 
+## 9. Classificação AIOS (quando `aios_tier` presente na spec)
+
+> Esta seção é **opcional** — gerada automaticamente quando `spec.aios_tier` está definido.
+> Se `aios_tier` for vazio ou ausente, esta seção não é incluída no plan.
+
+```markdown
+## 9. Classificação AIOS
+
+| Módulo | Tier | Justificativa | Agentes envolvidos |
+|---|---|---|---|
+| {módulo} | A/B/C | {complexidade, risco, domínio} | spec → backend + frontend → test → review |
+
+**Observação sobre Tier C**: módulos Tier C são implementados diretamente por Rafael
+com assistência dos agentes. O AIOS orquestra mas Rafael revisa cada step inline.
+
+**C7 — Portabilidade**: os SYSTEM_PROMPTs de cada agente funcionam como prompts standalone
+em Claude Code — sem dependência do kernel AIOS. Kernel offline ≠ agente inutilizável.
+
+**C8 — Anti-heroic**: `tenantId` vai em `task_input` de cada agente, nunca hardcoded
+no SYSTEM_PROMPT. Agente genérico → configuração via input, não via código.
+
+**Próximo passo**:
+- Tier A/B: `python aios/orchestrator.py pipeline --module {módulo}`
+  (ou via `/acme:aios-run --module {módulo}`)
+- Tier C: `python aios/orchestrator.py spec --module {módulo}` e iterar com Rafael
+  (ou via `/acme:aios-run --module {módulo} --step spec`)
+```
+
 ## Output structured (return value)
 
 ```yaml
@@ -155,7 +183,8 @@ status: ok | warn | error
 artifact_id: <>
 plan_path: docs/clients/<>/plan-<>.md
 plan_version: 0.1.0
-sections_present: [1, 2, 3, 4, 5, 6, 7, 8]
+sections_present: [1, 2, 3, 4, 5, 6, 7, 8]  # inclui seção 9 se aios_tier definido
+aios_tier: A | B | C | null              # null se spec não tem aios_tier
 target_runtime_advisory: node-ts
 target_model_advisory: claude-sonnet
 abstraction_layer_declared: true     # C7 — src/llm/adapters/
@@ -170,7 +199,7 @@ next_step: "/acme:tasks --artifact_id=<>"
 
 ## Verification gate
 
-- [x] Todas as 8 seções presentes e não-vazias
+- [x] Todas as 8 seções presentes e não-vazias; seção 9 gerada se `spec.aios_tier` definido
 - [x] Cláusula de outcome (Seção 1) idêntica à spec (compare hash)
 - [x] Camada `src/llm/adapters/` declarada (C7); plano não menciona import direto de SDK fora dela
 - [x] Pelo menos 4 pontos de instrumentação (C6) com campos do trace declarados
