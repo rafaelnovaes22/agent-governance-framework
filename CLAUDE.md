@@ -198,7 +198,8 @@ git diff HEAD --stat
 - ✅ Doc sync + validador CI (v0.4.1): `scripts/forge-doctor.sh` (7 checks), `reviewer/README.md`, sincronização de metadados, F22 em decisions.md
 - ✅ Forge-6 entregue (v0.5.0): **3 commands AIOS** (init/run/status) + telemetry pattern + `aios_tier` em spec template, F23 em decisions.md
 - ✅ Forge-7 entregue (v0.6.0): **6 agentes AIOS portáveis em `templates/aios/`** (spec/backend/frontend especializados + schema/test/review compartilhados, `schema_agent` stack-agnostic), `/acme:aios-init` v0.2.0 copia de templates físicos, F24 em decisions.md
-- ⏳ Pendências do consumidor: ADR-002 efetiva + primeira auditoria mensal de teste + **primeiro SKU em AUTONOMOUS para gerar playbook real**
+- ✅ Forge-8 entregue (v0.7.0): **4 templates CI/CD em `templates/cicd/`** (github-actions-validate/eval/audit + cicd-checklist), **Gate 6 CI/CD obrigatório** no `/acme:promote` para `assisted_to_autonomous`, Wave 6 no `/acme:tasks` (T6.1–T6.5), F25 em decisions.md
+- ⏳ Pendências do consumidor: ADR-002 efetiva + Wave 6 CI/CD implementada + primeira auditoria mensal de teste + **primeiro SKU em AUTONOMOUS para gerar playbook real**
 - ⏳ Resíduo Forge-1 (opcional): 4 skills Acme-específicas em `examples/acme/skills/`
 
 Veja [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) para detalhes.

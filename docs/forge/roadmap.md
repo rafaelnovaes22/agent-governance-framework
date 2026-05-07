@@ -1,13 +1,13 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
 > **Última atualização**: 2026-05-07
 > **Total estimado**: 16–23 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
 ---
 
-## Visão geral das 7 ondas
+## Visão geral das 8 ondas
 
 | Onda | Foco | Estimativa | Bloqueia |
 |---|---|---|---|
@@ -18,7 +18,8 @@
 | **Forge-4** | Hooks runtime e governança | 3–5 dias | Operação |
 | **Forge-5** | Playbooks verticais (contínuo, pós cliente 1) | — | — |
 | **Forge-6** | AIOS Server — camada de implementação multiagente (commands + telemetry) | 2 dias | Forge-7 |
-| **Forge-7** | AIOS agentes portáveis (templates físicos canônicos, schema stack-agnostic) | 1 dia | — |
+| **Forge-7** | AIOS agentes portáveis (templates físicos canônicos, schema stack-agnostic) | 1 dia | Forge-8 |
+| **Forge-8** | CI/CD — esteira completa para produção (templates + Gate 6 no promote) | 1 dia | AUTONOMOUS |
 
 ---
 
@@ -292,6 +293,41 @@
 - ✅ `schema_agent` lê `aios/config.yaml → stack.database` ou propõe stacks (modo `PROPOR_STACK`)
 - ✅ `/acme:aios-init` v0.2.0 valida 7 checks pré-cópia; idempotente para agentes compartilhados
 - ✅ `manifest.json` registra 9 artefatos novos em `templates_aios.files[]`
+
+---
+
+## Forge-8 — CI/CD esteira completa para produção ✅ (v0.7.0)
+
+**Objetivo**: nenhum SKU pode promover para `AUTONOMOUS` sem CI/CD pipeline ativo verificável — forge-doctor, eval automático e auditoria mensal rodando em CI, branch protection ativa.
+
+> **Contexto**: Forge-0 a Forge-7 construíram toda a governança de IA (spec → shadow → promoted) mas não impunham CI/CD como pré-requisito mecânico. Regressões de prompt passavam despercebidas sem CI; auditoria mensal era manual. Forge-8 fecha o gap tornando CI/CD um **Gate obrigatório** (Gate 6) do `/acme:promote`.
+
+### Tasks
+
+- [x] **F8.1** Templates de CI/CD em `templates/cicd/` — **4/4 entregues em 2026-05-07**:
+  - [x] `github-actions-validate.template.yml` — workflow de validação (forge-doctor + skill-scan + pre-merge G1-G5) em todo PR
+  - [x] `github-actions-eval.template.yml` — eval automático quando `prompts/` muda; falha PR se pass_rate < threshold; trace Langfuse obrigatório (C6)
+  - [x] `github-actions-audit.template.yml` — cron mensal (1ª seg. 06:00 UTC); commit automático de relatório; cria Issue se SLA breach
+  - [x] `cicd-checklist.template.md` — checklist platform-agnostic com 27 itens (18 🔴 obrigatórios, 9 🟡 recomendados)
+- [x] **F8.2** Gate 6 no `/acme:promote` — **entregue em 2026-05-07**:
+  - [x] Gate 6 adicionado à seção "Os 6 gates" de `promote.md` (obrigatório apenas para `assisted_to_autonomous`)
+  - [x] `gate_count: 5 → 6`; output `cicd_pipeline_active: pass | skipped`
+  - [x] Tabela anti-rationalization expandida com entrada CI/CD
+- [x] **F8.3** Wave 6 CI/CD no `/acme:tasks` — **entregue em 2026-05-07**:
+  - [x] 5 tasks (T6.1–T6.5): workflow de validação, eval CI, branch protection, audit cron, checklist assinado
+  - [x] DAG expandido; `total_waves: 5 → 6`
+  - [x] T6.5 produz `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`
+- [x] **F8.4** `promotion-officer.md` atualizado — Gate 6 na seção `assisted_to_autonomous`; verification gate e anti-rationalization expandidos
+- [x] **F8.5** F25 em `decisions.md`
+- [x] **F8.6** `manifest.json` v0.7.0 com bloco `templates.cicd` (4 entradas)
+
+### Critério de pronto
+
+- ✅ `templates/cicd/` com 4 templates (validate, eval, audit, checklist) — **entregue**
+- ✅ Gate 6 bloqueia `assisted_to_autonomous` sem checklist assinado — **entregue**
+- ✅ Wave 6 no tasks.md com 5 tasks e DAG sem ciclos — **entregue**
+- ✅ `promotion-officer` exige Gate 6 antes de assinar promoção para AUTONOMOUS — **entregue**
+- ⏳ Primeiro projeto consumidor implementando Wave 6 e obtendo Gate 6 validado — pendente (aguarda SKU em ASSISTED)
 
 ---
 

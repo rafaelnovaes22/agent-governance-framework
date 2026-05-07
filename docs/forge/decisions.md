@@ -418,6 +418,65 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F25 (NOVO 2026-05-07) — CI/CD como pré-requisito de produção (Forge-8)
+
+**Status**: ✅ **Formalizado em 2026-05-07 — Forge-8 entregue**
+
+**Contexto**: Forge-0 a Forge-7 construíram toda a governança de IA — Constitution, skills, commands, hooks, agentes AIOS — mas **não impunham CI/CD como pré-requisito mecânico para produção**. O resultado prático era que projetos podiam promover SKUs para AUTONOMOUS sem nenhuma automação de validação: regressões de prompt passavam despercebidas, auditorias mensais eram manuais e inconsistentes, e branch protection não era verificada.
+
+**Problema concreto**: o Gate 5 (aprovação cruzada humana) pode ser executado mesmo sem CI/CD, criando um falso senso de segurança. Um SKU em AUTONOMOUS sem pipeline de eval automático pode ter `prompt_hash` em produção diferente do `prompt_hash` validado — exatamente o drift que `/acme:eval` e o hook `langfuse-trace-check` tentam prevenir no desenvolvimento local.
+
+**Decisão**: tornar CI/CD um **Gate obrigatório (Gate 6)** no `/acme:promote`, especificamente para a transição `assisted_to_autonomous`. Para transições anteriores (start_shadow, shadow_to_assisted), CI/CD é fortemente recomendado mas não bloqueia.
+
+**O que o Forge provê (Forge-8)**:
+
+1. **`templates/cicd/github-actions-validate.template.yml`** — workflow de validação para todo PR:
+   - `forge-doctor.sh` (7 checks estruturais)
+   - `skill-security-scan.sh` (5 checks de segurança)
+   - Pre-merge G1-G5 (C7 imports, C8 anti-hardcode, C6 observe(), manifest sync, eval freshness)
+
+2. **`templates/cicd/github-actions-eval.template.yml`** — eval automático em mudanças de `prompts/`:
+   - Detecta artifact_id modificado
+   - Roda eval por categoria; falha PR se `pass_rate < agreement_rate_min`
+   - Trace Langfuse obrigatório em CI (C6)
+   - Comentário automático no PR com resumo
+
+3. **`templates/cicd/github-actions-audit.template.yml`** — auditoria mensal via cron:
+   - Cron: 1ª segunda-feira do mês, 06:00 UTC
+   - Invoca reviewer DeepAgent (`forge-auditor`)
+   - Commit automático de `docs/forge/audits/{YYYY-MM}.md`
+   - Cria Issue se SLA breach detectado
+
+4. **`templates/cicd/cicd-checklist.template.md`** — checklist platform-agnostic:
+   - 27 itens em 7 seções (validação, pre-merge, eval, auditoria, branch protection, secrets, rastreabilidade)
+   - 18 itens 🔴 obrigatórios para Gate 6; 9 itens 🟡 recomendados
+   - Campo `gate_6_status: pass | fail | pending` lido pelo `promotion-officer`
+
+**Gate 6 (mecânico no `/acme:promote`)**:
+
+| Evidência exigida | Como verificar |
+|---|---|
+| `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass` | Ler arquivo; verificar campo YAML |
+| Todos os 18 itens 🔴 marcados | Contar checkboxes marcados |
+| `ci_pipeline_url` preenchido e acessível | Verificar URL não-nula |
+| `last_ci_run_status: passing` | Ler campo; opcionalmente verificar via GitHub API |
+| Workflows presentes: `forge-validate`, `forge-eval`, `forge-audit` | `find .github/workflows/ -name "forge-*.yml"` |
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-8 aplica |
+|---|---|
+| C1 (Audit trail) | Auditoria mensal automatizada; relatório commitado; Issue criada em SLA breach |
+| C4 (SHADOW antes de cobrar) | Gate 6 garante que eval automático está ativo antes de AUTONOMOUS — o dado de produção é monitorado |
+| C6 (Telemetria) | Eval em CI tem trace Langfuse obrigatório (campo `LANGFUSE_PUBLIC_KEY` em secrets) |
+| C7 (Portabilidade) | Templates de CI são agnósticos de projeto — placeholders `{PROJECT_NAME}`, `{ARTIFACT_ID}` |
+
+**Decisão de versionamento**: Forge-8 adiciona Gate 6 (novo constraint) mas não muda nenhum princípio da Constitution. É MINOR bump (v0.6.0 → v0.7.0). Não exige ADR de Constitution.
+
+**Trade-off aceito**: Gate 6 aumenta o custo de entrada para AUTONOMOUS (Wave 6 do tasks tem 5 tasks adicionais). Em troca, qualquer SKU em AUTONOMOUS tem garantia mecânica de que regressões são detectadas automaticamente.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -430,3 +489,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.4.1 | 2026-05-04 | F22 adicionada; sincronização de metadados | Auditoria interna pré-CI detectou 6 divergências acumuladas |
 | 0.5.0 | 2026-05-06 | F23 adicionada; Forge-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |
 | 0.6.0 | 2026-05-07 | F24 adicionada; Forge-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |
+| 0.7.0 | 2026-05-07 | F25 adicionada; Forge-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |

@@ -1,5 +1,5 @@
 ---
-description: Quebra o plan em tasks ordenadas com dependências, gate de pronto e skill/tool por task. Tasks organizadas em 5 ondas (scaffolding → prompt → eval seed → SHADOW prep → metrics). Output: docs/clients/{client_id}/tasks-{artifact_id}.md como checklist machine-readable.
+description: Quebra o plan em tasks ordenadas com dependências, gate de pronto e skill/tool por task. Tasks organizadas em 6 ondas (scaffolding → prompt → eval seed → SHADOW prep → metrics → CI/CD setup). Output: docs/clients/{client_id}/tasks-{artifact_id}.md como checklist machine-readable.
 allowed-tools: [Read, Write, Glob, Grep]
 arguments:
   required:
@@ -51,7 +51,7 @@ granularity: standard | fine # default standard; fine quebra por step do process
 
 3. Ler spec → outcome_categories, c4_thresholds
 
-4. Gerar tasks distribuídas em 5 ondas (estrutura abaixo)
+4. Gerar tasks distribuídas em 6 ondas (estrutura abaixo)
 
 5. Validar DAG (sem ciclo; toda dependência resolve)
 
@@ -217,6 +217,52 @@ total_waves: 5
 - **Depends on**: T5.1
 - **Tier**: 3
 
+## Wave 6 — CI/CD Setup (pré-requisito obrigatório para AUTONOMOUS)
+
+> Esta onda implementa a esteira de CI/CD que o Gate 6 do `/acme:promote` exige antes de
+> `assisted_to_autonomous`. Pode ser paralelizada com Wave 5, mas deve estar completa antes de
+> qualquer promoção para AUTONOMOUS.
+
+### T6.1 — Criar workflow de validação estrutural (forge-validate)
+- **Skill/tool**: copiar e adaptar `templates/cicd/github-actions-validate.template.yml`
+- **Output**: `.github/workflows/forge-validate.yml` com 3 jobs (forge-doctor, skill-security-scan, pre-merge-check)
+- **Gate de pronto**: PR de teste dispara o workflow; todos os jobs passam; `forge-doctor.sh` retorna exit 0
+- **Depends on**: T1.1 (estrutura base existe)
+- **Tier**: 3
+- **Trace required**: false
+
+### T6.2 — Criar workflow de eval automático (forge-eval)
+- **Skill/tool**: copiar e adaptar `templates/cicd/github-actions-eval.template.yml` + implementar `scripts/eval-runner.py`
+- **Output**: `.github/workflows/forge-eval.yml` + `scripts/eval-runner.py` (adapter LLM para CI)
+- **Gate de pronto**: PR com mudança em `prompts/` dispara eval; relatório gerado em `evals/{id}/runs/`; PR falha se pass_rate < threshold
+- **Depends on**: T3.LAST (eval cases existem)
+- **Tier**: 3
+- **Trace required**: true (eval em CI deve ter trace Langfuse — C6)
+
+### T6.3 — Configurar branch protection rules
+- **Skill/tool**: GitHub Settings → Branches (manual) ou `gh api` CLI
+- **Output**: branch protection em `main`/`master` com status checks obrigatórios (forge-doctor, skill-security-scan, pre-merge-check)
+- **Gate de pronto**: tentativa de push direto em `main` é bloqueada; PR sem CI passing não pode ser mergeado
+- **Depends on**: T6.1
+- **Tier**: 3
+- **Trace required**: false
+
+### T6.4 — Criar workflow de auditoria mensal (forge-audit)
+- **Skill/tool**: copiar e adaptar `templates/cicd/github-actions-audit.template.yml`
+- **Output**: `.github/workflows/forge-audit.yml` com cron mensal (1ª seg. 06:00 UTC)
+- **Gate de pronto**: trigger manual `workflow_dispatch` gera `docs/forge/audits/{YYYY-MM}.md` commitado; issue criada se SLA breach
+- **Depends on**: T6.1
+- **Tier**: 3
+- **Trace required**: false
+
+### T6.5 — Preencher e assinar CI/CD checklist
+- **Skill/tool**: editor manual — preencher `docs/cicd-checklist-{artifact_id}.md` a partir de `templates/cicd/cicd-checklist.template.md`
+- **Output**: `docs/cicd-checklist-{artifact_id}.md` com todos os itens 🔴 marcados e `gate_6_status: pass`
+- **Gate de pronto**: checklist com `items_red_checked == items_red_total`; `ci_pipeline_url` preenchido; `last_ci_run_status: passing`
+- **Depends on**: T6.1, T6.2, T6.3, T6.4
+- **Tier**: 3
+- **Trace required**: false
+
 ## Resumo de dependências (DAG)
 
 ```
@@ -224,6 +270,11 @@ T1.1 ─┬─→ T1.2
       ├─→ T1.3 ─→ T1.4
       └─→ T2.1 ─→ T2.2 ─┐
                   └─→ T3.{n} ─→ T3.LAST ─→ T4.1 ─→ T4.2 ─→ T5.1 ─→ T5.2
+                                    │
+                                    └──────────────────────────────────────→ T6.2
+T1.1 ──────────────────────────────────────────────────────────────────────→ T6.1 ─→ T6.3
+                                                                                    └─→ T6.4
+T6.1, T6.2, T6.3, T6.4 ────────────────────────────────────────────────────────────→ T6.5
 ```
 ```
 
@@ -235,7 +286,7 @@ status: ok | error
 artifact_id: <>
 tasks_path: docs/clients/<>/tasks-<>.md
 total_tasks: <N>
-total_waves: 5
+total_waves: 6
 dag_validation:
   cycles: 0
   unresolved_dependencies: 0
@@ -249,12 +300,14 @@ next_step: "/acme:implement --artifact_id=<>"
 
 ## Verification gate
 
-- [x] 5 ondas presentes; cada onda com ≥ 1 task
+- [x] 6 ondas presentes; cada onda com ≥ 1 task
 - [x] Toda task tem: skill/tool, output, gate de pronto, depends_on, tier, trace_required
 - [x] DAG sem ciclos; toda `depends_on` resolve em task existente
 - [x] Wave 3 expande para `len(spec.outcome_categories)` tasks T3.{n}, cada uma com target ≥30 cases
 - [x] Wave 1 contém scaffolding C5/C7/C8/C6 antes de qualquer lógica de negócio
 - [x] Wave 4 não inicia SHADOW; só prepara (start vai em `/acme:promote`)
+- [x] Wave 6 contém as 5 tasks de CI/CD (T6.1–T6.5); T6.5 é gate de pronto do conjunto
+- [x] T6.5 produz `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass` — Gate 6 do `/acme:promote`
 - [x] Trace requerido marcado em tasks que invocam skill com `trace_required`
 - [x] Arquivo persistido com frontmatter completo
 
@@ -287,3 +340,4 @@ trace_id: <>
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1.0 | 2026-04-30 | Versão inicial — Forge-2 onda 2 (implementation) |
+| 0.2.0 | 2026-05-07 | Wave 6 CI/CD Setup (T6.1-T6.5); total_waves 5→6; DAG expandido; Forge-8 |

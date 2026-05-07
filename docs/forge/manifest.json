@@ -1,10 +1,10 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.6.0",
+  "manifest_version": "0.7.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.6.0",
-    "phase": "Forge-7 AIOS portable agents delivered — 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados), orchestrator e config templates, /acme:aios-init v0.2.0 copia de templates físicos, schema_agent stack-agnostic, F24 in decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
+    "version": "0.7.0",
+    "phase": "Forge-8 CI/CD esteira completa — 4 templates em templates/cicd/ (validate/eval/audit/checklist), Gate 6 obrigatório no /acme:promote para assisted_to_autonomous, Wave 6 no /acme:tasks, F25 em decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
     "last_updated": "2026-05-07",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -469,6 +469,53 @@
           "shared": true,
           "linked_principles": ["C5", "C6", "C7", "C8"],
           "description": "Compartilhado — revisa output contra spec + checklist Constitution C5-C8. Output parseável (linha 'APROVADO PARA MERGE: Sim/Não')."
+        }
+      ]
+    },
+    "templates_cicd": {
+      "_status": "Forge-8 — 4 templates de CI/CD entregues (v0.7.0). Copie para .github/workflows/ e docs/ no projeto consumidor. Gate 6 do /acme:promote lê docs/cicd-checklist-{artifact_id}.md antes de autorizar assisted_to_autonomous.",
+      "root": "templates/cicd/",
+      "linked_principles": ["C1", "C4", "C6", "C7"],
+      "files": [
+        {
+          "id": "template-cicd-validate",
+          "path": "templates/cicd/github-actions-validate.template.yml",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C6", "C7"],
+          "use_case": "pr-validation",
+          "description": "Workflow GitHub Actions para todo PR — forge-doctor (7 checks), skill-security-scan (S1-S5), pre-merge G1-G5 (C7/C8/C6/manifest/eval). Copiar para .github/workflows/forge-validate.yml."
+        },
+        {
+          "id": "template-cicd-eval",
+          "path": "templates/cicd/github-actions-eval.template.yml",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4", "C6", "C7"],
+          "use_case": "eval-automation",
+          "description": "Workflow GitHub Actions para eval automático em mudanças de prompts/ — detecta artifact_id, roda eval por categoria, falha PR se pass_rate < threshold, trace Langfuse obrigatório. Copiar para .github/workflows/forge-eval.yml."
+        },
+        {
+          "id": "template-cicd-audit",
+          "path": "templates/cicd/github-actions-audit.template.yml",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C4", "C6"],
+          "use_case": "monthly-audit",
+          "description": "Workflow GitHub Actions com cron mensal (1ª seg. 06:00 UTC) — invoca forge-auditor DeepAgent, commit automático do relatório em docs/forge/audits/, Issue se SLA breach. Copiar para .github/workflows/forge-audit.yml."
+        },
+        {
+          "id": "template-cicd-checklist",
+          "path": "templates/cicd/cicd-checklist.template.md",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C1", "C4", "C6", "C7"],
+          "use_case": "gate-6-evidence",
+          "description": "Checklist platform-agnostic com 27 itens (18 obrigatórios 🔴, 9 recomendados 🟡). Preencher em docs/cicd-checklist-{artifact_id}.md — campo gate_6_status lido pelo promotion-officer antes de assinar assisted_to_autonomous."
         }
       ]
     },
@@ -1152,7 +1199,8 @@
       "0.3.0_to_0.4.0": "Forge-5 infrastructure: playbook.template.md + retrospective.template.md, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/, decisions F19-F21 (playbook strategy, global deploy eval, plugin eval).",
       "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/.",
       "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section.",
-      "0.5.0_to_0.6.0": "Forge-7 AIOS portable agents (F24): 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados, sendo schema_agent stack-agnostic), orchestrator.py.template + config.yaml.template, /acme:aios-init bumped para v0.2.0 (copia de templates físicos em vez de boilerplate inline), README dos templates AIOS, F24 em decisions, Forge-7 section em roadmap."
+      "0.5.0_to_0.6.0": "Forge-7 AIOS portable agents (F24): 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados, sendo schema_agent stack-agnostic), orchestrator.py.template + config.yaml.template, /acme:aios-init bumped para v0.2.0 (copia de templates físicos em vez de boilerplate inline), README dos templates AIOS, F24 em decisions, Forge-7 section em roadmap.",
+      "0.6.0_to_0.7.0": "Forge-8 CI/CD esteira completa (F25): 4 templates em templates/cicd/ (github-actions-validate/eval/audit + cicd-checklist), Gate 6 adicionado ao /acme:promote (obrigatório para assisted_to_autonomous), Wave 6 no /acme:tasks (T6.1-T6.5), promotion-officer.md atualizado com Gate 6, F25 em decisions, Forge-8 section em roadmap."
     }
   }
 }

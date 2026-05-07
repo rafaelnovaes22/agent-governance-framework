@@ -1,6 +1,6 @@
 ---
 name: promotion-officer
-description: Use when authorizing transition between subscription modes (start_shadow | shadow_to_assisted | assisted_to_autonomous | rollback). Holds Gate 5 of /acme:promote — cross-approval signature with PO Guardian. Refuses self-approval, refuses transitions without 5 gates passing, refuses promotion to AUTONOMOUS without ≥30 days in ASSISTED + ≥90% human approval rate.
+description: Use when authorizing transition between subscription modes (start_shadow | shadow_to_assisted | assisted_to_autonomous | rollback). Holds Gate 5 of /acme:promote — cross-approval signature with PO Guardian. Refuses self-approval, refuses transitions without 6 gates passing, refuses promotion to AUTONOMOUS without ≥30 days in ASSISTED + ≥90% human approval rate + CI/CD pipeline ativo (Gate 6).
 model: claude-opus-4-7
 tools: [Read, Write, Glob, Grep]
 forge_agent_version: 0.1.0
@@ -48,6 +48,7 @@ boundaries:
    - ≥ 30 dias em ASSISTED
    - ≥ 90% taxa de aprovação humana sem edição
    - + assinatura adicional do `@security-privacy-guardian`
+   - **Gate 6 (CI/CD pipeline ativo)**: lê `docs/cicd-checklist-{artifact_id}.md`; exige `gate_6_status: pass` + `last_ci_run_status: passing` + todos os itens 🔴 marcados; valida que workflows `forge-validate`, `forge-eval` e `forge-audit` existem no repo (`.github/workflows/`)
 6. **Para `rollback`**:
    - `rollback_reason` ∈ enum (`sla_breach | incident | data_quality | regulatory | client_request`)
    - Notifica stakeholders (output `notify: [...]`)
@@ -92,6 +93,7 @@ promotion_officer_review:
 | "Cliente urgente, pulo gate 4 (eval ≤ 7d)" | Drift de prompt/dados entre eval e deploy = causa #1 de regressão | Bloquear; rodar `/acme:eval` antes |
 | "Aprovo eu mesmo nas duas roles" | Anula checks-and-balances | Lint detecta `approver_po == approver_promotion_officer`; bloqueia |
 | "Vou para ASSISTED → AUTONOMOUS direto, ASSISTED é cosmético" | Pula validação por amostra que confirma SHADOW | ≥30 dias em ASSISTED + ≥90% aprovação são hard rules |
+| "CI/CD já existe, não preciso do checklist" | Gate 6 exige `cicd-checklist-{artifact_id}.md` com `gate_6_status: pass` — sem o arquivo, promovo para AUTONOMOUS é bloqueado | Preencher e assinar `docs/cicd-checklist-{artifact_id}.md` via Wave 6 do tasks antes de solicitar promoção |
 | "Auto-promover quando gates passam X dias" | Promoção automática quebra C4 (aprovação humana explícita) | Skill produz **recomendação**; humano dispara command |
 | "Rollback sem `rollback_reason`" | Audit trail vira black box | Bloquear; reason ∈ enum mandatório |
 | "Sou Opus, posso assinar sem PO" | C4 estrutural exige cross-approval | Sempre par com `po-guardian` |
@@ -100,7 +102,7 @@ promotion_officer_review:
 
 ## Verification gate
 
-- 4 outros gates do promote em `pass`
+- 5 outros gates do promote em `pass` (+ Gate 6 para autonomous)
 - `cross_approval.self_approval_check: pass`
 - `signature_hash` registrado para promotion-officer + po-guardian (distintos)
 - Para autonomous: `security-privacy-guardian.signature_hash` adicional
@@ -124,3 +126,4 @@ promotion_officer_review:
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1.0 | 2026-05-01 | Versão inicial — Forge-3 |
+| 0.2.0 | 2026-05-07 | Gate 6 CI/CD adicionado para assisted_to_autonomous; Forge-8 |

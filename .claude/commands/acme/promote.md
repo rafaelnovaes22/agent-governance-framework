@@ -1,5 +1,5 @@
 ---
-description: Promove modo de uma subscription (start_shadow | shadow_to_assisted | assisted_to_autonomous | rollback). Valida 5 gates obrigatórios (C2 pass, C3 viable, SLA pré-contratada, eval suite passing, aprovação cruzada PO + Promotion Officer). Invoca @shadow-mode-runner conforme transição. Persiste em subscriptions/{id}/promotions.md com signature_hash.
+description: Promove modo de uma subscription (start_shadow | shadow_to_assisted | assisted_to_autonomous | rollback). Valida 6 gates obrigatórios (C2 pass, C3 viable, SLA pré-contratada, eval suite passing, aprovação cruzada PO + Promotion Officer, CI/CD pipeline ativo). Invoca @shadow-mode-runner conforme transição. Persiste em subscriptions/{id}/promotions.md com signature_hash.
 allowed-tools: [Read, Write, Glob, Grep]
 arguments:
   required:
@@ -18,7 +18,7 @@ invokes_skills:
 output_artifact: subscriptions/{subscription_id}/promotions.md
 trace_required: true
 human_approval_required: true
-gate_count: 5
+gate_count: 6
 ---
 
 # /acme:promote — Transição de modo (C4 enforcement)
@@ -33,7 +33,7 @@ Transições suportadas:
 |---|---|---|
 | `start_shadow` | `none` | Todas as 6 precondições de `@shadow-mode-runner.start` |
 | `shadow_to_assisted` | `shadow` | Janela ≥ window_days E agreement >= threshold E eval pass |
-| `assisted_to_autonomous` | `assisted` | Tempo mínimo ASSISTED + auditoria de aprovação humana ≥ X% |
+| `assisted_to_autonomous` | `assisted` | Tempo mínimo ASSISTED + auditoria de aprovação humana ≥ X% + CI/CD pipeline ativo (Gate 6) |
 | `rollback` | qualquer | Reason obrigatória; rebaixa um nível |
 
 ## Pre-conditions
@@ -57,7 +57,7 @@ approver_promotion_officer: <nome|role> # Promotion Officer (Forge-3)
 rollback_reason: <enum + texto>      # obrigatório se to_mode=rollback
 ```
 
-## Os 5 gates
+## Os 6 gates
 
 A command **não** executa transição se qualquer gate falhar:
 
@@ -85,6 +85,14 @@ A command **não** executa transição se qualquer gate falhar:
 - `approver_po != approver_promotion_officer` (sem self-approval)
 - `signature_hash` do PO + `signature_hash` do Promotion Officer registrados
 - Para `assisted_to_autonomous`: + assinatura do `security-privacy-guardian` (Forge-3)
+
+### Gate 6 — CI/CD pipeline ativo (obrigatório apenas para `assisted_to_autonomous`)
+- `docs/cicd-checklist-{artifact_id}.md` existe com `gate_6_status: pass`
+- Todos os itens obrigatórios (🔴) do checklist marcados como implementados
+- `ci_pipeline_url` preenchido com link verificável para pipeline ativo
+- `last_ci_run_status: passing` — última execução do CI passou
+- Workflows obrigatórios presentes no repo: `forge-validate` + `forge-eval` + `forge-audit`
+- Branch protection ativa em `main`/`master` com status checks forge exigidos
 
 ## Execução
 
@@ -175,7 +183,8 @@ gates_status:
   c4_sla_pre_contracted: pass
   eval_suite_passing: pass
   human_approval: pass
-gates_passed: 5
+  cicd_pipeline_active: pass | skipped  # skipped para transições != assisted_to_autonomous
+gates_passed: 6
 gates_failed: 0
 gate_failures: []
 shadow_runner_outcome: { ... }   # se start_shadow ou shadow_to_assisted
@@ -191,7 +200,7 @@ next_step: "monitorar dashboards e rodar /acme:audit-monthly"
 ## Verification gate
 
 - [x] Transição legal verificada
-- [x] **5 gates** rodados; output declara cada um com evidence
+- [x] **6 gates** rodados; output declara cada um com evidence
 - [x] Sem self-approval (`approver_po != approver_promotion_officer`)
 - [x] `signature_hash` registrado para cada aprovador
 - [x] `prompt_hash` em produção == `prompt_hash` do eval recente
@@ -212,6 +221,7 @@ next_step: "monitorar dashboards e rodar /acme:audit-monthly"
 | "Promover sem rodar shadow_runner.report — já estou olhando dashboards" | Skill calcula recomendação com regras consistentes; visual ≠ rigor | `shadow_to_assisted` invoca `@shadow-mode-runner.report` mandatoriamente |
 | "Rollback sem reason — está óbvio" | Audit trail sem reason vira black box | `rollback_reason` ∈ enum: `sla_breach | incident | data_quality | regulatory | client_request` + texto |
 | "Auto-promover quando gates passam por X dias" | Promoção automática quebra C4 (aprovação humana explícita) | Skill produz **status: ok com recommendation**; humano dispara o command com flags `--approver_*` |
+| "CI/CD é DevOps, não bloqueia AUTONOMOUS" | Sem CI, regressão de prompt/eval passa despercebida em produção; auditoria mensal falha sem pipeline | Gate 6 é não-negociável para `assisted_to_autonomous`; completar Wave 6 do tasks e apresentar checklist assinado |
 
 ## Saída de erro estruturada
 
@@ -231,3 +241,4 @@ trace_id: <>
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1.0 | 2026-04-30 | Versão inicial — Forge-2 onda 3 (validation) |
+| 0.2.0 | 2026-05-07 | Gate 6 CI/CD pipeline ativo (obrigatório para assisted_to_autonomous); gate_count 5→6; Forge-8 |

@@ -9,6 +9,53 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.7.0] — 2026-05-07
+
+### Added (Forge-8 — CI/CD esteira completa para produção)
+
+**Nenhum SKU pode promover para AUTONOMOUS sem CI/CD pipeline ativo verificável — Gate 6 obrigatório no `/acme:promote`:**
+
+**Novo diretório `templates/cicd/`:**
+
+- `templates/cicd/github-actions-validate.template.yml` — workflow de validação para todo PR: forge-doctor (7 checks estruturais) + skill-security-scan (S1-S5) + pre-merge G1-G5 (C7 imports, C8 anti-hardcode, C6 observe(), manifest sync, eval freshness). Copiar para `.github/workflows/forge-validate.yml`.
+- `templates/cicd/github-actions-eval.template.yml` — eval automático em mudanças de `prompts/`: detecta artifact_id modificado, roda eval por categoria via `scripts/eval-runner.py`, falha PR se `pass_rate < agreement_rate_min`, trace Langfuse obrigatório em CI (C6), comentário automático no PR com resumo. Copiar para `.github/workflows/forge-eval.yml`.
+- `templates/cicd/github-actions-audit.template.yml` — auditoria mensal via cron (1ª seg. 06:00 UTC): invoca reviewer DeepAgent (`forge-auditor`), commit automático de `docs/forge/audits/{YYYY-MM}.md`, cria Issue se SLA breach detectado. Trigger manual via `workflow_dispatch`. Copiar para `.github/workflows/forge-audit.yml`.
+- `templates/cicd/cicd-checklist.template.md` — checklist platform-agnostic com **27 itens em 7 seções** (validação estrutural, pre-merge G1-G5, eval automático, auditoria mensal, branch protection, secrets, rastreabilidade de deploys). **18 itens 🔴 obrigatórios** para Gate 6; 9 itens 🟡 recomendados. Preencher em `docs/cicd-checklist-{artifact_id}.md`.
+
+**Gate 6 CI/CD adicionado ao `/acme:promote`:**
+
+- Gate 6 é **obrigatório apenas para `assisted_to_autonomous`** (skipped para start_shadow e shadow_to_assisted)
+- Evidências exigidas: `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`, todos os 18 itens 🔴 marcados, `ci_pipeline_url` preenchido, `last_ci_run_status: passing`, workflows `forge-validate` + `forge-eval` + `forge-audit` presentes
+- `gate_count: 5 → 6`; output structured expandido com `cicd_pipeline_active: pass | skipped`
+- Tabela anti-rationalization: "CI/CD é DevOps, não bloqueia AUTONOMOUS" → bloqueado; completar Wave 6 e apresentar checklist
+
+**Wave 6 CI/CD adicionada ao `/acme:tasks`:**
+
+- 5 tasks (T6.1–T6.5): workflow validate, workflow eval + `scripts/eval-runner.py`, branch protection rules, workflow audit, checklist assinado
+- DAG expandido; T6.5 produz `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`
+- `total_waves: 5 → 6`; verification gate e anti-rationalization atualizados
+
+**`promotion-officer.md` atualizado:**
+
+- Gate 6 na seção `assisted_to_autonomous`: lê `docs/cicd-checklist-{artifact_id}.md`, valida `gate_6_status: pass`, verifica existência dos 3 workflows em `.github/workflows/`
+- Anti-rationalization: "CI/CD já existe, não preciso do checklist" → bloqueado
+- Verification gate: "5 outros gates + Gate 6 para autonomous"
+
+**Decisão registrada (F25):**
+
+- `docs/forge/decisions.md` — F25 documenta a decisão de tornar CI/CD um Gate obrigatório (vs. recomendado), mapeamento com Constitution C1/C4/C6/C7, trade-off (custo adicional da Wave 6 em troca de garantia mecânica contra regressão em produção)
+
+### Changed
+
+- `manifest.json` versão `0.6.0 → 0.7.0`; `phase` atualizado; novo bloco `artifacts.templates_cicd.files[]` com 4 entradas; `version_bumps.0.6.0_to_0.7.0` adicionado
+- `docs/forge/roadmap.md` — header status atualizado para v0.7.0; tabela expandida para **8 ondas**; nova seção **"Forge-8 — CI/CD esteira completa"** completa com tasks F8.1-F8.6 e critério de pronto
+- `docs/forge/decisions.md` — F25 adicionada; histórico expandido com linha v0.7.0
+- `.claude/commands/acme/tasks.md` — v0.1.0 → v0.2.0; Wave 6 adicionada; DAG expandido; verification gate atualizado
+- `.claude/commands/acme/promote.md` — v0.1.0 → v0.2.0; Gate 6 adicionado; gate_count 5→6; output structured expandido
+- `.claude/agents/promotion-officer.md` — v0.1.0 → v0.2.0; Gate 6 integrado ao fluxo de `assisted_to_autonomous`
+
+---
+
 ## [0.6.0] — 2026-05-07
 
 ### Added (Forge-7 — AIOS agentes portáveis em templates físicos canônicos)
