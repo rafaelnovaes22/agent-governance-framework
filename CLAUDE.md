@@ -196,6 +196,8 @@ git diff HEAD --stat
 - ✅ Forge-4 concluída (v0.3.0): **9 hooks ativos** (PreToolUse x4, PostToolUse x3, Stop x2), bypass auditado, `skill-security-scan.sh`, `bypass-log/`
 - ✅ Forge-5 infraestrutura entregue (v0.4.0): **templates playbook + retrospectiva**, `/acme:playbook-extract`, `docs/playbooks/`, F19-F21 em decisions.md
 - ✅ Doc sync + validador CI (v0.4.1): `scripts/forge-doctor.sh` (7 checks), `reviewer/README.md`, sincronização de metadados, F22 em decisions.md
+- ✅ Forge-6 entregue (v0.5.0): **3 commands AIOS** (init/run/status) + telemetry pattern + `aios_tier` em spec template, F23 em decisions.md
+- ✅ Forge-7 entregue (v0.6.0): **6 agentes AIOS portáveis em `templates/aios/`** (spec/backend/frontend especializados + schema/test/review compartilhados, `schema_agent` stack-agnostic), `/acme:aios-init` v0.2.0 copia de templates físicos, F24 em decisions.md
 - ⏳ Pendências do consumidor: ADR-002 efetiva + primeira auditoria mensal de teste + **primeiro SKU em AUTONOMOUS para gerar playbook real**
 - ⏳ Resíduo Forge-1 (opcional): 4 skills Acme-específicas em `examples/acme/skills/`
 

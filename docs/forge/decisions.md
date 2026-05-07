@@ -377,6 +377,47 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F24 (NOVO 2026-05-07) — AIOS agentes portáveis em templates/aios/ (Forge-7)
+
+**Status**: ✅ **Formalizado em 2026-05-07 — Forge-7 entregue**
+
+**Contexto**: Forge-6 (v0.5.0) entregou os slash commands AIOS (`/acme:aios-init`, `/acme:aios-run`, `/acme:aios-status`) e o padrão de telemetria, mas o **boilerplate dos agentes ficou inline no `aios-init.md`** e cobria apenas 3 dos 6 agentes (spec/backend/frontend). Cada projeto consumidor que adotasse AIOS tinha que gerar seus agentes do zero ou copiar do SchoolPlatform — onde o código está cravado em "EDIX" (viola C7/C8).
+
+**Problema concreto**: o usuário pediu "que cada novo projeto cliente criado possa utilizá-los" e a forma só-comando-inline não escala — qualquer evolução nos agentes teria que ser duplicada manualmente em cada consumidor.
+
+**Decisão**: extrair os 6 agentes (`spec`, `backend`, `frontend`, `schema`, `test`, `review`) como **templates físicos canônicos** em `templates/aios/`, com placeholders bem definidos e SYSTEM_PROMPTs neutros (sem hardcode de cliente/stack/framework).
+
+**Diferença-chave vs. SchoolPlatform**:
+- `schema_agent` é **stack-agnostic**: lê `aios/config.yaml → stack.database` e gera schema na stack declarada; se vazia, propõe 1-3 stacks com tradeoffs e pede decisão humana antes do schema definitivo
+- `backend_agent`, `frontend_agent`, `test_agent` leem `stack.{backend,frontend,tests}` da config — não cravam Next.js/Prisma/Vitest
+- `orchestrator.py` lê `modules:` da config (em vez de lista hardcoded de 15 módulos do SchoolPlatform)
+- Todos têm bloco Langfuse + `_MockTrace` obrigatório (C6)
+- `tenantId` sempre via `task_input["tenant_id"]` (C8)
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-7 aplica |
+|---|---|
+| C5 (Three-tier) | `tier: A | B | C` no `config.json` de cada agente especializado; agentes compartilhados marcados `tier: shared` |
+| C6 (Telemetry) | Bloco Langfuse + `_MockTrace` no boilerplate de cada `entry.py.template` (não opcional) |
+| C7 (Portability) | SYSTEM_PROMPT funciona standalone em Claude Code (declarado no comentário-cabeçalho); kernel offline ≠ agente inutilizável |
+| C8 (Anti-heroic) | Stack lida de `aios/config.yaml`, nunca cravada; `tenantId` em `task_input`; nenhum nome de cliente em código |
+
+**Decisão de versionamento**: Forge-7 é nova onda → MINOR bump (v0.5.0 → v0.6.0). Não viola Constitution.
+
+**Artefatos Forge-7 entregues**:
+- F7.1 — `templates/aios/README.md` (documentação dos placeholders, tabela de diferenças vs. SchoolPlatform)
+- F7.2 — `templates/aios/orchestrator.py.template` + `templates/aios/config.yaml.template`
+- F7.3 — 6 agentes em `templates/aios/agents/{spec,backend,frontend,schema,test,review}_agent/{entry.py.template, config.json.template}`
+- F7.4 — `/acme:aios-init` v0.2.0 (copia de templates físicos; cobre 6 agentes; cria orchestrator/config quando ausentes)
+- F7.5 — `manifest.json` v0.6.0 com novo bloco `templates_aios.files[]` (9 entradas)
+- F7.6 — `roadmap.md` Forge-7 section
+- F7.7 — F24 em decisions.md
+
+**Trade-off aceito**: centralizar os agentes impõe evolução coordenada — qualquer mudança no padrão atualiza 6 arquivos. Em troca, todos os projetos consumidores recebem a mesma evolução via `cp -r` ou via re-run do `/acme:aios-init` na próxima vez (idempotente para agentes compartilhados, regenera os especializados).
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -388,3 +429,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.4.0 | 2026-05-01 | F19-F21 adicionadas | Forge-5: estratégia de playbooks + reavaliação de deploy global e plugin |
 | 0.4.1 | 2026-05-04 | F22 adicionada; sincronização de metadados | Auditoria interna pré-CI detectou 6 divergências acumuladas |
 | 0.5.0 | 2026-05-06 | F23 adicionada; Forge-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |
+| 0.6.0 | 2026-05-07 | F24 adicionada; Forge-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |

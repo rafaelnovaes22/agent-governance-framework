@@ -9,6 +9,59 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.6.0] — 2026-05-07
+
+### Added (Forge-7 — AIOS agentes portáveis em templates físicos canônicos)
+
+**6 agentes AIOS extraídos como templates canônicos versionados na Forge — qualquer novo projeto consumidor recebe os agentes prontos via `/acme:aios-init` (sem hardcode de cliente, sem dependência da implementação de referência SchoolPlatform/EDIX):**
+
+**Novo diretório `templates/aios/`:**
+
+- `templates/aios/README.md` — documentação dos placeholders (`{PROJECT_NAME}`, `{MODULE}`, `{TIER}`, `{STACK_*}`), estrutura física e tabela de diferenças vs. SchoolPlatform/EDIX
+- `templates/aios/orchestrator.py.template` — pipeline multiagente que lê `aios/config.yaml → modules:` (sem hardcode de lista de módulos), com gates humanos C4 obrigatórios em pipeline completo
+- `templates/aios/config.yaml.template` — config canônica AIOS com novos blocos `project.*` (name, tenant_field) e `stack.*` (backend, frontend, database, tests) + `modules:` array
+
+**6 agentes em `templates/aios/agents/`:**
+
+- `spec_agent/` (**especializado** por módulo) — converte descrição em spec executável; tier configurável A/B/C
+- `backend_agent/` (**especializado**) — implementa API/service layer; **stack lida de `aios/config.yaml → stack.backend`** (sem cravamento de Next.js/FastAPI/Rails)
+- `frontend_agent/` (**especializado**) — implementa UI/telas; **stack lida de `stack.frontend`**
+- `schema_agent/` (**compartilhado, stack-agnostic**) — gera schema na stack declarada em `stack.database`; se vazia, propõe 1-3 stacks com tradeoffs e pede decisão humana antes do schema definitivo
+- `test_agent/` (**compartilhado**) — gera testes priorizando edge cases financeiros; stack via `stack.tests`
+- `review_agent/` (**compartilhado**) — revisa output contra spec + checklist Constitution C5-C8; output parseável (linha "APROVADO PARA MERGE: Sim/Não")
+
+Cada `entry.py.template` inclui obrigatoriamente:
+- Bloco `langfuse.trace() → generation.end()` envolvendo `send_request()` (C6)
+- `_MockTrace` fallback para dev local sem Langfuse (não substitui — apenas evita crash em dev)
+- Comentário-cabeçalho declarando que o SYSTEM_PROMPT funciona standalone em Claude Code sem o kernel AIOS (C7)
+- `tenantId` lido de `task_input["tenant_id"]`, nunca hardcoded (C8)
+- Carregamento de `aios/config.yaml` para `_PROJECT_NAME` e `_STACK_*` em runtime (zero hardcode de cliente)
+
+**`/acme:aios-init` bumped para v0.2.0:**
+
+- Passa a **copiar dos templates físicos** em `templates/aios/` em vez de gerar boilerplate inline
+- Cobre os 6 agentes (Forge-6 cobria só 3): especializados são regenerados a cada chamada; compartilhados (schema/test/review) são **idempotentes** — só criados se ausentes
+- Cria `aios/orchestrator.py` e `aios/config.yaml` quando ausentes, copiando dos templates
+- Atualiza `aios/config.yaml → modules:` automaticamente com o novo módulo
+- Validation gate aumentado de 4 para 7 checks (adiciona: forge_root, pyyaml, langfuse-warning)
+- Resolução de `${FORGE_ROOT}` em ordem: `ACME_FORGE_ROOT` env → `./forge/` → `./.claude/forge/`
+
+**Decisão registrada (F24):**
+
+- `docs/forge/decisions.md` — F24 documenta a extração dos agentes como templates canônicos, mapeamento com Constitution e trade-off (evolução coordenada via 6 arquivos centralizados em troca de garantia C7/C8 e propagação automática para todos os consumidores)
+
+### Changed
+
+- `manifest.json` versão `0.5.0 → 0.6.0`; novo bloco `artifacts.templates_aios.files[]` com 9 entradas (README + orchestrator + config + 6 agent dirs); `command-aios-init` bumped para v0.2.0; `_status` de `commands.aios` atualizado para "Forge-2+5+6+7"; `version_bumps.0.5.0_to_0.6.0` adicionado
+- `docs/forge/roadmap.md` — header status atualizado para v0.6.0; tabela de visão geral expandida para **7 ondas**; nova seção **"Forge-7 — AIOS agentes portáveis"** completa com tasks F7.1-F7.6 e critério de pronto (todas marcadas `[x]`)
+- `docs/forge/decisions.md` — F24 adicionada; histórico expandido com linha v0.6.0
+
+### Constitution
+
+8 princípios C1–C8 **inalterados**. Forge-7 é evolução de empacotamento da Forge-6 (camada de implementação no consumidor), não princípio novo — não exige MAJOR bump.
+
+---
+
 ## [0.5.0] — 2026-05-06
 
 ### Added (Forge-6 — AIOS Server camada de implementação multiagente)

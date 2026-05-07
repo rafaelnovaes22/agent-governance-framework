@@ -3,8 +3,8 @@
 > Framework de governança para projetos que constroem **agentes de IA com outcome cobrável**.
 > Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue)](./CHANGELOG.md)
-[![Phase](https://img.shields.io/badge/phase-Forge--6-orange)](./docs/forge/roadmap.md)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue)](./CHANGELOG.md)
+[![Phase](https://img.shields.io/badge/phase-Forge--7-orange)](./docs/forge/roadmap.md)
 [![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)
 
 ---

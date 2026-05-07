@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.5.0",
+  "manifest_version": "0.6.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.5.0",
-    "phase": "Forge-6 AIOS infrastructure delivered — 3 new commands (aios-init/run/status), AIOS section in plan/tasks/implement, aios-telemetry-pattern.md, aios_tier in spec template, F23 in decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
-    "last_updated": "2026-05-06",
+    "version": "0.6.0",
+    "phase": "Forge-7 AIOS portable agents delivered — 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados), orchestrator e config templates, /acme:aios-init v0.2.0 copia de templates físicos, schema_agent stack-agnostic, F24 in decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
+    "last_updated": "2026-05-07",
     "constitution_version": "0.2.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
@@ -161,9 +161,9 @@
           "path": "CHANGELOG.md",
           "type": "documentation",
           "audience": ["all"],
-          "version": "0.4.1",
+          "version": "0.6.0",
           "sha256": null,
-          "description": "Histórico de versões"
+          "description": "Histórico de versões (entradas até v0.6.0 — Forge-7)"
         }
       ],
       "forge_docs": [
@@ -180,17 +180,17 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.5.0",
+          "version": "0.6.0",
           "sha256": null,
-          "description": "Decisões F1-F23"
+          "description": "Decisões F1-F24"
         },
         {
           "id": "forge-roadmap",
           "path": "docs/forge/roadmap.md",
           "type": "documentation",
-          "version": "0.5.0",
+          "version": "0.6.0",
           "sha256": null,
-          "description": "Roadmap das 6 ondas (incluindo Forge-6 AIOS)"
+          "description": "Roadmap das 7 ondas (incluindo Forge-6 AIOS infraestrutura + Forge-7 AIOS templates portáveis)"
         },
         {
           "id": "forge-aios-telemetry-pattern",
@@ -222,7 +222,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.5.0",
+          "version": "0.6.0",
           "sha256": null,
           "linked_principles": ["C6"],
           "description": "Este arquivo - inventory machine-readable"
@@ -372,6 +372,106 @@
         "description": "Template de retrospectiva por SKU pós-AUTONOMOUS — compliance C1-C8, gate failures, métricas reais, lições aprendidas."
       }
     ],
+    "templates_aios": {
+      "_status": "Forge-7 — 6/6 agentes portáveis + orchestrator + config (v0.6.0). Boilerplate canônico copiado pelo /acme:aios-init v0.2.0.",
+      "root": "templates/aios/",
+      "linked_principles": ["C5", "C6", "C7", "C8"],
+      "files": [
+        {
+          "id": "template-aios-readme",
+          "path": "templates/aios/README.md",
+          "type": "template-doc",
+          "version": "0.1.0",
+          "sha256": null,
+          "description": "Documentação dos placeholders, estrutura e diferenças vs. implementação de referência (SchoolPlatform)."
+        },
+        {
+          "id": "template-aios-orchestrator",
+          "path": "templates/aios/orchestrator.py.template",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C4", "C6", "C7", "C8"],
+          "description": "Pipeline multiagente para o projeto consumidor — lê módulos de aios/config.yaml (sem hardcode). Gates humanos C4 obrigatórios em pipeline completo."
+        },
+        {
+          "id": "template-aios-config",
+          "path": "templates/aios/config.yaml.template",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "linked_principles": ["C7", "C8"],
+          "description": "Config canônica AIOS — llm/server/memory/storage + project.* + stack.{backend,frontend,database,tests} + modules[]."
+        },
+        {
+          "id": "template-aios-agent-spec",
+          "path": "templates/aios/agents/spec_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": false,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Especializado por módulo — converte descrição em spec executável. Tier configurável (A/B/C)."
+        },
+        {
+          "id": "template-aios-agent-backend",
+          "path": "templates/aios/agents/backend_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": false,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Especializado por módulo — implementa API + service layer. Stack lida de aios/config.yaml → stack.backend."
+        },
+        {
+          "id": "template-aios-agent-frontend",
+          "path": "templates/aios/agents/frontend_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": false,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Especializado por módulo — implementa UI/telas. Stack lida de aios/config.yaml → stack.frontend."
+        },
+        {
+          "id": "template-aios-agent-schema",
+          "path": "templates/aios/agents/schema_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": true,
+          "stack_agnostic": true,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Compartilhado e stack-agnostic — gera schema na stack declarada em aios/config.yaml → stack.database; se vazia, propõe 1-3 stacks com tradeoffs."
+        },
+        {
+          "id": "template-aios-agent-test",
+          "path": "templates/aios/agents/test_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": true,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Compartilhado — gera testes priorizando edge cases financeiros e regras críticas. Stack de testes lida de aios/config.yaml → stack.tests."
+        },
+        {
+          "id": "template-aios-agent-review",
+          "path": "templates/aios/agents/review_agent/",
+          "path_kind": "directory",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": null,
+          "shared": true,
+          "linked_principles": ["C5", "C6", "C7", "C8"],
+          "description": "Compartilhado — revisa output contra spec + checklist Constitution C5-C8. Output parseável (linha 'APROVADO PARA MERGE: Sim/Não')."
+        }
+      ]
+    },
     "reviewer_assets": [
       {
         "id": "reviewer-readme",
@@ -825,18 +925,18 @@
           "description": "Read-only consolidação de 5 gates (C7 imports, C8 hardcode, C6 observe, manifest sync, eval green) — go/no-go para CI/pre-commit. Exit code 0/1/2 conforme overall."
         }
       ],
-      "_status": "Forge-2+5+6 — 15 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1 + aios 3/3.",
+      "_status": "Forge-2+5+6+7 — 15 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1 + aios 3/3 (aios-init v0.2.0 copia de templates físicos a partir de Forge-7).",
       "aios": [
         {
           "id": "command-aios-init",
           "path": ".claude/commands/acme/aios-init.md",
           "type": "slash-command",
-          "version": "0.1.0",
+          "version": "0.2.0",
           "sha256": null,
           "linked_principles": ["C5", "C6", "C7", "C8"],
           "invokes_skills": [],
           "trace_required": false,
-          "description": "Scaffolda estrutura aios/agents/{module}/ (spec_agent + backend_agent + frontend_agent). Pré-requisito: spec existente + aios/config.yaml. Gate: 4 checks antes de criar qualquer arquivo."
+          "description": "Scaffolda aios/agents/{module}/ COPIANDO de templates/aios/ (Forge-7). Cobre 6 agentes (3 especializados + 3 compartilhados criados se ausentes). Gera orchestrator/config quando ausentes. Gate: 7 checks antes de copiar qualquer arquivo."
         },
         {
           "id": "command-aios-run",
@@ -1051,7 +1151,8 @@
       "0.2.0_to_0.3.0": "Forge-4 hooks runtime: 9 hooks activated (PreToolUse x4, PostToolUse x3, Stop x2), skill-security-scan script, bypass auditado em bypass-log/, settings.json _forge_version bumped to 0.3.0.",
       "0.3.0_to_0.4.0": "Forge-5 infrastructure: playbook.template.md + retrospective.template.md, /acme:playbook-extract command, docs/playbooks/ + docs/retrospectives/, decisions F19-F21 (playbook strategy, global deploy eval, plugin eval).",
       "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/.",
-      "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section."
+      "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section.",
+      "0.5.0_to_0.6.0": "Forge-7 AIOS portable agents (F24): 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados, sendo schema_agent stack-agnostic), orchestrator.py.template + config.yaml.template, /acme:aios-init bumped para v0.2.0 (copia de templates físicos em vez de boilerplate inline), README dos templates AIOS, F24 em decisions, Forge-7 section em roadmap."
     }
   }
 }

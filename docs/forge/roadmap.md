@@ -1,13 +1,13 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura (v0.5.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
-> **Última atualização**: 2026-05-06
-> **Total estimado**: 15–22 dias úteis (paralelo às ondas Acme)
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
+> **Última atualização**: 2026-05-07
+> **Total estimado**: 16–23 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
 ---
 
-## Visão geral das 5 ondas
+## Visão geral das 7 ondas
 
 | Onda | Foco | Estimativa | Bloqueia |
 |---|---|---|---|
@@ -17,7 +17,8 @@
 | **Forge-3** | Subagents Guardian + reviewer DeepAgents | 4–6 dias | Forge-4 |
 | **Forge-4** | Hooks runtime e governança | 3–5 dias | Operação |
 | **Forge-5** | Playbooks verticais (contínuo, pós cliente 1) | — | — |
-| **Forge-6** | AIOS Server — camada de implementação multiagente | 2 dias | — |
+| **Forge-6** | AIOS Server — camada de implementação multiagente (commands + telemetry) | 2 dias | Forge-7 |
+| **Forge-7** | AIOS agentes portáveis (templates físicos canônicos, schema stack-agnostic) | 1 dia | — |
 
 ---
 
@@ -258,6 +259,39 @@
 - ✅ Spec template com `aios_tier` no frontmatter — **entregue**
 - ✅ `manifest.json` v0.5.0 atualizado com novos artefatos — **entregue**
 - ✅ `decisions.md` com F23 (mapeamento AIOS ↔ Constitution) — **entregue**
+
+---
+
+## Forge-7 — AIOS agentes portáveis (templates físicos canônicos) ✅ (v0.6.0)
+
+**Objetivo**: cada novo projeto consumidor que adote AIOS recebe os 6 agentes (`spec`, `backend`, `frontend`, `schema`, `test`, `review`) **prontos** a partir de templates canônicos versionados na Forge — sem hardcode de cliente, sem dependência da implementação de referência (SchoolPlatform/EDIX), com schema stack-agnostic.
+
+> **Contexto**: Forge-6 entregou commands + telemetria, mas o boilerplate dos agentes ficou inline no `aios-init.md` e cobria só 3 dos 6 agentes. Forge-7 fecha o gap extraindo os 6 como templates físicos em `templates/aios/`.
+
+### Tasks
+
+- [x] **F7.1** `templates/aios/README.md` — placeholders, estrutura, diferenças vs. SchoolPlatform — **entregue 2026-05-07**
+- [x] **F7.2** `templates/aios/orchestrator.py.template` + `templates/aios/config.yaml.template` — pipeline + config canônica com `project.*`, `stack.*`, `modules:` — **entregue 2026-05-07**
+- [x] **F7.3** 6 agentes em `templates/aios/agents/` — **entregue 2026-05-07**:
+  - [x] `spec_agent/` (especializado por módulo)
+  - [x] `backend_agent/` (especializado, stack via `stack.backend`)
+  - [x] `frontend_agent/` (especializado, stack via `stack.frontend`)
+  - [x] `schema_agent/` (compartilhado, **stack-agnostic** — propõe stack se vazia)
+  - [x] `test_agent/` (compartilhado, stack via `stack.tests`)
+  - [x] `review_agent/` (compartilhado, checklist Constitution C5-C8)
+- [x] **F7.4** `/acme:aios-init` v0.2.0 — copia de templates físicos; cobre 6 agentes; cria orchestrator/config quando ausentes — **entregue 2026-05-07**
+- [x] **F7.5** `manifest.json` v0.6.0 — bloco `templates_aios.files[]` com 9 entradas — **entregue 2026-05-07**
+- [x] **F7.6** F24 em `decisions.md` — justificativa, mapeamento Constitution, trade-offs — **entregue 2026-05-07**
+
+### Critério de pronto
+
+- ✅ 6 agentes em `templates/aios/agents/` com `entry.py.template` + `config.json.template`
+- ✅ Cada `entry.py.template` tem bloco Langfuse + `_MockTrace` (C6)
+- ✅ Cada `entry.py.template` declara LEIA APENAS / NÃO LEIA (C5)
+- ✅ Nenhum SYSTEM_PROMPT cita "EDIX", nome de cliente ou framework cravado (C7/C8)
+- ✅ `schema_agent` lê `aios/config.yaml → stack.database` ou propõe stacks (modo `PROPOR_STACK`)
+- ✅ `/acme:aios-init` v0.2.0 valida 7 checks pré-cópia; idempotente para agentes compartilhados
+- ✅ `manifest.json` registra 9 artefatos novos em `templates_aios.files[]`
 
 ---
 

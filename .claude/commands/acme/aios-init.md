@@ -1,17 +1,18 @@
 ---
 name: acme:aios-init
-description: "Scaffolda a estrutura aios/agents/{module}/ para um novo artefato ou módulo"
-allowed-tools: [Write, Bash, Read]
+description: "Scaffolda a estrutura aios/agents/{module}/ a partir dos templates físicos canônicos da Forge"
+allowed-tools: [Write, Bash, Read, Edit]
 arguments:
   required:
     - module
   optional:
     - tier
     - project_root
-forge_command_version: 0.1.0
+    - force
+forge_command_version: 0.2.0
 linked_principles: [C5, C6, C7, C8]
 invokes_skills: []
-output_artifact: aios/agents/{module}_spec_agent/ + aios/agents/{module}_backend_agent/ + aios/agents/{module}_frontend_agent/
+output_artifact: aios/agents/{module}_spec_agent/ + aios/agents/{module}_backend_agent/ + aios/agents/{module}_frontend_agent/ + (aios/agents/{schema|test|review}_agent/ se ausentes)
 trace_required: false
 ---
 
@@ -19,8 +20,9 @@ trace_required: false
 
 ## Propósito
 
-Cria a estrutura de agentes AIOS para um módulo/artefato que ainda não tem agentes configurados.
-Deve ser executado após `/acme:spec` e antes de `/acme:implement --via aios`.
+Cria a estrutura de agentes AIOS para um módulo/artefato copiando os **templates físicos canônicos** mantidos em `templates/aios/` na Forge.
+
+A partir da v0.2.0 deste comando (Forge v0.6.0+) o boilerplate **não é mais inline**: cada arquivo gerado é resultado de aplicar substituições em um `.template` mantido na Forge — assim os 6 agentes evoluem em sincronia entre todos os projetos consumidores.
 
 > Os SYSTEM_PROMPTs gerados funcionam como **prompts standalone em Claude Code** — sem dependência do kernel AIOS (C7 obrigatório).
 
@@ -31,170 +33,150 @@ module: <kebab-case>           # nome do módulo
 # opcionais
 tier: A | B | C                # A=autônomo, B=iterativo, C=Rafael-dirige (default B)
 project_root: <path>           # raiz do projeto consumidor (default: cwd)
+force: false                   # sobrescreve aios/agents/{module}_*/ existentes
 ```
+
+## Onde os templates vivem
+
+```
+${FORGE_ROOT}/templates/aios/
+├── README.md                          # documentação dos placeholders e estrutura
+├── orchestrator.py.template
+├── config.yaml.template
+└── agents/
+    ├── spec_agent/                    # ESPECIALIZADO por módulo
+    ├── backend_agent/                 # ESPECIALIZADO por módulo
+    ├── frontend_agent/                # ESPECIALIZADO por módulo
+    ├── schema_agent/                  # COMPARTILHADO — stack-agnostic
+    ├── test_agent/                    # COMPARTILHADO
+    └── review_agent/                  # COMPARTILHADO
+```
+
+`${FORGE_ROOT}` é resolvido em ordem:
+1. Variável de ambiente `ACME_FORGE_ROOT`
+2. `./forge/` (subdiretório do projeto consumidor)
+3. `./.claude/forge/` (alternativa)
+4. Erro: `forge_root_not_found`
 
 ## Validation gate (pré-criação)
 
-Antes de criar qualquer arquivo, verificar:
+Antes de copiar qualquer arquivo, verificar **todos** os checks:
 
 ```
 1. docs/specs/{module}.md existe (spec gerada via /acme:spec)
-2. aios/config.yaml existe (kernel configurado no projeto consumidor)
-3. Python 3.10/3.11 disponível: python --version
-4. ANTHROPIC_API_KEY definida no .env
+2. ${FORGE_ROOT} resolvido e templates/aios/ acessível
+3. aios/config.yaml existe — se ausente, copiar de templates/aios/config.yaml.template e PARAR
+   pedindo ao operador para preencher project.name + stack.* antes de prosseguir
+4. Python 3.10/3.11 disponível: python --version
+5. ANTHROPIC_API_KEY definida no .env (warning não-bloqueante)
+6. PyYAML instalado: python -c "import yaml" (entry.py.template depende)
+7. langfuse instalado (warning não-bloqueante — _MockTrace é fallback)
 ```
 
-Se qualquer check falhar: **parar e orientar o usuário** com instrução específica de correção. Não criar nenhum arquivo até todos os checks passarem.
+Se qualquer check obrigatório falhar: **parar e orientar com instrução específica de correção.** Não criar nenhum arquivo.
 
-## Estrutura criada
+## Sequência de cópia
+
+### Passo 1 — agentes especializados por módulo
+
+Para cada agente em `{spec, backend, frontend}`:
 
 ```
-aios/agents/{module}_spec_agent/
-├── entry.py      # SpecAgent com SYSTEM_PROMPT específico do módulo
-└── config.json   # { "name": "{module}-spec-agent", "tier": "{A|B|C}" }
+src:  ${FORGE_ROOT}/templates/aios/agents/{agent}_agent/{entry.py.template, config.json.template}
+dst:  aios/agents/{module}_{agent}_agent/{entry.py, config.json}
 
-aios/agents/{module}_backend_agent/
-├── entry.py
-└── config.json
+substituições aplicadas no conteúdo:
+  {PROJECT_NAME}  →  ${aios/config.yaml → project.name}
+  {MODULE}        →  ${module}
+  {TIER}          →  ${tier ou "B"}
 
-aios/agents/{module}_frontend_agent/
-├── entry.py
-└── config.json
+renomeação: arquivo.{ext}.template → arquivo.{ext}
 ```
 
-> Os agentes `test_agent` e `review_agent` são **compartilhados** — não específicos por módulo.
+Se `aios/agents/{module}_*` já existir e `force` não for `true`: erro `module_dir_already_exists`.
 
-## Boilerplate entry.py gerado
+### Passo 2 — agentes compartilhados
 
-Cada agente recebe SYSTEM_PROMPT que:
-- Referencia `docs/specs/{module}.md` como **única fonte de verdade**
-- Declara explicitamente o que o agente **NÃO lê** (isolamento de contexto C5)
-- Funciona como prompt standalone sem o kernel (C7)
-- Nunca tem `tenantId` hardcoded (C8) — `tenantId` vai em `task_input`
+Para cada agente em `{schema, test, review}`:
 
-### Template spec_agent/entry.py
+```
+verifica se aios/agents/{agent}_agent/ JÁ EXISTE:
+  - existe → não toca (estes são compartilhados; não recriar)
+  - não existe → copia src → dst (substituindo apenas {PROJECT_NAME})
+```
 
-```python
-# AUTO-GERADO POR /acme:aios-init
-# Tier: {A|B|C} — {descricao do tier}
-# C7: este SYSTEM_PROMPT funciona como prompt standalone sem o kernel AIOS.
-# C8: tenantId é passado em task_input, nunca hardcoded aqui.
+### Passo 3 — registro do módulo no config
 
-import os
-from langfuse import Langfuse
+```
+abre aios/config.yaml
+adiciona em modules: → { name: ${module}, tier: ${tier ou "B"} }
+preserva ordenação alfabética
+não altera outros campos
+```
 
-langfuse = Langfuse(
-    public_key=os.environ.get("LANGFUSE_PUBLIC_KEY"),
-    secret_key=os.environ.get("LANGFUSE_SECRET_KEY"),
-    host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
-)
+### Passo 4 — orchestrator.py
 
-SYSTEM_PROMPT = """
-Você é o Spec Agent do módulo {module}.
-
-Sua única fonte de verdade é docs/specs/{module}.md.
-
-LEIA APENAS:
-- docs/specs/{module}.md (spec do módulo)
-
-NÃO LEIA (isolamento de contexto C5):
-- Specs de outros módulos
-- Código de implementação
-- Dados de outros tenants
-
-Tarefa: converter a spec em especificação executável para os agentes backend e frontend.
-Declare explicitamente: funcionalidades, endpoints esperados, schema de dados, regras de negócio.
-
-tenantId disponível em task_input — nunca hardcode aqui (C8).
-"""
-
-class SpecAgent:
-    agent_name = "{module}-spec-agent"
-
-    def run(self, task_input: dict) -> dict:
-        # Telemetria C6 — ver docs/forge/aios-telemetry-pattern.md
-        langfuse_available = bool(os.environ.get("LANGFUSE_PUBLIC_KEY"))
-        trace = langfuse.trace(
-            name=f"{self.agent_name}-{task_input.get('module', '{module}')}",
-            metadata={
-                "agent": self.agent_name,
-                "module": task_input.get("module"),
-                "tier": task_input.get("tier", "{tier}"),
-                "aios_version": "0.2.2",
-            }
-        ) if langfuse_available else _MockTrace()
-
-        generation = trace.generation(
-            name="send_request",
-            model="claude-sonnet-4-6",
-            input=[{"role": "system", "content": SYSTEM_PROMPT}],
-        )
-
-        # TODO: integrar com aios.client.send_request
-        # response = self.send_request(
-        #     agent_name=self.agent_name,
-        #     messages=[{"role": "system", "content": SYSTEM_PROMPT},
-        #               {"role": "user", "content": task_input.get("task", "")}],
-        #     base_url="http://localhost:8000",
-        #     model="claude-sonnet-4-6"
-        # )
-        response = ""  # stub — substituir pela chamada real
-
-        generation.end(output=response)
-        trace.update(status_message="completed")
-
-        return {
-            "module": task_input.get("module"),
-            "trace_id": trace.id,
-            "status": "generated",
-            "chars": len(response),
-        }
-
-class _MockTrace:
-    id = "local-dev-no-trace"
-    def generation(self, **kwargs): return self
-    def end(self, **kwargs): pass
-    def update(self, **kwargs): pass
+```
+verifica se aios/orchestrator.py JÁ EXISTE:
+  - existe → não toca (orchestrator é único e estável)
+  - não existe → copia templates/aios/orchestrator.py.template → aios/orchestrator.py
+              substituindo {PROJECT_NAME}
 ```
 
 ## Output structured
 
 ```yaml
 command: /acme:aios-init
-status: ok | error
+status: ok | partial | error
 module: <>
 tier: A | B | C
+project_root: <abs_path>
+forge_root: <abs_path>
 agents_created:
   - aios/agents/{module}_spec_agent/
   - aios/agents/{module}_backend_agent/
   - aios/agents/{module}_frontend_agent/
+agents_present_unchanged:
+  - aios/agents/schema_agent/   # se já existia
+  - aios/agents/test_agent/
+  - aios/agents/review_agent/
+agents_seeded:
+  - aios/agents/schema_agent/   # se foi criado neste run
+config_updated: true | false
+orchestrator_created: true | false
 checks_passed:
   spec_exists: true
+  forge_root_resolved: true
   config_exists: true
   python_ok: true
+  pyyaml_installed: true
   api_key_ok: true
+  langfuse_installed: true | false_warning
 next_step: "/acme:aios-run --module {module} --step spec"
 ```
 
 ## Verification gate
 
-- [x] `docs/specs/{module}.md` existe antes de criar qualquer arquivo
-- [x] `aios/config.yaml` existe no projeto consumidor
-- [x] Python 3.10/3.11 disponível no PATH
-- [x] `ANTHROPIC_API_KEY` definida no ambiente
-- [x] Cada `entry.py` gerado tem SYSTEM_PROMPT com seção "LEIA APENAS" e "NÃO LEIA"
+- [x] `docs/specs/{module}.md` existe antes de copiar qualquer arquivo
+- [x] `${FORGE_ROOT}/templates/aios/` resolvido e acessível
+- [x] `aios/config.yaml` existe e tem `project.name` preenchido (não ainda `{PROJECT_NAME}`)
+- [x] Cada `entry.py` gerado tem todas as substituições aplicadas — nenhum `{PROJECT_NAME}`, `{MODULE}` ou `{TIER}` literal sobrou no resultado
+- [x] Cada `entry.py` gerado preserva o bloco Langfuse + `_MockTrace` (C6)
 - [x] Nenhum `tenantId` hardcoded nos arquivos gerados (C8)
-- [x] SYSTEM_PROMPT funciona standalone sem kernel (C7) — declarado nos comentários
+- [x] SYSTEM_PROMPT funciona standalone sem kernel (C7) — declarado nos comentários do template
+- [x] Agentes compartilhados (schema/test/review) não foram sobrescritos se já existiam
 
 ## Tabela anti-rationalization
 
 | Tentação | Por que não | Resposta correta |
 |---|---|---|
-| Criar agentes genéricos sem especificidade do módulo | Contexto genérico gera código genérico — spec-específico é o ponto | SYSTEM_PROMPT referencia `docs/specs/{module}.md` explicitamente |
+| Voltar a gerar boilerplate inline (sem templates físicos) | Diverge entre projetos consumidores; impossível evoluir em conjunto | Copiar de `templates/aios/` é o único caminho a partir de v0.2.0 |
+| Cravar Prisma/Postgres no schema_agent | Viola C7 e força stack ao consumidor | schema_agent é stack-agnostic — lê `aios/config.yaml → stack.database` ou propõe stacks |
+| Recriar schema_agent/test_agent/review_agent por módulo | Esses são compartilhados; redundância sem benefício | Apenas spec/backend/frontend recebem prefixo `{module}_` |
+| Sobrescrever agentes compartilhados existentes | Apaga customização local feita pelo consumidor | Passo 2 só cria se ausente; nunca sobrescreve |
+| Atualizar `aios/config.yaml` em outros campos além de `modules:` | Pode apagar configurações reais (api_key, log path) | Apenas appende em `modules:`; preserva o resto |
 | Pular o gate de spec existente | Agentes sem spec geram lixo irrecuperável | Check 1 é hard gate — parar se spec não existe |
-| Hardcodar tenantId no SYSTEM_PROMPT | Viola C8 — tenantId vai em task_input | `task_input.get("tenant_id")` sempre; nunca literal |
-| Criar test_agent e review_agent por módulo | Esses agentes são compartilhados — redundância sem benefício | Apenas spec, backend e frontend são específicos por módulo |
-| Pular instrumentação Langfuse no boilerplate | Sem trace = outcome não auditável (C6) | Mock fallback incluso; trace obrigatório em prod |
+| Pular instrumentação Langfuse no boilerplate | Sem trace = outcome não auditável (C6) | Templates já incluem; o command só copia, não modifica |
 
 ## Saída de erro estruturada
 
@@ -205,10 +187,19 @@ error: <enum>
 hint: <ação específica>
 ```
 
-`error` ∈ `spec_not_found` (criar spec via /acme:spec) | `aios_config_not_found` (criar aios/config.yaml) | `python_not_available` (instalar Python 3.10+) | `api_key_missing` (definir ANTHROPIC_API_KEY no .env) | `module_dir_already_exists` (usar --force para sobrescrever).
+`error` ∈
+- `spec_not_found` — criar spec via `/acme:spec`
+- `forge_root_not_found` — definir `ACME_FORGE_ROOT` ou clonar `forge/` no projeto
+- `aios_config_not_found` — copiei `templates/aios/config.yaml.template` para `aios/config.yaml`; preencha `project.name` e `stack.*` antes de re-rodar
+- `aios_config_unfilled` — `aios/config.yaml → project.name` ainda contém `{PROJECT_NAME}` literal; preencher antes de re-rodar
+- `python_not_available` — instalar Python 3.10+
+- `pyyaml_missing` — `pip install pyyaml` (entry.py depende para ler config)
+- `api_key_missing` — definir `ANTHROPIC_API_KEY` no `.env` (warning, não bloqueia)
+- `module_dir_already_exists` — usar `--force` para sobrescrever os 3 agentes especializados; agentes compartilhados nunca são sobrescritos automaticamente
 
 ## Histórico
 
 | Versão | Data | Mudança |
 |---|---|---|
-| 0.1.0 | 2026-05-06 | Versão inicial — Forge-6 AIOS init |
+| 0.1.0 | 2026-05-06 | Versão inicial — Forge-6 AIOS init com boilerplate inline |
+| 0.2.0 | 2026-05-07 | **Forge-7**: passa a copiar dos templates físicos em `templates/aios/`; cobre 6 agentes (adiciona schema/test/review compartilhados); orchestrator + config gerados quando ausentes; schema_agent é stack-agnostic |
