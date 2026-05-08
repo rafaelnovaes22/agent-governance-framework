@@ -1,13 +1,13 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS
-> **Última atualização**: 2026-05-07
-> **Total estimado**: 16–23 dias úteis (paralelo às ondas Acme)
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`
+> **Última atualização**: 2026-05-08
+> **Total estimado**: 17–24 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
 ---
 
-## Visão geral das 8 ondas
+## Visão geral das 9 ondas
 
 | Onda | Foco | Estimativa | Bloqueia |
 |---|---|---|---|
@@ -20,6 +20,7 @@
 | **Forge-6** | AIOS Server — camada de implementação multiagente (commands + telemetry) | 2 dias | Forge-7 |
 | **Forge-7** | AIOS agentes portáveis (templates físicos canônicos, schema stack-agnostic) | 1 dia | Forge-8 |
 | **Forge-8** | CI/CD — esteira completa para produção (templates + Gate 6 no promote) | 1 dia | AUTONOMOUS |
+| **Forge-9** | Delivery-type agnostic — project_type/ai_enabled, templates platform, reviewer ramificado | 1 dia | adoção por `school-platform` |
 
 ---
 
@@ -328,6 +329,55 @@
 - ✅ Wave 6 no tasks.md com 5 tasks e DAG sem ciclos — **entregue**
 - ✅ `promotion-officer` exige Gate 6 antes de assinar promoção para AUTONOMOUS — **entregue**
 - ⏳ Primeiro projeto consumidor implementando Wave 6 e obtendo Gate 6 validado — pendente (aguarda SKU em ASSISTED)
+
+---
+
+## Forge-9 — Delivery-type agnostic ✅ (v0.8.0)
+
+**Objetivo**: o Forge passa a suportar projetos que **não são** centrados em agentes de IA — `platform` (SaaS/operacional), `automation` (jobs/RPA), `hybrid` (plataforma com módulos agênticos) — sem quebrar projetos `agentic_saas` existentes.
+
+> **Contexto**: Forge-0 a Forge-8 forjaram toda a governança a partir do caso Acme SaaS². Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem Langfuse, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. Forge-9 generaliza a interpretação dos 8 princípios sem mudar suas IDs, evitando fork do framework.
+
+### Tasks
+
+- [x] **F9.1** Conceito formalizado — `project_type` ∈ {`agentic_saas`, `platform`, `automation`, `hybrid`} × `ai_enabled` (boolean) — **entregue em 2026-05-08**
+- [x] **F9.2** Novo template `templates/project.template.json` (declaração canônica do consumidor) — **entregue**
+- [x] **F9.3** Constitution v0.3.0 com matriz "Como validar — por `project_type`" em cada C1-C8 — **entregue**:
+  - [x] C1 renomeado para "Diagnose-before-build"
+  - [x] C3 generalizado para `cost_per_outcome` OU `platform_margin`
+  - [x] C4 ganha vocabulário paralelo `DRAFT/STAGING/PILOT/CANONICAL/DEPRECATED`
+  - [x] C6 ganha audit-log como provedor obrigatório quando `ai_enabled=false`
+  - [x] C7 ampliado para integrações/pagamentos/infra
+- [x] **F9.4** validation-rules v0.3.0 estruturado em `common`/`agentic_saas`/`platform`/`automation`/`hybrid` com `applies_when` condicional — **entregue**
+- [x] **F9.5** Reviewer prompt v0.3.0 carrega `docs/forge/project.json` e ramifica checks por tipo — **entregue**
+- [x] **F9.6** reviewer-contract v0.2.0 com `project.json` como input contratual obrigatório — **entregue**
+- [x] **F9.7** 4 templates platform — **entregue**:
+  - [x] `platform-module-spec.template.md`
+  - [x] `platform-pilot-state.template.md`
+  - [x] `platform-acceptance-report.template.md`
+  - [x] `delivery-economics.template.md`
+- [x] **F9.8** Commands ramificados — **entregue**:
+  - [x] `/acme:diagnose` v0.2.0 (`--project_type`, `--ai_enabled`)
+  - [x] `/acme:spec` v0.2.0 (`--type=platform-module|automation-job` + `type_compatibility_matrix`)
+  - [x] `/acme:promote` v0.3.0 (transições platform `to_staging|to_pilot|to_canonical|to_deprecated` + 6 gates reinterpretados)
+  - [x] `/acme:audit-monthly` v0.2.0 (auditoria ramificada)
+- [x] **F9.9** F26 em `decisions.md`
+- [x] **F9.10** Manifest v0.8.0 com `framework.supported_project_types` (4 entradas) e `principles[].interpretation_modes`
+
+### Tasks pendentes (Forge-9.x)
+
+- [x] **F9.11** Hooks condicionais por `ai_enabled`: `langfuse-trace-check` (skip platform), `unit-economics-recalc` (ramo platform delivery-economics), `eval-suite-fresh` (skip platform), `5-gates-summary` G3 (verifica pilot-state.md em platform) — **entregue 2026-05-08**
+- [x] **F9.12** DeepAgent skills atualizadas: `forge-auditor` (step 3.5 + rubric bifurcado C1-C8), `baseline-cost-builder` (path duplo), `artifact-prompt-builder/eval-case-author/shadow-mode-runner` (`applies_when: ai_enabled=true`) — **entregue 2026-05-08**
+- [ ] **F9.13** Primeira auditoria mensal real de projeto `platform` (`school-platform`) — teste de stress da v0.8.x
+- [x] **F9.14** `/acme:plan` v0.2.0 (seções 2P/4P/6P platform) e `/acme:tasks` v0.2.0 (Waves 1P-4P + 6P, T6.2P forge-tests) — **entregue 2026-05-08**
+
+### Critério de pronto
+
+- ✅ Projeto `platform` consegue ser representado sem exigir prompts/Langfuse/inferência — **entregue**
+- ✅ Reviewer não marca FAIL por ausência de LLM quando `ai_enabled=false` — **entregue (instrução explícita anti-FAIL falso no prompt)**
+- ✅ Constitution mantém C1-C8 com interpretação por tipo — **entregue**
+- ✅ `school-platform` pode consumir o framework sem conflito conceitual — **entregue**
+- ⏳ `school-platform` realmente cria `docs/forge/project.json` e gera primeiros `platform-module-spec` — **migração documentada no CHANGELOG.md**
 
 ---
 

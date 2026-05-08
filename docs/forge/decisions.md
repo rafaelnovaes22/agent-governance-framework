@@ -1,9 +1,56 @@
-# Acme Forge — Decisões F1–F22
+# Acme Forge — Decisões F1–F26
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.4.1
-> **Versão atual**: 0.4.1
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.8.0 (Forge-9)
+> **Versão atual**: 0.8.0
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
+
+---
+
+## F26 (NOVO 2026-05-08) — Forge delivery-type agnostic (Forge-9)
+
+**Decisão**: ✅ **O Forge passa a suportar formalmente quatro `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) e o booleano `ai_enabled`, com matriz de interpretação por princípio**.
+
+**Motivação**: o framework foi forjado a partir do caso Acme SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem Langfuse, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Forge-Platform", duplicando manutenção; ou **(b)** generalizar o Forge para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
+
+**Implicações arquiteturais**:
+
+1. **Constitution v0.3.0** — cada princípio C1-C8 ganhou seção "Como validar — por `project_type`":
+   - C1 renomeado para "Diagnose-before-build" (de "Diagnose-before-design" — agora também para módulos/jobs).
+   - C3 generalizado: modelo `cost_per_outcome` (IA) OU `platform_margin` (infra+suporte+manutenção / receita).
+   - C4 ganha vocabulário paralelo: `SHADOW/ASSISTED/AUTONOMOUS` para IA, `DRAFT/STAGING/PILOT/CANONICAL/DEPRECATED` para platform.
+   - C6 ganha audit-log como provedor obrigatório quando `ai_enabled=false`.
+   - C7 ampliado: cobre integrações, pagamentos, infra (não só LLM SDKs).
+   - C2/C5/C8 mantêm letra; só ampliam escopo.
+
+2. **`docs/forge/project.json`** (NOVO arquivo no consumidor, template em `templates/project.template.json`) — fonte de verdade para `project.type`, `ai_enabled`, `economics.model`, `telemetry.*`, `modules[]` (overrides per-module em hybrid). Lido por reviewer + commands antes de qualquer check.
+
+3. **validation-rules v0.3.0** — estruturado em `common` (sempre aplica) + `agentic_saas` + `platform` + `automation` + `hybrid` (composite). Cada check declara `applies_when` para o reviewer ramificar.
+
+4. **Reviewer prompt v0.3.0** — passo obrigatório de carregar `project.json` antes de qualquer check; ramo de validação por tipo; **NÃO marca FAIL por ausência de LLM/Langfuse/prompts em `ai_enabled=false`**.
+
+5. **4 templates novos**: `platform-module-spec.template.md`, `platform-pilot-state.template.md`, `platform-acceptance-report.template.md`, `delivery-economics.template.md`. Templates agentic existentes mantidos (`platform-sku-spec`, `product-spec`, `unit-economics`).
+
+6. **Commands ramificados**:
+   - `/acme:diagnose` aceita `--project_type` e `--ai_enabled`; bloco 5 do roteiro adapta-se.
+   - `/acme:spec` aceita `--type ∈ {platform-sku, product, diagnostic, platform-module, automation-job}` com matriz de compatibilidade por project_type.
+   - `/acme:promote` aceita transições agentic (start_shadow/...) **OU** platform (to_staging/to_pilot/to_canonical/to_deprecated). 6 gates reinterpretados quando `ai_enabled=false`.
+   - `/acme:audit-monthly` audita `outcomes` (agentic) ou `audited_actions` (platform); aceita `--module_filter`.
+
+7. **Backwards compatibility**: projeto consumidor sem `project.json` → defaults retroativos (`agentic_saas` + `ai_enabled=true`). Comportamento ≤ v0.7.0 preservado. Nenhum SKU/produto agentic existente quebra.
+
+**SemVer**:
+- Constitution: MINOR (0.2.0 → 0.3.0) — interpretação ampliada, IDs preservados.
+- Manifest framework: MINOR (0.7.0 → 0.8.0) — Forge-9.
+- validation-rules: MINOR (0.2.0 → 0.3.0).
+- Reviewer prompt: MINOR (0.2.0 → 0.3.0).
+- reviewer-contract: MINOR (0.1.0 → 0.2.0).
+- 4 commands com bumps próprios (versão por command).
+
+**Pendências**:
+- Hooks (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Refator condicional fica para Forge-9.1 ou primeira auditoria real do `school-platform`. Hoje: o hook simplesmente não dispara em projeto platform pois os paths/patterns que ele monitora (prompts/LLM calls) não existem nesses projetos.
+- Reviewer-contract.md atualizado parcialmente; revisão completa quando primeiro projeto platform for auditado.
+- Skills DeepAgent (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas; conversão de skills para platform é Forge-9.2 (não bloqueia adoção pelo `school-platform`).
 
 ---
 

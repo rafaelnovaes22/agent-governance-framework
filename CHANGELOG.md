@@ -9,6 +9,118 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.8.1] — 2026-05-08
+
+### Added (Forge-9.x — Pendentes de Forge-9 concluídos)
+
+**F9.11 — Hooks runtime condicionais por `ai_enabled`:**
+- `hooks/post-tool-use/langfuse-trace-check.sh` — lê `docs/forge/project.json`; exit 0 imediato quando `ai_enabled=false` (não penaliza plataformas)
+- `hooks/post-tool-use/unit-economics-recalc.sh` — ramo platform: avisa quando `docs/modules/*/delivery-economics-*.md` muda; ramo agentic: comportamento original (prompts)
+- `hooks/stop/eval-suite-fresh.sh` — lê `project.json`; skip completo quando `ai_enabled=false` (platform usa E2E, não LLM evals)
+- `hooks/stop/5-gates-summary.sh` G3 — ramo platform: verifica presença de `pilot-state.md` por módulo em `docs/modules/`; ramo agentic: verifica eval suites ≥ 30 casos (comportamento original)
+
+**F9.12 — DeepAgent skills atualizadas:**
+- `reviewer/deepagents/skills/L2/artifact-prompt-builder/SKILL.md` — `applies_when: ai_enabled=true`; plataforma usa `acceptance-report.template.md`
+- `reviewer/deepagents/skills/L2/eval-case-author/SKILL.md` — `applies_when: ai_enabled=true`; plataforma usa E2E tests
+- `reviewer/deepagents/skills/L2/shadow-mode-runner/SKILL.md` — `applies_when: ai_enabled=true`; plataforma usa STAGING→PILOT com `pilot-state.template.md`
+- `reviewer/deepagents/skills/L1/baseline-cost-builder/SKILL.md` v0.2.0 — path duplo: agentic (custo inferência/preço) e platform (`platform_margin`); Step P + inputs platform + Template P6
+- `reviewer/deepagents/skills/reviewer/forge-auditor/SKILL.md` — step 3.5 carrega `project.json`; step 5 ramifica escopo (subscriptions OU modules); step 6 passa project_type a sub-agents; rubric C1-C8 com ramos agentic/platform; instrução explícita anti-FAIL para Langfuse quando `ai_enabled=false`
+
+**F9.14 — `/acme:plan` e `/acme:tasks` ramificados:**
+- `/acme:plan` v0.2.0 — step 0 resolve `project_type` de `project.json`; seções 2P (camadas service), 4P (audit log), 6P (cronograma PILOT) para platform; output com `plan_variant` e campos platform/agentic separados; pre-conditions bifurcadas
+- `/acme:tasks` v0.2.0 — step 0 resolve `project_type`; Waves 1P-4P + 6P para platform (`scaffolding → service build → E2E → PILOT prep → CI/CD`); T6.2P (`forge-tests`) substitui T6.2 (`forge-eval`) em plataformas; DAG platform; frontmatter com `project_type` optional arg
+
+---
+
+## [0.8.0] — 2026-05-08
+
+### Added (Forge-9 — Delivery-type agnostic)
+
+**O Forge passa a suportar formalmente múltiplos tipos de projeto consumidor sem quebrar projetos agentic existentes.**
+
+**Conceito introduzido — `project_type` × `ai_enabled`:**
+
+- `project_type` ∈ `agentic_saas` (default histórico) | `platform` (SaaS/operacional, ex: school-platform/CAPSYSTEM) | `automation` (jobs/RPA) | `hybrid` (plataforma com módulos agênticos)
+- `ai_enabled` (boolean) — quando `false`, o reviewer **não** marca FAIL por ausência de LLM/Langfuse/prompts; usa-se audit log + structured logging em vez disso
+
+**Novo template `templates/project.template.json`** — fonte canônica de declaração do projeto consumidor; copiado para `docs/forge/project.json` no consumidor; lido pelo reviewer DeepAgent e pelos commands antes de qualquer check. Backwards compat: ausência → defaults legados (`agentic_saas` + `ai_enabled=true`).
+
+**Constitution v0.3.0** — cada princípio C1-C8 ganhou matriz "Como validar — por `project_type`":
+
+- **C1** renomeado de "Diagnose-before-design" para "Diagnose-before-build" — vale para módulo/job/agente igualmente.
+- **C3** generalizado de "Cost ≤ 25% of price" para "Economic viability": modelo `cost_per_outcome` (IA) **OU** `platform_margin` ((infra + suporte + manutenção) / receita). Limite default 25% configurável em `project.economics.cost_to_price_ratio_max`.
+- **C4** ganha vocabulário paralelo: `SHADOW/ASSISTED/AUTONOMOUS` (IA) ou `DRAFT/STAGING/PILOT/CANONICAL/DEPRECATED` (platform/automation). Janela mínima em PILOT: ≥14d críticos / ≥7d standard / ≥3d simples.
+- **C6** ganha audit-log como provedor obrigatório quando `ai_enabled=false` (substitui Langfuse).
+- **C7** ampliado para integrações (CRM/ERP/WhatsApp/pagamento), infra (DB/queue/storage/auth), além de LLMs.
+- **C2/C5/C8** mantêm letra; ampliam escopo para módulos de plataforma.
+
+**4 templates novos para platform/automation:**
+
+- `templates/platform-module-spec.template.md` — spec de módulo CRUD/CRM/financeiro/etc. Outcome operacional verificável + audit log entry esperado.
+- `templates/platform-pilot-state.template.md` — append-only log de transições DRAFT→STAGING→PILOT→CANONICAL→DEPRECATED. Versão platform de `subscriptions/{id}/promotions.md`.
+- `templates/platform-acceptance-report.template.md` — registro formal de aceite humano antes de CANONICAL. Substitui eval suite + shadow-mode-runner em projetos sem IA.
+- `templates/delivery-economics.template.md` — cálculo de C3 quando `ai_enabled=false`: (infra + suporte + manutenção) / receita ≤ 25%.
+
+**`reviewer/validation-rules.json` v0.3.0** — restruturado em seções:
+
+- `common` (sempre aplica) — C1.common.*, C2.common.*, C5.common.*, C7.common.*, C8.common.*
+- `agentic_saas` (aplica quando ai_enabled=true) — C3.ai.*, C4.ai.*, C6.ai.*, C7.ai.*
+- `platform` (aplica quando ai_enabled=false) — C3.platform.*, C4.platform.*, C6.platform.*, C7.platform.*
+- `automation` (herda platform com C2.automation.* específico)
+- `hybrid` (compõe platform + agentic_saas por módulo)
+
+**`reviewer/prompt.template.md` v0.3.0** — passo obrigatório de carregar `docs/forge/project.json` antes de qualquer check; ramificação da matriz por princípio; **NÃO marca FAIL por ausência de LLM em `ai_enabled=false`** (instrução explícita anti-FAIL falso). Variantes de drift por modelo econômico.
+
+**`docs/forge/reviewer-contract.md` v0.2.0** — `project.json` adicionado como input contratual obrigatório (§3.2 NOVO); §3.5 separa eval suites (IA) de testes E2E + acceptance-report (platform); §4 com tabela "agentic vs platform" por princípio.
+
+**Commands ramificados (todos `project_type_aware: true`):**
+
+- `/acme:diagnose` v0.2.0 — aceita `--project_type` e `--ai_enabled`; bloco 5 do roteiro adapta-se (classified_outcome / operational_action / execution_event); output emite `proposed_outcome.kind` e `audit_log_event_expected`.
+- `/acme:spec` v0.2.0 — `--type` aceita `platform-module` e `automation-job` (template `platform-module-spec.template.md`); `type_compatibility_matrix` valida combinação com project_type.
+- `/acme:promote` v0.3.0 — aceita transições agentic (start_shadow/shadow_to_assisted/assisted_to_autonomous) **OU** platform (to_staging/to_pilot/to_canonical/to_deprecated). 6 gates reinterpretados: testes E2E + acceptance-report.md em vez de eval suite + shadow-mode-runner. Persistência em `pilot-state.md` para platform. Decisor cliente obrigatório para `to_canonical` com `criticality: critical`.
+- `/acme:audit-monthly` v0.2.0 — auditoria ramificada: `outcomes`+LLM trace para agentic, `audited_actions`+audit log para platform; `--module_filter`.
+
+**Manifest v0.8.0:**
+
+- Novo campo `framework.supported_project_types` (4 entradas com lifecycle/economics/outcome_kind)
+- `principles[]` enriquecido com `interpretation_modes` por tipo
+- 5 novos templates registrados (project + 4 platform)
+- `version_bumps.0.7.0_to_0.8.0` documentando a transição
+
+**Decisão fundacional:**
+
+- F26 (NOVO) — Forge delivery-type agnostic: motivação (caso `school-platform`), implicações arquiteturais, SemVer, pendências.
+
+### Backwards compatibility — preservada
+
+Projetos consumidores **sem** `docs/forge/project.json` continuam funcionando exatamente como na v0.7.0:
+- defaults retroativos: `project_type: agentic_saas`, `ai_enabled: true`
+- todos os checks LLM-centric continuam disparando
+- eval suites + Langfuse + SHADOW/ASSISTED/AUTONOMOUS mantidos
+- nenhum SKU/produto agentic existente quebra
+
+O reviewer registra em `audit_metadata.limitations_encountered` quando aplica defaults legados, sugerindo criar `project.json` na próxima janela.
+
+### Pendências (Forge-9.x)
+
+- **Hooks** (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Em projeto platform, simplesmente não disparam (paths/patterns LLM ausentes). Refator condicional explícito → Forge-9.1.
+- **Skills DeepAgent** (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas. Conversão para platform → Forge-9.2 (não bloqueia adoção pelo `school-platform`).
+- **Primeira auditoria real** de projeto platform (`school-platform`) será o teste de stress da v0.8.0.
+
+### Migração para projetos consumidores
+
+**Projetos `agentic_saas` existentes**: nada a fazer. Defaults legados garantem compat.
+
+**Projetos `platform` (incluindo `school-platform`)**:
+
+1. Copiar `templates/project.template.json` → `docs/forge/project.json` no repo do consumidor
+2. Preencher: `project.type=platform`, `ai_enabled=false`, `economics.model=platform_margin`, `telemetry.audit_log_provider`, `telemetry.structured_logging_provider`, `telemetry.error_tracking_provider`
+3. Para cada módulo: criar `docs/specs/{module}.md` a partir de `platform-module-spec.template.md`
+4. Antes de cada `to_pilot`/`to_canonical`: criar `pilot-state.md` (template) e `acceptance-report.md` (template)
+5. Para cada módulo CANONICAL: manter `delivery-economics-{module}.md` atualizado a cada 90 dias
+
+---
+
 ## [0.7.0] — 2026-05-07
 
 ### Added (Forge-8 — CI/CD esteira completa para produção)

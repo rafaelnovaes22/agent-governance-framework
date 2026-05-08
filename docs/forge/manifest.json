@@ -1,14 +1,48 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.7.0",
+  "manifest_version": "0.8.1",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.7.0",
-    "phase": "Forge-8 CI/CD esteira completa — 4 templates em templates/cicd/ (validate/eval/audit/checklist), Gate 6 obrigatório no /acme:promote para assisted_to_autonomous, Wave 6 no /acme:tasks, F25 em decisions. Forge-5 playbook content still pending first SKU in AUTONOMOUS.",
-    "last_updated": "2026-05-07",
-    "constitution_version": "0.2.0",
+    "version": "0.8.1",
+    "phase": "Forge-9.x completo — hooks condicionais por ai_enabled (F9.11); DeepAgent skills com applies_when + platform branch em baseline-cost-builder e forge-auditor (F9.12); /acme:plan e /acme:tasks ramificados por project_type com Waves 1P-4P+6P para platform (F9.14). Todos os pendentes de Forge-9 entregues.",
+    "last_updated": "2026-05-08",
+    "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
+    "supported_project_types": [
+      {
+        "type": "agentic_saas",
+        "ai_enabled_default": true,
+        "lifecycle_states": ["SHADOW", "ASSISTED", "AUTONOMOUS"],
+        "economics_model": "cost_per_outcome",
+        "outcome_kind": "classified_outcome",
+        "description": "Default histórico do Forge — agentes de IA com governança de outcome cobrável."
+      },
+      {
+        "type": "platform",
+        "ai_enabled_default": false,
+        "lifecycle_states": ["DRAFT", "STAGING", "PILOT", "CANONICAL", "DEPRECATED"],
+        "economics_model": "platform_margin",
+        "outcome_kind": "operational_action",
+        "description": "Plataforma SaaS/operacional com módulos CRUD/CRM/etc. Outcome = ação operacional verificável (tela/API/dado/audit log)."
+      },
+      {
+        "type": "automation",
+        "ai_enabled_default": false,
+        "lifecycle_states": ["DRAFT", "STAGING", "PILOT", "CANONICAL", "DEPRECATED"],
+        "economics_model": "platform_margin",
+        "outcome_kind": "execution_event",
+        "description": "Automações operacionais determinísticas (jobs, workers, integrações, RPA). Subset de platform."
+      },
+      {
+        "type": "hybrid",
+        "ai_enabled_default": "per-module",
+        "lifecycle_states": ["mixed"],
+        "economics_model": "hybrid",
+        "outcome_kind": "per-module",
+        "description": "Plataforma com módulos agênticos. Cada módulo declara seu ai_enabled."
+      }
+    ],
     "owner": "Acme / Novais Digital",
     "license": "private",
     "consumer_types": [
@@ -62,14 +96,68 @@
     }
   },
   "principles": [
-    {"id": "C1", "name": "Diagnose-before-design", "scope": "all-categories"},
-    {"id": "C2", "name": "Outcome-first, never tech-first", "scope": "all-categories"},
-    {"id": "C3", "name": "Cost ≤ 25% of price", "scope": "all-categories", "shadow_exemption": true},
-    {"id": "C4", "name": "SHADOW antes de cobrar", "scope": "platform-skus", "products_alternative": "Beta declared"},
+    {
+      "id": "C1",
+      "name": "Diagnose-before-build",
+      "scope": "all-categories",
+      "renamed_from_v0_2_0": "Diagnose-before-design",
+      "interpretation_modes": {
+        "agentic_saas": "diagnostic.md por SKU/produto em produção",
+        "platform": "diagnostic.md por módulo PILOT/CANONICAL crítico (financeiro, contrato, LGPD)",
+        "automation": "diagnostic.md por job em produção"
+      }
+    },
+    {
+      "id": "C2",
+      "name": "Outcome-first, never tech-first",
+      "scope": "all-categories",
+      "interpretation_modes": {
+        "agentic_saas": "classified_outcome — categorias com threshold de acurácia",
+        "platform": "operational_action — critério de aceite operacional + audit log entry",
+        "automation": "execution_event — completed_event com payload_schema e log_location"
+      }
+    },
+    {
+      "id": "C3",
+      "name": "Economic viability",
+      "scope": "all-categories",
+      "shadow_exemption": true,
+      "renamed_from_v0_2_0": "Cost ≤ 25% of price",
+      "interpretation_modes": {
+        "ai_enabled_true": "cost_per_outcome (custo de inferência / preço por outcome)",
+        "ai_enabled_false": "platform_margin ((infra + suporte + manutenção) / receita atribuída)"
+      },
+      "default_ratio_max": 0.25
+    },
+    {
+      "id": "C4",
+      "name": "Pilot-before-canonical / Shadow-before-billing",
+      "scope": "all-categories",
+      "renamed_from_v0_2_0": "SHADOW antes de cobrar",
+      "interpretation_modes": {
+        "ai_enabled_true": "SHADOW (≥14d) → ASSISTED → AUTONOMOUS",
+        "ai_enabled_false": "DRAFT → STAGING → PILOT (≥14d crítico, ≥3d simple) → CANONICAL → DEPRECATED"
+      }
+    },
     {"id": "C5", "name": "Three-tier context", "scope": "all-categories"},
-    {"id": "C6", "name": "Telemetry-by-default", "scope": "all-categories"},
-    {"id": "C7", "name": "Portability over lock-in", "scope": "all-categories", "products_relax": "stack divergente em Beta com plano de migração"},
-    {"id": "C8", "name": "Anti-customização heroica", "scope": "all-categories"}
+    {
+      "id": "C6",
+      "name": "Telemetry / auditability by default",
+      "scope": "all-categories",
+      "renamed_from_v0_2_0": "Telemetry-by-default",
+      "interpretation_modes": {
+        "ai_enabled_true": "LLM trace provider obrigatório (Langfuse/equivalente)",
+        "ai_enabled_false": "audit_log_provider + structured_logging_provider obrigatórios"
+      }
+    },
+    {
+      "id": "C7",
+      "name": "Portability over lock-in",
+      "scope": "all-categories",
+      "products_relax": "stack divergente em Beta com plano de migração",
+      "expanded_in_v0_3_0": "Cobre LLMs (src/llm/), infra (src/infra/), integrações (src/integrations/), pagamentos, mensageria"
+    },
+    {"id": "C8", "name": "Configuration over heroic customization", "scope": "all-categories", "renamed_from_v0_2_0": "Anti-customização heroica"}
   ],
   "principle_extensions_path": "examples/acme/constitution-extension.md",
   "artifacts": {
@@ -180,9 +268,9 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.6.0",
+          "version": "0.8.0",
           "sha256": null,
-          "description": "Decisões F1-F24"
+          "description": "Decisões F1-F26 (F26 = delivery-type agnostic, Forge-9)"
         },
         {
           "id": "forge-roadmap",
@@ -205,10 +293,10 @@
           "id": "forge-reviewer-contract",
           "path": "docs/forge/reviewer-contract.md",
           "type": "documentation",
-          "version": "0.1.0",
+          "version": "0.2.0",
           "sha256": null,
           "linked_principles": ["C6"],
-          "description": "Contrato formal com reviewer DeepAgent"
+          "description": "Contrato formal com reviewer DeepAgent — v0.2.0 inclui project.json como input obrigatório e checks ramificados por project_type/ai_enabled (Forge-9)"
         },
         {
           "id": "forge-out-of-scope",
@@ -242,11 +330,11 @@
       "id": "constitution",
       "path": ".claude/CONSTITUTION.md",
       "type": "constitution",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "sha256": null,
       "owner": "Mantenedor",
       "approval_required_for_change": true,
-      "description": "8 princípios genéricos versionados (C1-C8) — desacoplados de Acme específico"
+      "description": "8 princípios genéricos versionados (C1-C8) — v0.3.0 delivery-type agnostic com matriz por project_type ({agentic_saas, platform, automation, hybrid})"
     },
     "settings": {
       "id": "claude-settings",
@@ -370,6 +458,65 @@
         "linked_principles": ["C1", "C2", "C3", "C4", "C6"],
         "use_case": "sku-retrospective",
         "description": "Template de retrospectiva por SKU pós-AUTONOMOUS — compliance C1-C8, gate failures, métricas reais, lições aprendidas."
+      },
+      {
+        "id": "template-project-config",
+        "path": "templates/project.template.json",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+        "use_case": "consumer-project-declaration",
+        "description": "Forge-9 — Declaração canônica do consumidor: project_type ({agentic_saas, platform, automation, hybrid}), ai_enabled, economics_model, telemetry providers, modules[]. Lido pelo reviewer antes de qualquer check; defaults legados (agentic_saas + ai_enabled=true) quando ausente.",
+        "introduced_in": "Forge-9 (v0.8.0)"
+      },
+      {
+        "id": "template-platform-module-spec",
+        "path": "templates/platform-module-spec.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C1", "C2", "C4", "C6", "C8"],
+        "use_case": "platform-module",
+        "description": "Forge-9 — Spec de módulo de plataforma (CRUD/CRM/financeiro/etc.). Outcome operacional verificável (tela/payload/audit log). Substitui platform-sku-spec quando ai_enabled=false. Também usado para automation-job (subset).",
+        "applies_to_project_types": ["platform", "automation", "hybrid"],
+        "introduced_in": "Forge-9 (v0.8.0)"
+      },
+      {
+        "id": "template-platform-pilot-state",
+        "path": "templates/platform-pilot-state.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C4"],
+        "use_case": "platform-promotion-log",
+        "description": "Forge-9 — Append-only log de transições DRAFT→STAGING→PILOT→CANONICAL→DEPRECATED para módulos platform. Versão platform de subscriptions/{id}/promotions.md (que existe para agentic). Lido pelo gate C4.platform.1 do reviewer e pelo /acme:promote.",
+        "applies_to_project_types": ["platform", "automation", "hybrid"],
+        "introduced_in": "Forge-9 (v0.8.0)"
+      },
+      {
+        "id": "template-platform-acceptance-report",
+        "path": "templates/platform-acceptance-report.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C2", "C4", "C6"],
+        "use_case": "platform-canonical-acceptance",
+        "description": "Forge-9 — Registro formal de aceite humano antes de promover módulo platform a CANONICAL. Substitui (em platform/automation) a eval suite + shadow-mode-runner do agentic. Para criticality=critical, exige signature_hash do decisor cliente.",
+        "applies_to_project_types": ["platform", "automation", "hybrid"],
+        "introduced_in": "Forge-9 (v0.8.0)"
+      },
+      {
+        "id": "template-delivery-economics",
+        "path": "templates/delivery-economics.template.md",
+        "type": "template",
+        "version": "0.1.0",
+        "sha256": null,
+        "linked_principles": ["C3"],
+        "use_case": "platform-margin-validation",
+        "description": "Forge-9 — Cálculo de C3 quando ai_enabled=false: (infra + suporte + manutenção) / receita atribuída ≤ 25%. Para projetos com módulos IA, complementa unit-economics.md. Lido pelos checks C3.platform.* do reviewer.",
+        "applies_to_project_types": ["platform", "automation", "hybrid"],
+        "introduced_in": "Forge-9 (v0.8.0)"
       }
     ],
     "templates_aios": {
@@ -533,10 +680,10 @@
         "id": "reviewer-prompt",
         "path": "reviewer/prompt.template.md",
         "type": "reviewer-asset",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "sha256": null,
         "audience": ["deep-agent"],
-        "description": "System prompt para DeepAgent reviewer"
+        "description": "System prompt para DeepAgent reviewer — v0.3.0 carrega docs/forge/project.json e ramifica checks por project_type/ai_enabled (Forge-9)"
       },
       {
         "id": "reviewer-output-schema",
@@ -551,10 +698,10 @@
         "id": "reviewer-validation-rules",
         "path": "reviewer/validation-rules.json",
         "type": "reviewer-asset",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "sha256": null,
         "audience": ["deep-agent"],
-        "description": "Validation rules machine-readable para os 8 princípios"
+        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Forge-9)"
       },
       {
         "id": "reviewer-example-audit",
@@ -844,23 +991,25 @@
           "id": "command-diagnose",
           "path": ".claude/commands/acme/diagnose.md",
           "type": "slash-command",
-          "version": "0.1.0",
+          "version": "0.2.0",
           "sha256": null,
           "linked_principles": ["C1", "C2"],
           "invokes_skills": ["company-dna", "icp-loader", "offerings-loader", "diagnostic-runner"],
           "trace_required": true,
-          "description": "Conduz Fase 0 cobrável (10 blocos) — porta de entrada do pipeline. Output: docs/clients/{client_id}/diagnostic.md."
+          "project_type_aware": true,
+          "description": "Conduz Fase 0 cobrável (10 blocos) — porta de entrada do pipeline. v0.2.0 (Forge-9): aceita --project_type ∈ {agentic_saas, platform, automation, hybrid} e --ai_enabled. Output: docs/clients/{client_id}/diagnostic.md."
         },
         {
           "id": "command-spec",
           "path": ".claude/commands/acme/spec.md",
           "type": "slash-command",
-          "version": "0.1.0",
+          "version": "0.2.0",
           "sha256": null,
           "linked_principles": ["C1", "C2", "C8"],
           "invokes_skills": ["company-dna", "offerings-loader", "process-mapper"],
           "trace_required": true,
-          "description": "Gera spec do artefato com cláusula de outcome literal. --type ∈ {platform-sku, product, diagnostic} resolve template. Renomeada de /acme:spec-sku."
+          "project_type_aware": true,
+          "description": "Gera spec do artefato com cláusula de outcome literal. v0.2.0 (Forge-9): --type ∈ {platform-sku, product, diagnostic, platform-module, automation-job} com type_compatibility_matrix por project_type."
         },
         {
           "id": "command-unit-economics",
@@ -937,26 +1086,28 @@
           "id": "command-promote",
           "path": ".claude/commands/acme/promote.md",
           "type": "slash-command",
-          "version": "0.1.0",
+          "version": "0.3.0",
           "sha256": null,
           "linked_principles": ["C1", "C2", "C3", "C4", "C6"],
           "invokes_skills": ["offerings-loader", "shadow-mode-runner"],
           "trace_required": true,
           "human_approval_required": true,
-          "gate_count": 5,
-          "description": "Único caminho legítimo para mudar subscription.mode. 5 gates obrigatórios + aprovação cruzada PO × Promotion Officer com signature_hash. Append-only log em subscriptions/{id}/promotions.md."
+          "gate_count": 6,
+          "project_type_aware": true,
+          "description": "Único caminho legítimo para mudar estado/modo. v0.3.0 (Forge-9): aceita transições agentic (start_shadow/shadow_to_assisted/assisted_to_autonomous) OU platform (to_staging/to_pilot/to_canonical/to_deprecated). 6 gates reinterpretados quando ai_enabled=false. Persiste em subscriptions/{id}/promotions.md (agentic) ou docs/specs/{module}.pilot-state.md (platform)."
         },
         {
           "id": "command-audit-monthly",
           "path": ".claude/commands/acme/audit-monthly.md",
           "type": "slash-command",
-          "version": "0.1.0",
+          "version": "0.2.0",
           "sha256": null,
           "linked_principles": ["C1", "C3", "C4", "C6", "C7", "C8"],
           "invokes_skills": ["offerings-loader"],
           "trace_required": true,
           "deep_agent_consumable": true,
-          "description": "Sample 5-10% de runs ASSISTED/AUTONOMOUS, drift detection, audit estrutural C5-C8, formato consumível pelo reviewer DeepAgent. Output: docs/forge/audits/{YYYY-MM}.md."
+          "project_type_aware": true,
+          "description": "Sample 5-10% de runs (agentic) ou audited_actions (platform). v0.2.0 (Forge-9): ramifica auditoria por project_type — outcomes/Langfuse para agentic, audit_log/E2E tests para platform. Output: docs/forge/audits/{YYYY-MM}.md."
         },
         {
           "id": "command-pre-merge-check",
@@ -1200,7 +1351,8 @@
       "0.4.0_to_0.4.1": "Doc sync (F22): README badges/status/estrutura atualizados para v0.4.1; settings.json _forge_version + _constitution_version corrigidos; decisions.md header F1-F22; roadmap.md header; manifest sha256_policy explicitado; reviewer/README.md criado; path_kind adicionado em examples/acme/.",
       "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section.",
       "0.5.0_to_0.6.0": "Forge-7 AIOS portable agents (F24): 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados, sendo schema_agent stack-agnostic), orchestrator.py.template + config.yaml.template, /acme:aios-init bumped para v0.2.0 (copia de templates físicos em vez de boilerplate inline), README dos templates AIOS, F24 em decisions, Forge-7 section em roadmap.",
-      "0.6.0_to_0.7.0": "Forge-8 CI/CD esteira completa (F25): 4 templates em templates/cicd/ (github-actions-validate/eval/audit + cicd-checklist), Gate 6 adicionado ao /acme:promote (obrigatório para assisted_to_autonomous), Wave 6 no /acme:tasks (T6.1-T6.5), promotion-officer.md atualizado com Gate 6, F25 em decisions, Forge-8 section em roadmap."
+      "0.6.0_to_0.7.0": "Forge-8 CI/CD esteira completa (F25): 4 templates em templates/cicd/ (github-actions-validate/eval/audit + cicd-checklist), Gate 6 adicionado ao /acme:promote (obrigatório para assisted_to_autonomous), Wave 6 no /acme:tasks (T6.1-T6.5), promotion-officer.md atualizado com Gate 6, F25 em decisions, Forge-8 section em roadmap.",
+      "0.7.0_to_0.8.0": "Forge-9 delivery-type agnostic (F26): Constitution v0.3.0 com matriz por project_type ({agentic_saas, platform, automation, hybrid} × {ai_enabled true/false}); novo templates/project.template.json como fonte canônica do consumidor; 4 novos templates platform (platform-module-spec, platform-pilot-state, platform-acceptance-report, delivery-economics); validation-rules v0.3.0 estruturado em common/agentic_saas/platform/automation com applies_when condicional; reviewer prompt v0.3.0 carrega project.json e ramifica checks; reviewer-contract v0.2.0; commands /acme:diagnose|spec|promote|audit-monthly ramificados (versões 0.2.0/0.2.0/0.3.0/0.2.0); supported_project_types e principles[].interpretation_modes adicionados ao manifest; F26 em decisions. Backwards compatible: defaults legados (agentic_saas + ai_enabled=true) quando docs/forge/project.json ausente no consumidor."
     }
   }
 }

@@ -1,8 +1,8 @@
 # Acme Forge — Contrato com Reviewer Externo (DeepAgents / GPT-5.5)
 
-> **Status**: ⏳ Especificação inicial (Forge-0). Implementação técnica em Forge-3.
-> **Versão**: 0.1.0
-> **Data**: 2026-04-30
+> **Status**: ⏳ Especificação inicial (Forge-0). Implementação técnica em Forge-3. Atualizado em Forge-9 (delivery-type agnostic).
+> **Versão**: 0.2.0
+> **Data**: 2026-05-08
 
 ---
 
@@ -43,28 +43,45 @@ O reviewer **deve** receber acesso a:
 - **Garantia**: atualizado automaticamente via hook `manifest-sync` (Forge-4)
 - **Conteúdo**: para cada artefato — `path`, `type`, `version`, `sha256`, `description`, `owner`, `linked_principles[]`
 
-### 3.2. Constitution
-- **Arquivo**: `.claude/CONSTITUTION.md`
+### 3.2. Project config (NOVO em v0.2.0 — Forge-9)
+- **Arquivo**: `docs/forge/project.json` (no consumidor)
+- **Template**: [`templates/project.template.json`](../../templates/project.template.json)
+- **Conteúdo crítico**:
+  - `project.type` ∈ {`agentic_saas`, `platform`, `automation`, `hybrid`}
+  - `project.ai_enabled` (boolean)
+  - `economics.model` ∈ {`cost_per_outcome`, `platform_margin`, `hybrid`}
+  - `telemetry.{llm_trace_provider | audit_log_provider | structured_logging_provider | metrics_provider | error_tracking_provider}`
+  - `modules[]` com overrides per-module (essencial em `hybrid`)
+- **Quando ausente**: reviewer aplica defaults retroativos (`agentic_saas` + `ai_enabled=true`) e registra em `audit_metadata.limitations_encountered`
+
+### 3.3. Constitution
+- **Arquivo**: `.claude/CONSTITUTION.md` (versão ≥ 0.3.0 para usar a matriz por `project_type`)
 - **Versão referenciada no manifest** garante que reviewer audita contra a constituição vigente
 
-### 3.3. Especificações de SKU
-- **Arquivos**: `src/skus/*/spec.md`, `docs/onda-0/sku_piloto.md`, `docs/onda-N/*`
-- Reviewer correlaciona spec com implementação
+### 3.4. Especificações
+- **Arquivos**: `docs/specs/{artifact_id}.md`, `src/skus/*/spec.md`, `src/modules/*/spec.md`, `docs/onda-N/*`
+- Reviewer correlaciona spec com implementação. Tipo de spec varia por `project_type`:
+  - `agentic_saas` → `templates/platform-sku-spec` ou `templates/product-spec`
+  - `platform` → `templates/platform-module-spec`
+  - `automation` → `templates/platform-module-spec` (subset)
+  - `diagnostic` → `templates/diagnostic-spec` (todos os tipos)
 
-### 3.4. Eval suites
-- **Arquivos**: `evals/{sku}/cases/*.json`, `evals/{sku}/reports/*.json`
-- Reviewer roda ou amostra eval suites para detectar drift
+### 3.5. Eval suites OU testes funcionais (conforme ai_enabled)
+- **Quando `ai_enabled=true`**: `evals/{artifact_id}/cases/*.json`, `evals/{artifact_id}/runs/*.md`
+- **Quando `ai_enabled=false`**: `tests/e2e/reports/{module}-*.json`, `docs/specs/{module}.acceptance-report.md`
 
-### 3.5. Outcomes de produção (amostra)
-- **Fonte**: tabela `Outcome` do PostgreSQL (consulta read-only)
+### 3.6. Outcomes / Audited actions de produção (amostra)
+- **Quando `ai_enabled=true`**: tabela `Outcome` do PostgreSQL (read-only) + traces no `llm_trace_provider`
+- **Quando `ai_enabled=false`**: audit log entries do `audit_log_provider` + cross-check com mutações em tabelas de negócio
 - **Janela**: 30 dias rolling
 - **Amostragem**: 5–10% aleatório por categoria (regra D6)
 
-### 3.6. Traces Langfuse
-- **Acesso**: API Langfuse com chave read-only
-- Reviewer correlaciona outcome com trace para validar custo, latência, decisão
+### 3.7. Traces / Audit logs
+- **Quando `ai_enabled=true`**: API do `llm_trace_provider` (`langfuse` / `helicone` / `phoenix` / custom) com chave read-only
+- **Quando `ai_enabled=false`**: API do `audit_log_provider` com permissão read-only
+- Reviewer correlaciona outcome/ação com trace/audit entry para validar custo, latência, decisão
 
-### 3.7. Documentação Forge
+### 3.8. Documentação Forge
 - Tudo em `docs/forge/`
 
 ---
@@ -75,34 +92,37 @@ Cada check produz **PASS / FAIL / WARN** com evidência citada do manifest.
 
 ### 4.1. Checks da Constitution (princípios 1–8)
 
-| # | Check | Como valida |
+> A interpretação de cada princípio depende de `project.type` e `module.ai_enabled` (resolvidos a partir de `docs/forge/project.json`). A tabela abaixo lista a versão **agentic** (default histórico). Para a versão **platform/automation** ver detalhe completo em [`reviewer/prompt.template.md`](../../reviewer/prompt.template.md) §"Princípios em detalhe" e em [`reviewer/validation-rules.json`](../../reviewer/validation-rules.json) (seções `common` + `agentic_saas` + `platform` + `automation`).
+
+| # | Check (agentic_saas) | Equivalente platform/automation |
 |---|---|---|
-| C1 | Diagnose-before-design | Para cada SKU em produção, existe `docs/onda-0/sku_piloto.md` aprovado E `diagnostic.md` correspondente |
-| C2 | Outcome-first | Toda spec começa com seção "Cláusula contratual de outcome" (D2.1 a D2.5 preenchidos) |
-| C3 | Custo ≤ 25% do preço | Por SKU, `unit_economics.md` declara `custo_por_outcome` e `preço_por_outcome`, e razão ≤ 25%. Cross-check com Langfuse de últimos 30 dias |
-| C4 | SHADOW antes de cobrar | Subscription só sai de SHADOW para ASSISTED se eval pass + N outcomes mínimos (D6.4) |
-| C5 | Three-tier context | Cada skill em `.claude/skills/` declara `tier: L0\|L1\|L2` no frontmatter |
-| C6 | Telemetry-by-default | Toda chamada LLM em `src/agents/**` é precedida ou seguida de chamada Langfuse (lint + sample de traces vs chamadas) |
-| C7 | Portability over lock-in | Nenhum SKU acopla detalhes de modelo específico fora de `src/llm/` (audit de imports) |
-| C8 | Anti-customização heroica | Cliente N do mesmo SKU não tem branch dedicado em `src/skus/{sku}/` (audit de overrides por tenant) |
+| C1 | Diagnose-before-build — cada SKU/produto em produção tem `diagnostic.md` referenciado | Cada módulo CANONICAL ou PILOT crítico tem `diagnostic.md` |
+| C2 | Outcome-first — `Cláusula de outcome` com 3+3 exemplos + categorias com threshold | `Cláusula de outcome` com critério de aceite operacional + payload de evento + audit log entry |
+| C3 | Cost-per-outcome ≤ 25% (cross-check via LLM trace provider) | Platform margin: (infra + suporte + manutenção) / receita ≤ 25% (`delivery-economics.md`) |
+| C4 | SHADOW → ASSISTED → AUTONOMOUS com gates pass + janela ≥ 14 dias em SHADOW | DRAFT → STAGING → PILOT → CANONICAL com testes E2E, aceite humano, audit log e janela ≥ 14d (críticos) ou ≥ 3d (simples) em PILOT |
+| C5 | Three-tier — toda skill declara `tier`; herança respeitada | Toda spec de módulo declara `tier_scope`; herança respeitada |
+| C6 | Telemetry — toda chamada LLM tem trace; desvio outcomes↔traces ≤ 1% | Auditability — toda mutação crítica tem `auditLog.write`; desvio mutações↔audit_log ≤ 1%; structured_logging + error_tracking configurados |
+| C7 | Portability — SDKs LLM apenas em `src/llm/**` ou `src/infra/llm-*.ts` | Portability — SDKs de integração/infra/pagamento apenas em `src/integrations/**` ou `src/infra/**` |
+| C8 | Anti-customização — sem `if (tenantId === ...)` ou `clients/{nome}/` | Mesma regra (vale para todos os tipos) — especialmente vigilante em `platform` |
 
 ### 4.2. Checks de coerência
 
 | Check | Validação |
 |---|---|
-| Spec ↔ código | Cada SKU em `src/skus/{sku}/` tem `spec.md` correspondente em `docs/onda-N/` |
-| Spec ↔ eval | Categorias de outcome no spec batem com `evals/{sku}/cases/` |
-| ADR ↔ implementação | ADRs assinadas refletem o stack real (`package.json`) |
-| Outcome ↔ trace | Cada `Outcome.id` tem `trace_id` Langfuse correspondente |
+| Spec ↔ código | Cada artefato em produção tem spec correspondente em `docs/specs/` |
+| Spec ↔ eval / teste | `agentic`: categorias da spec batem com `evals/{id}/cases/`. `platform`: categorias da spec batem com casos de teste E2E |
+| Spec ↔ acceptance-report | `platform` apenas: módulos CANONICAL têm `acceptance-report.md` assinado |
+| ADR ↔ implementação | ADRs assinadas refletem o stack real |
+| Outcome / Action ↔ trace / audit | `agentic`: `Outcome.id` tem `trace_id`. `platform`: cada mutação crítica tem entrada no audit log |
 
 ### 4.3. Checks de qualidade
 
-| Check | Validação |
-|---|---|
-| SLA mensal | Acurácia auditada ≥ threshold D6.2 |
-| Drift detection | Acurácia mês N vs N-1: queda >5pp dispara WARN |
-| Cost drift | Custo médio mês N vs N-1: alta >15% dispara WARN |
-| Eval freshness | `evals/{sku}/cases/` atualizado nos últimos 90 dias |
+| Check | Validação (`ai_enabled=true`) | Validação (`ai_enabled=false`) |
+|---|---|---|
+| SLA mensal | Acurácia auditada ≥ threshold | Pass rate de aceite humano ≥ threshold |
+| Drift detection — qualidade | Acurácia mês N vs N-1: queda >5pp = WARN | Pass rate de aceite mês N vs N-1: queda >5pp = WARN |
+| Drift — custo | Custo médio outcome mês N / N-1 > 1.15 = WARN | Platform cost-to-revenue ratio mês N / N-1 > 1.15 = WARN |
+| Eval / teste freshness | `evals/{id}/cases/` atualizado ≤ 90 dias | `tests/e2e/reports/{module}-latest.json` ≤ 7 dias; `acceptance-report.md` ≤ 90 dias |
 
 ---
 
