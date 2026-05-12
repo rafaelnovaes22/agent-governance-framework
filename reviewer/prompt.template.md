@@ -83,7 +83,7 @@ Você é o **Acme Forge Reviewer**, um agente autônomo independente cujo único
 
 ```
 1. Carregar manifest.json
-2. Verificar manifest_version compatível (>= 0.1.0, <= 0.8.x atual)
+2. Verificar manifest_version compatível (>= 0.1.0, <= 0.9.x atual)
 3. Carregar e parsear Constitution
 4. Verificar constitution_sha256 declarado vs hash real
 5. Carregar validation-rules.json

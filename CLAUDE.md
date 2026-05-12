@@ -199,7 +199,9 @@ git diff HEAD --stat
 - ✅ Forge-6 entregue (v0.5.0): **3 commands AIOS** (init/run/status) + telemetry pattern + `aios_tier` em spec template, F23 em decisions.md
 - ✅ Forge-7 entregue (v0.6.0): **6 agentes AIOS portáveis em `templates/aios/`** (spec/backend/frontend especializados + schema/test/review compartilhados, `schema_agent` stack-agnostic), `/acme:aios-init` v0.2.0 copia de templates físicos, F24 em decisions.md
 - ✅ Forge-8 entregue (v0.7.0): **4 templates CI/CD em `templates/cicd/`** (github-actions-validate/eval/audit + cicd-checklist), **Gate 6 CI/CD obrigatório** no `/acme:promote` para `assisted_to_autonomous`, Wave 6 no `/acme:tasks` (T6.1–T6.5), F25 em decisions.md
-- ⏳ Pendências do consumidor: ADR-002 efetiva + Wave 6 CI/CD implementada + primeira auditoria mensal de teste + **primeiro SKU em AUTONOMOUS para gerar playbook real**
+- ✅ Forge-9 entregue (v0.8.x): delivery-type agnostic para `agentic_saas`, `platform`, `automation` e `hybrid`; `project.template.json`; specs/economics/commands/reviewer ramificados por `project_type` e `ai_enabled`; F26 em decisions.md
+- ✅ Forge-10 entregue (v0.9.0): AIOS TDD-first; `test_agent` com modos `red`/`verify`; orchestrator reordenado spec → schema → test(red) → build → test(verify) → review; workflow `forge-test`; gate G6 `tdd-red-phase-check` no validate
+- ⏳ Pendências do consumidor: ADR-002 efetiva + primeira auditoria mensal de teste + primeiro SKU/módulo em AUTONOMOUS/CANONICAL para gerar playbook real
 - ⏳ Resíduo Forge-1 (opcional): 4 skills Acme-específicas em `examples/acme/skills/`
 
 Veja [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) para detalhes.

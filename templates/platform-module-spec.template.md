@@ -212,7 +212,7 @@ Cada caso deve cobrir:
 | CANONICAL | `pilot-state.md` mostra ≥ 14d em PILOT (crítico) ou ≥ 3d (simples) + acceptance-report assinado | — |
 | DEPRECATED | Substituído + plano de sunset + migration path documentado | — |
 
-> Gate completo no [`/acme:promote`](../../.claude/commands/acme/promote.md) com `to_mode` adequado ao project_type.
+> Gate completo no [`/acme:promote`](../.claude/commands/acme/promote.md) com `to_mode` adequado ao project_type.
 
 ---
 

@@ -184,6 +184,72 @@ if(issues.length===0) console.log('OK:allow='+na+' deny='+nd+' entradas, sem dup
 else issues.forEach(i=>console.log('ISSUE:'+i));
 " 2>/dev/null)
 
+# ─── C8: AIOS templates TDD-ready (Forge v0.9.0+) ────────────────────
+sep "C8  AIOS templates TDD-ready"
+# C8.1 — test_agent/config.json.template declara os modos red/verify
+TA_CFG="templates/aios/agents/test_agent/config.json.template"
+if [[ -f "$TA_CFG" ]]; then
+  if node -e "
+    const c=JSON.parse(require('fs').readFileSync('$TA_CFG','utf8'));
+    const modes=(c.meta&&c.meta.modes)||[];
+    const ok=modes.includes('red')&&modes.includes('verify');
+    process.exit(ok?0:1);
+  " 2>/dev/null; then
+    pass "test_agent declara modes: [red, verify]"
+  else
+    fail "test_agent/config.json.template sem modes:['red','verify'] — TDD desabilitado"
+  fi
+  if node -e "
+    const c=JSON.parse(require('fs').readFileSync('$TA_CFG','utf8'));
+    const cv=(c.meta&&c.meta.coverage_defaults)||{};
+    const ok=cv.A&&cv.B&&cv.C;
+    process.exit(ok?0:1);
+  " 2>/dev/null; then
+    pass "test_agent declara coverage_defaults A/B/C"
+  else
+    fail "test_agent/config.json.template sem coverage_defaults por tier"
+  fi
+else
+  fail "$TA_CFG não encontrado"
+fi
+
+# C8.2 — orchestrator.py.template aceita --mode em test
+ORC="templates/aios/orchestrator.py.template"
+if [[ -f "$ORC" ]]; then
+  if grep -qE 'choices=\["red", "verify"\]' "$ORC" 2>/dev/null; then
+    pass "orchestrator.py.template tem subcmd test --mode red|verify"
+  else
+    fail "orchestrator.py.template sem --mode red|verify"
+  fi
+fi
+
+# C8.3 — config.yaml.template tem coverage_targets + test_commands
+CFG_YAML="templates/aios/config.yaml.template"
+if [[ -f "$CFG_YAML" ]]; then
+  if grep -q '^coverage_targets:' "$CFG_YAML" 2>/dev/null && \
+     grep -q '^test_commands:' "$CFG_YAML" 2>/dev/null; then
+    pass "config.yaml.template tem coverage_targets + test_commands"
+  else
+    fail "config.yaml.template sem coverage_targets ou test_commands"
+  fi
+fi
+
+# C8.4 — workflow forge-test existe
+TEST_WF="templates/cicd/github-actions-test.template.yml"
+if [[ -f "$TEST_WF" ]]; then
+  pass "templates/cicd/github-actions-test.template.yml presente"
+else
+  fail "$TEST_WF — workflow de testes do projeto cliente ausente"
+fi
+
+# C8.5 — validate workflow inclui job tdd-red-phase-check
+VAL_WF="templates/cicd/github-actions-validate.template.yml"
+if [[ -f "$VAL_WF" ]] && grep -q 'tdd-red-phase-check:' "$VAL_WF" 2>/dev/null; then
+  pass "validate workflow inclui gate G6 tdd-red-phase-check"
+else
+  fail "$VAL_WF sem job tdd-red-phase-check (G6)"
+fi
+
 # ─── Sumário ─────────────────────────────────────────────────────────
 PASS_N=$(grep -c '^P$' "$TMP" 2>/dev/null) || PASS_N=0
 WARN_N=$(grep -c '^W$' "$TMP" 2>/dev/null) || WARN_N=0

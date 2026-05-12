@@ -524,6 +524,81 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F26 (NOVO 2026-05-12) — AIOS pipeline TDD-first (Forge-10)
+
+**Status**: ✅ **Formalizado em 2026-05-12 — Forge-10 entregue**
+
+**Contexto**: Forge-6/7 entregou os 6 agentes AIOS portáveis, mas o pipeline canônico era `spec → build → test → review`. O `test_agent` lia o output do backend antes de gerar testes e produzia apenas um markdown em `docs/specs/_tests_{module}.md` — sem arquivos físicos executáveis e sem coverage gate. Em paralelo, o CI/CD entregue em Forge-8 (`forge-validate`, `forge-eval`, `forge-audit`) **não rodava `npm test` / `pytest` / Playwright** do projeto consumidor — só lint estrutural, eval LLM e auditoria mensal.
+
+**Problema concreto**:
+1. **"Test-after" disfarçado de TDD** — o `test_agent` via o código antes de escrever os testes, então os testes inevitavelmente refletiam o que o código já fazia, não o que a spec exigia. Regressão de regra de negócio passava porque o teste foi escrito para passar.
+2. **Sem cobertura mecânica** — não havia threshold de coverage por tier, nem enforcement em CI. Tier C (financeiro) podia ir para produção com 30% de cobertura.
+3. **Frontend e e2e ausentes do contrato** — o `test_agent` mencionava genericamente "testes de integração reais" mas não exigia camadas separadas (unit/integration/e2e).
+4. **CI/CD não fechava o ciclo** — nenhum workflow rodava os testes funcionais do projeto cliente. Branch protection podia ser configurado com check `unit-tests` mas o check não existia.
+
+**Decisão**: refatorar o pipeline AIOS para **TDD-first** e entregar um workflow de testes funcionais que enforce o ciclo no CI.
+
+**Mudanças (templates/aios/)**:
+
+1. **`test_agent` ganha 2 modos** (v0.2.0):
+   - `mode=red` (default, antes do build) — lê **apenas** a spec; gera arquivos físicos em `tests/{module}/{unit,integration,e2e}/`; produz matriz "requisito da spec → teste"; isolamento C5 reforçado (não pode ler `_backend_*.md`).
+   - `mode=verify` (após o build) — revisa cobertura vs. requisitos; aponta gaps; veredicto parseável (`VEREDICTO: TESTES SUFICIENTES | ADICIONAR TESTES`).
+   - Coverage targets por tier no SYSTEM_PROMPT, lidos de `aios/config.yaml → coverage_targets` (defaults: A=70%, B=85%, C=95% line; critical_path 100%).
+
+2. **Orchestrator** (v0.2.0) — pipeline reordenado para:
+   ```
+   spec → schema → test(red) → build(back+front) → test(verify) → review
+   ```
+   Com **3 gates humanos C4 explícitos**: após spec, após test(red) — operador roda os testes e confirma que falham, após build — operador confirma que viraram GREEN.
+
+3. **`review_agent`** (v0.2.0) — checklist ganha bloco TDD: existe plano RED, existem arquivos físicos por camada, `VEREDICTO: TESTES SUFICIENTES`, cobertura ≥ tier-target. Se qualquer item desmarcado → `APROVADO PARA MERGE: Não`. Inventário automático de `tests/{module}/{unit,integration,e2e}/` no contexto enviado ao LLM.
+
+4. **`config.yaml.template`** (v0.2.0) — novos blocos:
+   - `stack.tests_unit`, `stack.tests_integration`, `stack.tests_e2e`
+   - `coverage_targets: {A, B, C}: {line, branch, critical_path}`
+   - `test_commands: {install, lint, typecheck, unit, integration, e2e, coverage_report_path}` — comandos lidos pelo CI sem hardcode de npm/pytest.
+
+**Mudanças (templates/cicd/)**:
+
+5. **Novo `github-actions-test.template.yml`** — workflow com 6 jobs:
+   - `resolve-config` (lê `aios/config.yaml` para extrair matriz, comandos e targets)
+   - `lint-typecheck` (falha rápido)
+   - `unit-tests` em matrix por módulo + **coverage gate** comparando line/branch com `coverage_targets[tier]`
+   - `integration-tests` em matrix com **Postgres ephemeral via service container** — Tier C bloqueia se ausente
+   - `e2e-tests` apenas para módulos com `has_ui: true` — Tier C com UI bloqueia se ausente
+   - `summary` com comentário no PR e fail consolidado
+
+6. **`github-actions-validate.template.yml`** — novo job `tdd-red-phase-check` (Gate G6): para cada caminho `src/{modules,features,domains}/{nome}/*` modificado no PR, exige que `tests/{nome}/unit/` exista e tenha ≥ 1 arquivo. Impede que o build chegue ao merge sem ter passado pela fase RED.
+
+7. **`cicd-checklist.template.md`** — nova seção 3 "Testes funcionais do projeto cliente" com 11 itens 🔴 (workflow ativo, coverage gate, integration sem mocks de regra, e2e para módulos com UI, Tier C bloqueante). Total: 39 itens (29 🔴, 10 🟡).
+
+**Gates novos (consolidando v0.9.0)**:
+
+| Gate | Onde | O que valida |
+|---|---|---|
+| C4-TDD-RED (humano) | orchestrator pipeline | Operador roda testes localmente após `test(red)` e confirma falha |
+| C4-TDD-GREEN (humano) | orchestrator pipeline | Operador confirma que testes viraram GREEN após build |
+| G6 (mecânico) | `forge-validate.yml` | Todo módulo modificado em `src/{modules,features,domains}/` tem `tests/{module}/unit/` |
+| Coverage Gate (mecânico) | `forge-test.yml` job `unit-tests` | line/branch ≥ `coverage_targets[tier]` do módulo |
+| Tier C Integration Gate (mecânico) | `forge-test.yml` job `integration-tests` | Tier C sem `tests/{module}/integration/` → fail |
+| Tier C E2E Gate (mecânico) | `forge-test.yml` job `e2e-tests` | Tier C com UI sem `tests/{module}/e2e/` → fail |
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-10 aplica |
+|---|---|
+| C4 (SHADOW antes de cobrar) | Testes RED são a especificação executável — failure inicial obrigatório; coverage por tier enforça evidência mecânica antes de qualquer promoção |
+| C5 (three-tier) | `test_agent` em modo RED não pode ler outros módulos nem o backend que ainda não existe — isolamento absoluto |
+| C6 (telemetry) | Cada execução do `test_agent` é um trace Langfuse separado, com `mode` e `tdd_phase` em metadata |
+| C7 (portability) | Comandos de teste lidos de `aios/config.yaml → test_commands` (sem hardcode npm/pytest); workflows usam matrix lida de `modules:` |
+| C8 (anti-heroic) | `tests/{module}/` por convenção, não por cliente; coverage_targets configuráveis sem hardcode |
+
+**Decisão de versionamento**: MINOR bump (v0.8.1 → v0.9.0). Novo gate G6 + reordenação do pipeline AIOS são adições, não quebras — projetos consumidores em Forge ≤ 0.8.x continuam funcionando porque `stack.tests` (singular) é mantido como fallback no `test_agent`. Não exige ADR de Constitution.
+
+**Trade-off aceito**: Forge-10 aumenta o custo de entrada do projeto consumidor (precisa configurar `test_commands` + ter runner de teste + service container). Em troca, regressão de regra de negócio em Tier C **não passa silenciosamente** — a CI bloqueia mecanicamente PRs que reduzam cobertura abaixo de 95% line em código financeiro.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -537,3 +612,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.5.0 | 2026-05-06 | F23 adicionada; Forge-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |
 | 0.6.0 | 2026-05-07 | F24 adicionada; Forge-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |
 | 0.7.0 | 2026-05-07 | F25 adicionada; Forge-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |
+| 0.9.0 | 2026-05-12 | F26 adicionada; Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |

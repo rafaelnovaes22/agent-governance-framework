@@ -9,6 +9,74 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.9.0] — 2026-05-12
+
+### Added (Forge-10 — AIOS pipeline TDD-first)
+
+**O pipeline AIOS deixa de ser "test-after" e passa a ser TDD real, com arquivos físicos de teste e coverage gate por tier mecanicamente enforçado na CI.**
+
+**`templates/aios/agents/test_agent/` v0.2.0 — TDD-first:**
+
+- Novo parâmetro `mode` ∈ `red` | `verify`:
+  - `mode="red"` (default, antes do build): lê **APENAS** `docs/specs/{module}.md` (não pode ver o backend que ainda não existe — isolamento C5 reforçado). Materializa **arquivos físicos** em `tests/{module}/{unit,integration,e2e}/`. Gera matriz "requisito da spec → teste" no plano em `docs/specs/_tests_{module}.md`. Não sobrescreve testes editados manualmente — cria `.proposed` ao lado.
+  - `mode="verify"` (após o build): revisa cobertura vs. requisitos; aponta gaps; veredicto parseável (`VEREDICTO: TESTES SUFICIENTES | ADICIONAR TESTES`).
+- 3 camadas obrigatórias de teste: **unit** (lógica pura, sem rede/DB), **integration** (API + DB real ephemeral, nunca mocka regra de negócio), **e2e** (Playwright/Cypress quando há UI).
+- Coverage targets por tier lidos de `aios/config.yaml → coverage_targets` (defaults: A=70%, B=85%, C=95% de cobertura de linha; critical_path 100%).
+- Para Tier C: cada edge case financeiro/cancelamento da spec gera ≥ 1 teste unit + ≥ 1 teste integration; valores limítrofes obrigatórios (zero, negativo, máximo, mínimo, casas decimais, DST, ano bissexto).
+
+**`templates/aios/orchestrator.py.template` v0.2.0 — pipeline reordenado:**
+
+```
+spec → schema → test(red) → build(back+front em paralelo) → test(verify) → review
+```
+
+- 3 gates humanos C4 explícitos: pós-spec, pós-RED (operador roda os testes localmente e confirma que **falham**), pós-build (operador confirma que viraram GREEN).
+- Subcomando `test --mode red|verify`.
+- Status filesystem-based passa a contar arquivos físicos em `tests/{module}/`.
+
+**`templates/aios/agents/review_agent/` v0.2.0 — gate TDD:**
+
+- Inventário automático de `tests/{module}/{unit,integration,e2e}/` no contexto enviado ao LLM.
+- Checklist ganha bloco TDD: plano RED presente, arquivos físicos por camada, `VEREDICTO: TESTES SUFICIENTES`, cobertura ≥ tier-target.
+- Se qualquer item TDD desmarcado → `APROVADO PARA MERGE: Não` (exceto e2e para módulos `has_ui: false` com justificativa).
+
+**`templates/aios/config.yaml.template` v0.2.0 — novos blocos:**
+
+- `stack.tests_unit`, `stack.tests_integration`, `stack.tests_e2e` (separados por camada).
+- `stack.tests` mantido como **fallback** para backwards-compat com Forge ≤ 0.8.x.
+- `coverage_targets: {A,B,C}: {line, branch, critical_path}`.
+- `test_commands: {install, lint, typecheck, unit, integration, e2e, coverage_report_path}` — comandos lidos pelo CI sem hardcode.
+- `modules[].has_ui` (default `true`) — determina se e2e é exigido.
+
+**`templates/cicd/github-actions-test.template.yml` v0.1.0 — NOVO workflow:**
+
+- 6 jobs em sequência: `resolve-config` → `lint-typecheck` → `unit-tests` (matrix por módulo + coverage gate por tier) → `integration-tests` (matrix com **Postgres ephemeral via service container**) → `e2e-tests` (apenas `has_ui: true` + Playwright) → `summary` (comentário no PR).
+- Coverage gate compara `line`/`branch` com `coverage_targets[tier]` — falha o build abaixo do threshold.
+- Tier C bloqueia se `tests/{module}/integration/` vazio; Tier C com UI bloqueia se `tests/{module}/e2e/` vazio.
+
+**`templates/cicd/github-actions-validate.template.yml` v0.2.0 — gate G6:**
+
+- Novo job `tdd-red-phase-check`: para cada caminho `src/{modules,features,domains}/{nome}/*` modificado no PR, exige `tests/{nome}/unit/` com ≥ 1 arquivo. Impede merge de código novo sem fase RED.
+
+**`templates/cicd/cicd-checklist.template.md` v0.2.0:**
+
+- Nova seção 3 "Testes funcionais do projeto cliente" com 11 itens 🔴 (workflow ativo, `test_commands` preenchidos, coverage gate, integration sem mocks, e2e para módulos com UI, Tier C bloqueante).
+- Total atualizado: **39 itens (29 🔴, 10 🟡)**. Branch protection adiciona checks obrigatórios `tdd-red-phase-check`, `unit-tests`, `integration-tests`.
+
+**`scripts/forge-doctor.sh` — novo check C8 "AIOS templates TDD-ready":**
+
+- C8.1: `test_agent/config.json.template` declara `modes: [red, verify]`.
+- C8.2: orchestrator aceita `--mode red|verify`.
+- C8.3: `config.yaml.template` tem `coverage_targets` + `test_commands`.
+- C8.4: workflow `forge-test.template.yml` presente.
+- C8.5: `forge-validate.template.yml` tem job `tdd-red-phase-check`.
+
+**Mapeamento com a Constitution** — F26 em [`docs/forge/decisions.md`](./docs/forge/decisions.md). Pipeline TDD-first não muda nenhum princípio da Constitution (MINOR bump).
+
+**Trade-off aceito**: projetos consumidores precisam configurar `test_commands` + ter runner de teste + service container para DB. Em troca, regressão de regra de negócio em Tier C **não passa silenciosamente** — a CI bloqueia mecanicamente PRs que reduzam cobertura abaixo de 95% line em código financeiro.
+
+---
+
 ## [0.8.1] — 2026-05-08
 
 ### Added (Forge-9.x — Pendentes de Forge-9 concluídos)

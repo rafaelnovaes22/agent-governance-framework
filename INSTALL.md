@@ -1,8 +1,7 @@
 # Instalando o Acme Forge em um projeto consumidor
 
-> Versão atual: **0.1.0** (Forge-0).
-> Em Forge-2 será disponibilizado script automatizado `./install.sh <target>`.
-> Por enquanto, instalação manual conforme abaixo.
+> Versão atual: **0.9.0** (Forge-10).
+> Instalação manual canônica; validação automatizada via `bash scripts/forge-doctor.sh`.
 
 ---
 
@@ -14,7 +13,7 @@
 
 ---
 
-## Instalação manual (Forge-0)
+## Instalação manual
 
 A partir do diretório do projeto consumidor (ex: `acme-governanca-ia`):
 
@@ -61,7 +60,7 @@ cp "$FORGE/CLAUDE.md.template" CLAUDE.md
 ```bash
 # Verificar manifest válido
 node -e "console.log(JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8')).framework.version)"
-# Deve imprimir: 0.1.0
+# Deve imprimir: 0.9.0
 
 # Verificar Constitution carrega no Claude Code
 claude --version
@@ -91,7 +90,7 @@ Após copiar, **editar** os seguintes arquivos para refletir realidade do projet
 
 ## Atualizar Forge instalado (sync com origem canônica)
 
-Quando uma nova versão do `agent-governance-framework` sair (ex: Forge-1 entrega skills):
+Quando uma nova versão do `agent-governance-framework` sair:
 
 ```bash
 cd /path/to/projeto-consumidor
@@ -112,13 +111,13 @@ node -e "console.log(JSON.parse(require('fs').readFileSync('docs/forge/manifest.
 
 ---
 
-## Roadmap de instalação automatizada
+## Validação pós-instalação
 
-| Onda | Recurso |
+| Check | Comando |
 |---|---|
-| **Forge-2** | Script `./install.sh <target-path>` que faz cópia + diff de adaptados |
-| **Forge-3** | Validação automática pós-instalação (reviewer mock) |
-| **Forge-5** | Avaliação de submodule git ou plugin Claude Code marketplace |
+| Consistência do Forge | `bash scripts/forge-doctor.sh` |
+| JSON do manifest | `node -e "console.log(JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8')).framework.version)"` |
+| Constituição no Claude Code | `claude --version` e abertura do projeto no Claude Code |
 
 ---
 
