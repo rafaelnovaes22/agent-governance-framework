@@ -109,7 +109,12 @@ function collect(o){
   Object.values(o).forEach(collect);
 }
 collect(m.artifacts);
+const isConsumer=m.framework&&m.framework.canonical!==true;
+const CANONICAL_ONLY=['QUICKSTART.md','ARCHITECTURE.md','INSTALL.md','CONTRIBUTING.md',
+  'DEEPAGENT_GUIDE.md','GLOSSARY.md','GLOSSARY_PLAIN.md','CLAUDE.md.template',
+  'PLAYGROUND/','examples/acme/','examples/acme'];
 const missing=entries.filter(({p,k})=>{
+  if(isConsumer&&CANONICAL_ONLY.some(c=>p===c||p.startsWith(c))) return false;
   if(!fs.existsSync(p)) return true;
   if(k==='directory'&&!fs.statSync(p).isDirectory()) return true;
   return false;
