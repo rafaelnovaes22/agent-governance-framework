@@ -1,13 +1,13 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`
-> **Última atualização**: 2026-05-08
-> **Total estimado**: 17–24 dias úteis (paralelo às ondas Acme)
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`
+> **Última atualização**: 2026-05-13
+> **Total estimado**: 19–26 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
 ---
 
-## Visão geral das 9 ondas
+## Visão geral das 11 ondas
 
 | Onda | Foco | Estimativa | Bloqueia |
 |---|---|---|---|
@@ -21,6 +21,8 @@
 | **Forge-7** | AIOS agentes portáveis (templates físicos canônicos, schema stack-agnostic) | 1 dia | Forge-8 |
 | **Forge-8** | CI/CD — esteira completa para produção (templates + Gate 6 no promote) | 1 dia | AUTONOMOUS |
 | **Forge-9** | Delivery-type agnostic — project_type/ai_enabled, templates platform, reviewer ramificado | 1 dia | adoção por `school-platform` |
+| **Forge-10** | AIOS TDD-first — test_agent red/verify, coverage gate por tier, workflow forge-test | 1 dia | qualquer SKU/módulo Tier C em produção |
+| **Forge-11** | Master prompt universal — orquestrador para projetos consumidores | 0.5 dia | adoção por Acme Social, Aicfo, SchoolPlatform |
 
 ---
 
@@ -378,6 +380,33 @@
 - ✅ Constitution mantém C1-C8 com interpretação por tipo — **entregue**
 - ✅ `school-platform` pode consumir o framework sem conflito conceitual — **entregue**
 - ⏳ `school-platform` realmente cria `docs/forge/project.json` e gera primeiros `platform-module-spec` — **migração documentada no CHANGELOG.md**
+
+---
+
+## Forge-11 — Master prompt universal ✅ (v0.10.0)
+
+**Objetivo**: distribuir um **único ponto de entrada canônico** que projetos consumidores instalam para que o Claude Code opere sob o Forge sem instruções manuais por projeto. Substitui as ~200 linhas operacionais que cada CLAUDE.md de consumidor mantinha duplicadas.
+
+> **Contexto**: após Forge-9 (delivery-type agnostic) e Forge-10 (TDD-first), o framework passou a comportar 4 `project_type` × 2 `ai_enabled` × múltiplos lifecycles. Cada projeto consumidor (Acme SaaS², Aicfo, SchoolPlatform, Acme Social) mantinha seu CLAUDE.md descrevendo manualmente o pipeline, e drift era inevitável. Forge-11 entrega `templates/master-prompt.md` que detecta tipo via `docs/forge/manifest.json` e adapta tudo automaticamente.
+
+### Tasks
+
+- [x] **F11.1** `templates/master-prompt.md` v1.0.0 — 12 seções (contexto, detecção automática, interpretação adaptativa C1-C8, roteamento de comandos, Guardians, skills L0-L2, hooks, 3 fluxos completos, guardrails, output 5-seções, escalação, auto-evolução)
+- [x] **F11.2** Entrada no `manifest.json` com `applies_to_project_types: [agentic_saas, platform, automation, hybrid]` (único template com escopo universal — vinculado a C1-C8)
+- [x] **F11.3** Nova seção "Master Prompt para projetos consumidores" no `CLAUDE.md` raiz, explicando como projetos consumidores instalam (cópia ou referência relativa)
+- [x] **F11.4** F27 em `decisions.md` registrando contexto, decisão, gates novos, mapeamento com Constitution e trade-off aceito
+- [x] **F11.5** Bump MINOR v0.9.0 → v0.10.0 (manifest + settings + README badge + CHANGELOG)
+- [ ] **F11.6** Adoção real por Acme Social, Aicfo, SchoolPlatform (cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local) — **planejado para próxima onda de cada consumidor**
+- [ ] **F11.7** (Futuro Forge-11.x) `forge-router` subagent que lê input em linguagem natural e dispara pipeline correto — elimina necessidade do operador conhecer slash commands específicos
+
+### Critério de pronto
+
+- ✅ `templates/master-prompt.md` presente e versionado em manifest — **entregue**
+- ✅ Cobre os 4 `project_type` declarados em F26 sem inventar conceitos novos — **entregue**
+- ✅ Documentação interna (`CLAUDE.md` raiz) referencia o template como canônico — **entregue**
+- ✅ `forge-doctor.sh` valida sem warnings — **25 OK, 0 WARN, 0 FAIL**
+- ⏳ Pelo menos 1 projeto consumidor adota o master prompt em seu CLAUDE.md — **aguardando primeira adoção**
+- ⏳ Primeiro caso real onde o master prompt acelera onboarding de novo consumidor — **aguardando**
 
 ---
 

@@ -1,7 +1,7 @@
-# Acme Forge — Decisões F1–F26
+# Acme Forge — Decisões F1–F27
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.8.0 (Forge-9)
-> **Versão atual**: 0.8.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.10.0 (Forge-11)
+> **Versão atual**: 0.10.0
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
 
@@ -599,6 +599,89 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F27 (NOVO 2026-05-13) — Master prompt universal para projetos consumidores (Forge-11)
+
+**Status**: ✅ **Formalizado em 2026-05-13 — Forge-11 entregue**
+
+**Contexto**: Após Forge-9 (delivery-type agnostic) e Forge-10 (AIOS TDD-first), o framework passou a suportar 4 `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) com interpretação local de C1-C8 via `docs/forge/project.json`. Porém, cada projeto consumidor (Acme SaaS², Aicfo, SchoolPlatform, Acme Social) precisava manter manualmente seu próprio `CLAUDE.md` instruindo o Claude Code sobre qual pipeline usar, qual Guardian invocar, qual lifecycle aplicar. Isso gerou três problemas concretos:
+
+1. **Inconsistência entre consumidores** — cada projeto descrevia o pipeline `/acme:*` à sua maneira; alguns esqueciam de mencionar `po-guardian`, outros não documentavam interpretação local de C3.
+2. **Drift do framework** — quando Forge-10 adicionou gates TDD, projetos consumidores antigos não atualizaram seus CLAUDE.md, e o Claude Code operava como se ainda fosse Forge-8 nesses repos.
+3. **Onboarding lento** — abrir um projeto consumidor novo exigia replicar instruções manuais (cerca de 200 linhas no CLAUDE.md médio) que o autor precisava memorizar do framework.
+
+**Problema concreto**: sem um ponto de entrada canônico distribuível, o Forge não escalava para múltiplos consumidores. Cada novo projeto reinventava convenções; cada upgrade do framework virava migração manual.
+
+**Decisão**: criar um **master prompt universal** versionado em `templates/master-prompt.md` que substitui as instruções operacionais dos `CLAUDE.md` dos consumidores. O master-prompt:
+
+1. **Detecta** `project_type` + `ai_enabled` ao ler `docs/forge/manifest.json` (ou `project.json`) do consumidor — não exige instrução manual.
+2. **Adapta** interpretação de C1-C8 conforme matriz já estabelecida em F26 (Forge-9):
+   - `agentic_saas`: C3 audita tokens, C4 exige eval-suite LLM, C6 Langfuse obrigatório, lifecycle SHADOW→ASSISTED→AUTONOMOUS
+   - `platform` (ai_enabled=false): C3 audita infra/operação, C4 usa acceptance gate, C6 condiciona Langfuse, lifecycle draft→staging→pilot→canonical
+   - `hybrid`: per-module decision via ADR; Forge-10 TDD-first aplicado nos módulos com IA
+3. **Roteia** slash commands `/acme:*` por tipo:
+   - `/acme:spec --type=platform-sku` para agentic_saas; `--type=platform-module` para platform
+   - `/acme:sla-threshold` apenas para agentic; `/acme:pre-merge-check` apenas para platform
+   - AIOS pipeline (Forge-6/7/10) aplicado em ambos, com TDD-first uniforme
+4. **Invoca** os 10 Guardians corretos: po-guardian (C2), unit-economist (C3, branch agentic/platform), artifact-architect (C5/C7), eval-engineer (apenas se ai_enabled=true), promotion-officer (gate final), etc.
+5. **Padroniza output** em 5 seções (Diagnóstico, Rota proposta, Riscos, Próximo passo, Outputs esperados) — facilita revisão humana e telemetria.
+6. **Sinaliza escalação** quando ambiguidade (conflito entre Guardians, Constitution sem interpretação local, custo extrapola baseline >30%).
+
+**Mudanças (templates/)**:
+
+1. **Novo `templates/master-prompt.md` v1.0.0** (~17.5 KB, 12 seções):
+   - Detecção automática de tipo (matriz `project_type × ai_enabled`)
+   - Interpretação adaptativa C1-C8
+   - Roteamento de comandos com regras por palavra-chave do input
+   - Catálogo dos 10 Guardians com modo (ATIVO/PASSIVO) e ordem de invocação
+   - Skills L0-L1-L2 com sintaxe `@skill:nome`
+   - Mapa dos 9 hooks runtime e o que cada um bloqueia
+   - 3 fluxos completos (Criar agente IA, Criar módulo platform, Adicionar feature IA em platform)
+   - Guardrails universais (NUNCA/SEMPRE)
+   - Output format padronizado
+   - Critérios de escalação
+   - Regras de auto-evolução
+
+**Mudanças (CLAUDE.md do framework)**:
+
+2. Nova seção **"Master Prompt para projetos consumidores"** com:
+   - Tabela dos 3 tipos suportados
+   - Como projetos consumidores instalam (cópia ou referência)
+   - Quando evoluir o master-prompt (regras de versionamento)
+
+**Mudanças (manifest.json)**:
+
+3. Nova entrada em `templates[]` com id `template-master-prompt`, `applies_to_project_types: [agentic_saas, platform, automation, hybrid]`, vinculada a TODOS os 8 princípios (C1-C8) — único template com escopo universal.
+
+**Gates novos (consolidando v0.10.0)**:
+
+| Gate | Onde | O que valida |
+|---|---|---|
+| Manifest-driven detection | Master prompt | Antes de propor qualquer pipeline, lê `manifest.json` do consumidor e sinaliza `project_type + ai_enabled` detectados |
+| Adaptive C1-C8 interpretation | Master prompt | Aplica `principle_interpretation_local` quando declarado; usa defaults canônicos quando ausente |
+| Output 5-seções | Master prompt | Toda resposta operacional segue Diagnóstico→Rota→Riscos→Próximo passo→Outputs |
+| Escalation triggers | Master prompt | Bloqueia decisão autônoma em conflito entre Guardians, custo >30% baseline, cliente externo envolvido |
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-11 aplica |
+|---|---|
+| C1 (Diagnose-before-build) | Master prompt obriga `/acme:diagnose` antes de qualquer capability nova, independente de tipo |
+| C2 (Outcome contratual) | Master prompt invoca po-guardian em toda spec; valida outcome positivo + negativo |
+| C3 (Unit economics) | Master prompt roteia para unit-economist com branch correto (tokens vs infra) conforme `ai_enabled` |
+| C4 (SHADOW antes de cobrar) | Master prompt aplica lifecycle SHADOW→AUTONOMOUS (agentic) OU draft→canonical (platform) sem confundir vocabulários |
+| C5 (ADR) | Master prompt obriga ADR para toda decisão arquitetural e referencia decisions.md do consumidor |
+| C6 (Telemetria) | Master prompt condiciona Langfuse a `ai_enabled=true`; logs estruturados em todos os tipos |
+| C7 (Portability) | Master prompt proíbe acoplar SDK no domain layer; orienta abstração via interfaces |
+| C8 (Anti-heroic) | Master prompt usa templates como fonte; não permite criação ad-hoc fora do framework |
+
+**Decisão de versionamento**: MINOR bump (v0.9.0 → v0.10.0). Adiciona capability nova (template universal de orquestração) sem mudar Constitution ou quebrar APIs existentes. Projetos consumidores em Forge ≤ 0.9.x continuam funcionando porque o master-prompt é **opcional** — ele substitui instruções manuais nos CLAUDE.md dos consumidores quando adotado.
+
+**Trade-off aceito**: Forge-11 cria **superfície adicional** que precisa ser versionada junto com Constitution + Guardians + commands. Toda mudança em qualquer um destes pode exigir atualização do master-prompt. Em troca, projetos consumidores ganham um único ponto de entrada canônico, atualizável via `cp` ou referência relativa, e o Forge passa a ter narrativa coerente para 4 tipos de delivery sem que cada consumidor reinvente convenções.
+
+**Próxima evolução prevista (Forge-11.x)**: implementar `forge-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara automaticamente o pipeline correto, eliminando necessidade do operador conhecer os slash commands específicos. Atualmente o master-prompt ainda exige que o operador acione `/acme:*` manualmente; com o router, isso vira chamada implícita.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -613,3 +696,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.6.0 | 2026-05-07 | F24 adicionada; Forge-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |
 | 0.7.0 | 2026-05-07 | F25 adicionada; Forge-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |
 | 0.9.0 | 2026-05-12 | F26 adicionada; Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |
+| 0.10.0 | 2026-05-13 | F27 adicionada; Forge-11 master prompt universal entregue | `templates/master-prompt.md` v1.0.0 com detecção automática de project_type + ai_enabled, interpretação adaptativa de C1-C8, roteamento de /acme:* por tipo, invocação correta dos 10 Guardians, output padronizado em 5 seções; substitui instruções manuais nos CLAUDE.md de projetos consumidores; aplica-se a TODOS os project_types (agentic_saas, platform, automation, hybrid) |

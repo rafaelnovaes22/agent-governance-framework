@@ -1,10 +1,10 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.9.0",
+  "manifest_version": "0.10.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.9.0",
-    "phase": "Forge-10 entregue — AIOS pipeline TDD-first. test_agent com modos red/verify e arquivos físicos em tests/{module}/{unit,integration,e2e}/; orchestrator reordenado (spec → schema → test(red) → build → test(verify) → review); review_agent com gate TDD; novo workflow forge-test (matrix por módulo + coverage gate por tier + integration via service container + e2e Playwright); gate G6 tdd-red-phase-check no validate; cicd-checklist com seção 3 (testes funcionais, 11 itens 🔴).",
+    "version": "0.10.0",
+    "phase": "Forge-11 entregue — Master prompt universal de orquestração para projetos consumidores. Novo `templates/master-prompt.md` v1.0.0 que detecta `project_type` (agentic_saas/platform/automation/hybrid) + `ai_enabled` via manifest do consumidor e adapta interpretação de C1-C8, roteamento de slash commands /acme:* e invocação de Guardians. Substitui necessidade de instruções manuais por projeto e formaliza F27 em decisions.md. Forge-10 (AIOS TDD-first) permanece operacional.",
     "last_updated": "2026-05-12",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -674,6 +674,32 @@
           "hybrid"
         ],
         "introduced_in": "Forge-9 (v0.8.0)"
+      },
+      {
+        "id": "template-master-prompt",
+        "path": "templates/master-prompt.md",
+        "type": "template",
+        "version": "1.0.0",
+        "sha256": "bd49f94b605989ec",
+        "linked_principles": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ],
+        "use_case": "consumer-orchestrator-prompt",
+        "description": "Master prompt universal de orquestração para projetos consumidores. Detecta project_type (agentic_saas/platform/automation/hybrid) e ai_enabled via manifest do consumidor, adapta interpretação de C1-C8, roteia slash commands /acme:* e invoca Guardians corretos. Substitui necessidade de instruções manuais por projeto.",
+        "applies_to_project_types": [
+          "agentic_saas",
+          "platform",
+          "automation",
+          "hybrid"
+        ],
+        "introduced_in": "Forge-11 (planned)"
       }
     ],
     "templates_aios": {

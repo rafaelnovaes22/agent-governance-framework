@@ -9,6 +9,54 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.10.0] — 2026-05-13
+
+### Added (Forge-11 — Master prompt universal para projetos consumidores)
+
+**O Forge passa a distribuir um único ponto de entrada canônico que projetos consumidores instalam para operar sob o framework sem manter instruções manuais duplicadas em cada CLAUDE.md.**
+
+**Novo `templates/master-prompt.md` v1.0.0:**
+
+- Documento operacional de 12 seções (~17.5 KB) que substitui ~200 linhas duplicadas nos CLAUDE.md dos consumidores.
+- **Detecção automática** de `project_type` (`agentic_saas` | `platform` | `automation` | `hybrid`) + `ai_enabled` lendo `docs/forge/manifest.json` (ou `project.json`) do consumidor — não exige instrução manual.
+- **Interpretação adaptativa de C1-C8** conforme matriz já estabelecida em F26:
+  - `agentic_saas`: C3 audita tokens, C4 exige eval-suite LLM, C6 Langfuse obrigatório, lifecycle SHADOW→ASSISTED→AUTONOMOUS
+  - `platform` (ai_enabled=false): C3 audita infra/operação, C4 usa acceptance gate, C6 condiciona Langfuse, lifecycle draft→staging→pilot→canonical
+  - `hybrid`: per-module via ADR
+- **Roteamento por tipo** dos slash commands `/acme:*` (ex.: `/acme:spec --type=platform-sku` para agentic; `--type=platform-module` para platform).
+- **Catálogo dos 10 Guardians** com modo (ATIVO/PASSIVO) e ordem de invocação.
+- **3 fluxos completos** documentados: Criar agente IA, Criar módulo platform, Adicionar feature IA em platform.
+- **Guardrails universais** (NUNCA editar Constitution sem ADR; SEMPRE invocar po-guardian em specs novas; etc.).
+- **Output padronizado em 5 seções**: Diagnóstico, Rota proposta, Riscos, Próximo passo, Outputs esperados.
+- **Critérios de escalação** para conflito entre Guardians, Constitution ambígua, custo extrapola >30% baseline.
+
+**Entrada em `manifest.json`:**
+
+- Novo template `template-master-prompt` v1.0.0 vinculado a TODOS os 8 princípios (C1-C8) — único template com escopo universal no Forge.
+- `applies_to_project_types: [agentic_saas, platform, automation, hybrid]`.
+
+**Nova seção em `CLAUDE.md` raiz:**
+
+- Documentação "Master Prompt para projetos consumidores" explicando como projetos consumidores instalam (cópia ou referência relativa).
+- Tabela dos 3 modos de operação derivados de `project_type × ai_enabled`.
+- Regras de versionamento do master prompt (PATCH para refinamentos, MINOR se adiciona capability nova).
+
+**Decisões formalizadas:**
+
+- **F27** em `docs/forge/decisions.md` registrando contexto (drift entre CLAUDE.md de consumidores), decisão, gates novos (Manifest-driven detection, Adaptive C1-C8 interpretation, Output 5-seções, Escalation triggers), mapeamento com Constitution e trade-off aceito.
+
+### Próximas evoluções previstas (Forge-11.x)
+
+- `forge-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara automaticamente o pipeline correto, eliminando necessidade do operador conhecer slash commands.
+- Adoção real por Acme Social, Aicfo e SchoolPlatform — cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local.
+
+### Versionamento
+
+- **MINOR bump** (v0.9.0 → v0.10.0): adiciona capability nova sem mudar Constitution ou quebrar APIs. Projetos consumidores em Forge ≤ 0.9.x continuam funcionando — o master prompt é **opcional**, substitui instruções manuais quando adotado.
+- Não exige ADR de Constitution.
+
+---
+
 ## [0.9.0] — 2026-05-12
 
 ### Added (Forge-10 — AIOS pipeline TDD-first)

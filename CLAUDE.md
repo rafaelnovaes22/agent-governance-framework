@@ -48,6 +48,38 @@ Os 8 princípios C1–C8 são **não-negociáveis** e orientam todo desenvolvime
 - [`docs/forge/reviewer-contract.md`](./docs/forge/reviewer-contract.md) — Contrato do reviewer
 - [`docs/forge/manifest.json`](./docs/forge/manifest.json) — Inventory
 - [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md) — O que NÃO entra
+- [`templates/master-prompt.md`](./templates/master-prompt.md) — **Master Prompt universal** (orquestrador para projetos consumidores)
+
+---
+
+## Master Prompt para projetos consumidores
+
+[`templates/master-prompt.md`](./templates/master-prompt.md) é o **prompt de orquestração canônico** que projetos consumidores devem instalar para operar sob o Forge.
+
+Ele cobre os 3 tipos de projeto suportados (F26):
+
+| Tipo | Exemplo Real | Lifecycle | C3/C4/C6 |
+|------|--------------|-----------|----------|
+| `agentic` + `ai_enabled:true` | Acme Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens, eval LLM, Langfuse |
+| `platform` + `ai_enabled:false` | SchoolPlatform | draft→staging→pilot→canonical | Infra, acceptance, logs |
+| `platform` + `ai_enabled:true` ou `hybrid` | SaaS com features IA | Por módulo | Combinado |
+
+**Como projetos consumidores usam:**
+
+1. Copiam `templates/master-prompt.md` para sua raiz como `MASTER_PROMPT.md` ou referenciam no `CLAUDE.md` local
+2. Claude Code carrega o prompt como system context
+3. Detecção automática de tipo via `docs/forge/manifest.json` (`project_type` + `ai_enabled`)
+4. Roteamento adaptativo: comandos, Guardians, hooks aplicados conforme tipo
+5. Output padronizado em 5 seções (Diagnóstico, Rota, Riscos, Próximo passo, Outputs)
+
+**Quando evoluir o master-prompt:**
+
+- Nova capability suportada pelo Forge (novo `project_type`, novo `lifecycle_stage`)
+- Novo Guardian adicionado (`.claude/agents/`)
+- Nova convenção de roteamento (`/acme:*` command novo)
+- Mudança na Constitution (raríssimo)
+
+Mudanças no master-prompt seguem versionamento PATCH (sem afetar Constitution) ou MINOR (se adiciona capability nova).
 
 ---
 
