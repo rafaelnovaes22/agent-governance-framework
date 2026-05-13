@@ -9,6 +9,71 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.13.0] — 2026-05-13
+
+### Added (Forge-13 Sprint 1 — Consumer-mode hardening)
+
+**O framework deixa de gerar ruído ao ser executado em projeto consumidor. Resolve P0 da auditoria 2026-05-13 (após primeira adoção real por Acme Social).**
+
+**`scripts/forge-doctor.sh` v0.5.0 (F30):**
+
+- Detecta automaticamente se está rodando no repo canônico do Forge ou em projeto consumidor via novo campo `manifest.framework.canonical: true` (presente apenas no canônico).
+- Override explícito via flags `--canonical` / `--consumer`.
+- Em modo `consumer`:
+  - C1: `reviewer/output-schema.json` e `reviewer/validation-rules.json` passam a ser **opcionais** (não-FAIL se ausentes); consumer pode não ter copiado o pacote reviewer/ se não roda auditoria mensal local.
+  - C6: check de **artefatos órfãos é pulado** (manifest do consumer não precisa duplicar entries canônicas do framework — só registra o que ele mesmo produz).
+  - C8: AIOS templates **condicional** — se `templates/aios/` não existe, check inteiro pulado (consumer pode não usar AIOS); workflows CI/CD ausentes geram PASS (opcional para consumer) em vez de FAIL.
+- Banner inicial mostra modo ativo (`canonical (repo do framework)` ou `consumer (projeto consumidor)`).
+- Resolve queixa documentada: consumer rodava forge-doctor e via 65 warnings de "órfão" + 2 FAILs de `reviewer/` ausente — agora vê tudo verde quando o consumer está correto.
+
+**`docs/forge/decisions.md` — F26 duplicado resolvido (F31):**
+
+- Decisão original de Forge-10 (TDD-first) tinha sido registrada como `F26` em 2026-05-12, colidindo com `F26` Forge-9 (delivery-type agnostic, 2026-05-08). Reviewer DeepAgent citaria "F26" ambiguamente.
+- Forge-10 renomeada para **F26-bis** com nota de desambiguação explícita; F26 (Forge-9) preservada como canônica e mais referenciada externamente (PLAYGROUND, CLAUDE.md, prompt do reviewer).
+- Tabela de versionamento de `decisions.md` corrigida.
+- CHANGELOG referência cruzada atualizada.
+
+**`docs/forge/manifest.json` — metadados stale corrigidos (F33):**
+
+- `forge-decisions` `0.8.0` → `0.13.0` (descrição "F1-F26" → "F1-F29 + F26-bis").
+- `forge-roadmap` `0.6.0` → `0.12.0` (descrição "7 ondas" → "12 ondas").
+- `forge-manifest` `0.9.0` → `0.13.0`.
+- `forge-readme` `0.9.0` → `0.12.0` (descrição atualizada).
+- `changelog` `0.9.0` → `0.13.0`.
+- `claude-md-meta` `0.9.0` → `0.10.0` (atualizado em Forge-11 com seção Master Prompt).
+- `script-forge-doctor` `0.4.1` → `0.5.0` (linked_principles ganha C7).
+- `reviewer-prompt` `0.3.0` → `0.5.0` (ver abaixo).
+- Adicionado novo campo `framework.canonical: true` (lido pelo forge-doctor para auto-detect).
+- Adicionada entrada `forge-audit-2026-05-13` (`docs/forge/AUDIT_2026-05-13_pendencias.md`).
+- Vários `sha256` setados como `null` (recálculo deferido para evitar churn por line endings Windows/Unix).
+
+**`reviewer/prompt.template.md` v0.5.0 — cobertura retroativa (F33):**
+
+Prompt do reviewer v0.3.0 cobria apenas Forge-9. Auditorias mensais geradas com ele teriam blind spots em Forge-10/11/12. v0.5.0 adiciona seção "Checks adicionais introduzidos pós-v0.3.0":
+
+- **C4.tdd.*** (Forge-10 / F26-bis) — TDD red phase files, coverage targets present, test_commands present, integration sem business mocks, Tier C blocking gates, review_agent verdict. `applies_when`: projeto declara `aios_tier` OU possui `templates/aios/`.
+- **C8.master_prompt.*** (Forge-11 / F27) — master-prompt instalado, versão compatível, anti-duplicação manual no CLAUDE.md local.
+- **C7.surface.*** (Forge-12 / F28+F29) — `HELLO.md` presente quando há stakeholder não-técnico, `.forge-mode` válido, hook `friendly-errors` ativo, PLAYGROUND opcional.
+- **Política de retro-aplicação** — audits gerados com prompt ≤ v0.3.0 devem incluir nota explícita de blind spot conhecido e recomendar re-auditoria.
+
+**Novo workflow dogfooded `.github/workflows/forge-validate.yml`:**
+
+- O repo canônico do Forge passa a rodar seus próprios gates em todo PR/push para `master`.
+- 4 jobs: `forge-doctor --canonical`, `skill-security-scan`, `manifest-json-valid`, `hooks-bash-syntax` + `summary` consolidado.
+- Pré-merge-check e tdd-red-phase-check do template canônico **não** se aplicam ao próprio Forge (sem `src/skus/` produtivo).
+- Garante que o framework não regride nos próprios gates que distribui.
+
+**Decisões formalizadas:**
+
+- Esta release **não** abre uma nova decisão Fxx — é Sprint 1 da onda Forge-13 catalogada em `docs/forge/AUDIT_2026-05-13_pendencias.md`. A onda completa terá ADR consolidada após Sprint 2 (F32 sync script + F42 INSTALL update).
+
+### Versionamento
+
+- **MINOR bump** (v0.12.0 → v0.13.0): adiciona capability nova de modo consumer + correções estruturais que afetam comportamento (forge-doctor relaxado, IDs renomeados). Tudo é backwards-compatible — projetos consumidores em ≤ v0.12.x continuam funcionando.
+- Não exige ADR de Constitution.
+
+---
+
 ## [0.12.0] — 2026-05-13
 
 ### Added (Forge-12 Fase 2 — Aprendizado por exemplos + tradução de erros)
@@ -264,7 +329,7 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 - C8.4: workflow `forge-test.template.yml` presente.
 - C8.5: `forge-validate.template.yml` tem job `tdd-red-phase-check`.
 
-**Mapeamento com a Constitution** — F26 em [`docs/forge/decisions.md`](./docs/forge/decisions.md). Pipeline TDD-first não muda nenhum princípio da Constitution (MINOR bump).
+**Mapeamento com a Constitution** — F26-bis em [`docs/forge/decisions.md`](./docs/forge/decisions.md) (originalmente registrada como F26 em 2026-05-12, renomeada para F26-bis em v0.13.0 para evitar colisão com F26 Forge-9). Pipeline TDD-first não muda nenhum princípio da Constitution (MINOR bump).
 
 **Trade-off aceito**: projetos consumidores precisam configurar `test_commands` + ter runner de teste + service container para DB. Em troca, regressão de regra de negócio em Tier C **não passa silenciosamente** — a CI bloqueia mecanicamente PRs que reduzam cobertura abaixo de 95% line em código financeiro.
 

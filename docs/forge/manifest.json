@@ -1,11 +1,12 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.12.0",
+  "manifest_version": "0.13.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.12.0",
-    "phase": "Forge-12 Fase 2 entregue — Aprendizado por exemplos + tradução de erros para humanos. Novos: PLAYGROUND/ com 3 exemplos executáveis (01-agentic-saas-agent, 02-platform-module, 03-hybrid) cada um com README + walkthrough + project.json; COMMON_ERRORS.md (top 10 erros consolidados com causa-raiz + diagnóstico + solução copy-paste + prevenção); hook friendly-errors.sh (PostToolUse) que traduz violações C1-C8 conforme .forge-mode (vibe/dev/agent). F29 em decisions.md formaliza Surface Layer Fase 2. Fase 1 (HELLO + quickstarts + scripts/forge) permanece operacional.",
-    "last_updated": "2026-05-12",
+    "version": "0.13.0",
+    "canonical": true,
+    "phase": "Forge-13 Sprint 1 entregue — Consumer-mode hardening. Novos: forge-doctor.sh suporta `--consumer`/`--canonical` (auto-detect via manifest.framework.canonical) e relaxa órfãos/reviewer*/workflows ausentes em modo consumer (F30); F26 duplicado resolvido (Forge-9 mantém F26 canônica; Forge-10 TDD renomeada para F26-bis, F31); metadados stale do manifest corrigidos (forge-decisions/forge-roadmap/forge-manifest/changelog/claude-md-meta com versões e descrições alinhadas a 0.13.0, F33); reviewer prompt bumpado para v0.5.0 incorporando retroativamente checks C4.tdd.* (F26-bis), C8.master_prompt.* (F27) e C7.surface.* (F28/F29) com política de retro-aplicação; dogfooding CI ativo em .github/workflows/forge-validate.yml. Sem novas capabilities — apenas torna o framework consumível sem fricção.",
+    "last_updated": "2026-05-13",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": "e4c69f3817eac26c",
@@ -282,9 +283,9 @@
           "audience": [
             "framework-maintainer"
           ],
-          "version": "0.9.0",
-          "sha256": "16b09de5dc907d51",
-          "description": "Meta-doc para devs do framework"
+          "version": "0.10.0",
+          "sha256": null,
+          "description": "Meta-doc para devs do framework (atualizado em Forge-11 com seção Master Prompt para projetos consumidores)"
         },
         {
           "id": "claude-md-template",
@@ -304,9 +305,9 @@
           "audience": [
             "all"
           ],
-          "version": "0.9.0",
-          "sha256": "b7a1e2bb397fef2f",
-          "description": "Histórico de versões (entradas até v0.9.0 — Forge-10)"
+          "version": "0.13.0",
+          "sha256": null,
+          "description": "Histórico de versões (entradas até v0.13.0 — Forge-13 consumer-mode hardening)"
         }
       ],
       "forge_docs": [
@@ -314,8 +315,8 @@
           "id": "forge-readme",
           "path": "docs/forge/README.md",
           "type": "documentation",
-          "version": "0.9.0",
-          "sha256": "e85da038e3f4e444",
+          "version": "0.12.0",
+          "sha256": null,
           "linked_principles": [
             "C1",
             "C2",
@@ -326,23 +327,23 @@
             "C7",
             "C8"
           ],
-          "description": "Overview interno do framework"
+          "description": "Overview interno do framework (Forge-0 a Forge-12 Fase 2)"
         },
         {
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.8.0",
-          "sha256": "8ce70b8819b04d40",
-          "description": "Decisões F1-F26 (F26 = delivery-type agnostic, Forge-9)"
+          "version": "0.13.0",
+          "sha256": null,
+          "description": "Decisões F1-F29 + F26-bis (F26 Forge-9 delivery-type agnostic; F26-bis Forge-10 AIOS TDD-first — renomeada em v0.13.0 para resolver colisão de IDs)"
         },
         {
           "id": "forge-roadmap",
           "path": "docs/forge/roadmap.md",
           "type": "documentation",
-          "version": "0.6.0",
-          "sha256": "84477d2f8e378eca",
-          "description": "Roadmap das 7 ondas (incluindo Forge-6 AIOS infraestrutura + Forge-7 AIOS templates portáveis)"
+          "version": "0.12.0",
+          "sha256": null,
+          "description": "Roadmap das 12 ondas (Forge-0 a Forge-12 Fase 2 entregues; Forge-13+ planejadas em AUDIT_2026-05-13_pendencias.md)"
         },
         {
           "id": "forge-aios-telemetry-pattern",
@@ -380,7 +381,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.9.0",
+          "version": "0.13.0",
           "sha256": null,
           "linked_principles": [
             "C6"
@@ -397,6 +398,18 @@
             "C5"
           ],
           "description": "Helper pattern (BMAD) — cache strategy para skills Tier 1 com meta de ≥70% redução de tokens"
+        },
+        {
+          "id": "forge-audit-2026-05-13",
+          "path": "docs/forge/AUDIT_2026-05-13_pendencias.md",
+          "type": "documentation",
+          "version": "1.0.0",
+          "sha256": null,
+          "linked_principles": [
+            "C1",
+            "C7"
+          ],
+          "description": "Auditoria de pendências do framework após adoção real por Acme Social (2026-05-13). 23 pendências catalogadas (6 P0 + 9 P1 + 8 P2); origina Forge-13/14/15 e cataloga F30-F52."
         }
       ]
     },
@@ -955,12 +968,12 @@
         "id": "reviewer-prompt",
         "path": "reviewer/prompt.template.md",
         "type": "reviewer-asset",
-        "version": "0.3.0",
-        "sha256": "8dbc75d6c7e03492",
+        "version": "0.5.0",
+        "sha256": null,
         "audience": [
           "deep-agent"
         ],
-        "description": "System prompt para DeepAgent reviewer — v0.3.0 carrega docs/forge/project.json e ramifica checks por project_type/ai_enabled (Forge-9)"
+        "description": "System prompt para DeepAgent reviewer — v0.5.0 incorpora retroativamente checks C4.tdd.* (Forge-10 / F26-bis), C8.master_prompt.* (Forge-11 / F27) e C7.surface.* (Forge-12 / F28+F29). Política de retro-aplicação para audits geradas com prompt ≤ v0.3.0."
       },
       {
         "id": "reviewer-output-schema",
@@ -1890,12 +1903,13 @@
           "path": "scripts/forge-doctor.sh",
           "type": "script",
           "usage": "standalone CI/PR/pre-push",
-          "version": "0.4.1",
-          "sha256": "e20f27fb733faae9",
+          "version": "0.5.0",
+          "sha256": null,
           "linked_principles": [
-            "C6"
+            "C6",
+            "C7"
           ],
-          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity. Exit 0/1/2."
+          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity, C8 AIOS TDD-ready. v0.5.0 (Forge-13/F30) suporta `--consumer`/`--canonical` (auto-detect via manifest.framework.canonical) e relaxa reviewer/* + órfãos + workflows ausentes em modo consumer. Exit 0/1/2."
         },
         {
           "id": "script-skill-security-scan",

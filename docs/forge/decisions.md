@@ -9,6 +9,8 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 ## F26 (NOVO 2026-05-08) — Forge delivery-type agnostic (Forge-9)
 
+> 📌 **Nota de desambiguação (v0.13.0 / F31)**: Esta é a F26 **canônica** (Forge-9, delivery-type agnostic). Durante a janela 2026-05-12 a 2026-05-13, uma segunda decisão (Forge-10 AIOS TDD-first) foi registrada como "F26" por engano. Esta colisão foi resolvida em v0.13.0 renomeando a segunda para **F26-bis**. Qualquer referência externa a "F26" sem qualificador adicional aponta para esta decisão.
+
 **Decisão**: ✅ **O Forge passa a suportar formalmente quatro `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) e o booleano `ai_enabled`, com matriz de interpretação por princípio**.
 
 **Motivação**: o framework foi forjado a partir do caso Acme SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem Langfuse, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Forge-Platform", duplicando manutenção; ou **(b)** generalizar o Forge para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
@@ -524,7 +526,9 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
-## F26 (NOVO 2026-05-12) — AIOS pipeline TDD-first (Forge-10)
+## F26-bis (NOVO 2026-05-12) — AIOS pipeline TDD-first (Forge-10)
+
+> ⚠️ **Nota histórica (resolvida em v0.13.0 / F31)**: esta decisão foi originalmente registrada como `F26` em 2026-05-12, gerando colisão com F26 (Forge-9 delivery-type agnostic, 2026-05-08). Renomeada para **F26-bis** em v0.13.0 para preservar a F26 original (mais referenciada externamente) e desambiguar para o reviewer DeepAgent. Referências históricas a "F26" no contexto de TDD/Forge-10 devem ser lidas como F26-bis.
 
 **Status**: ✅ **Formalizado em 2026-05-12 — Forge-10 entregue**
 
@@ -881,7 +885,7 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | 0.5.0 | 2026-05-06 | F23 adicionada; Forge-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |
 | 0.6.0 | 2026-05-07 | F24 adicionada; Forge-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |
 | 0.7.0 | 2026-05-07 | F25 adicionada; Forge-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |
-| 0.9.0 | 2026-05-12 | F26 adicionada; Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |
+| 0.9.0 | 2026-05-12 | F26-bis adicionada (originalmente F26 — renomeada em v0.13.0); Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |
 | 0.10.0 | 2026-05-13 | F27 adicionada; Forge-11 master prompt universal entregue | `templates/master-prompt.md` v1.0.0 com detecção automática de project_type + ai_enabled, interpretação adaptativa de C1-C8, roteamento de /acme:* por tipo, invocação correta dos 10 Guardians, output padronizado em 5 seções; substitui instruções manuais nos CLAUDE.md de projetos consumidores; aplica-se a TODOS os project_types (agentic_saas, platform, automation, hybrid) |
 | 0.11.0 | 2026-05-13 | F28 adicionada; Forge-12 Fase 1 camada de usabilidade entregue | HELLO.md (landing adaptativo), QUICKSTART_VIBE.md (CEO sem jargão), QUICKSTART_DEV.md (cheatsheet técnico), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help); reduz TTV de ~3 dias (dev) e ~impossível (CEO) para 30min/5min |
 | 0.12.0 | 2026-05-13 | F29 adicionada; Forge-12 Fase 2 aprendizado por exemplos + tradução de erros entregue | PLAYGROUND/ com 3 exemplos executáveis (agentic_saas / platform / hybrid) cada um com README + walkthrough + project.json; COMMON_ERRORS.md (top 10 erros copy-paste); hook friendly-errors.sh que traduz violações C1-C8 conforme .forge-mode (vibe/dev/agent); fixa lacuna de "leitura sem execução não fixa" e "mensagens hostis no modo vibe" |

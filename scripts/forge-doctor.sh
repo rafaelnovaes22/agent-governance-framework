@@ -1,11 +1,43 @@
 #!/usr/bin/env bash
 # Acme Forge — forge-doctor.sh
 # Valida consistência do framework: JSON, paths, versões, hooks, artefatos.
-# Uso: bash scripts/forge-doctor.sh
+# Uso: bash scripts/forge-doctor.sh [--consumer|--canonical]
 # Exit: 0 = OK, 1 = WARN, 2 = FAIL
+#
+# Modos:
+#   --canonical : valida o repo canônico do Forge (todos os checks, inclusive reviewer/ e órfãos)
+#   --consumer  : valida projeto consumidor (relaxa reviewer/* opcional, pula órfãos, AIOS condicional)
+#   (sem flag)  : auto-detecta via manifest.framework.canonical
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# ─── Detecção de modo (canonical vs consumer) ─────────────────────────
+IS_CONSUMER=""
+for arg in "$@"; do
+  case "$arg" in
+    --consumer)  IS_CONSUMER="true" ;;
+    --canonical) IS_CONSUMER="false" ;;
+  esac
+done
+
+# Auto-detect quando nenhuma flag passada: lê manifest.framework.canonical
+if [[ -z "$IS_CONSUMER" ]] && command -v node >/dev/null 2>&1; then
+  if node -e "
+    const m=JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8'));
+    process.exit(m.framework && m.framework.canonical===true ? 0 : 1);
+  " 2>/dev/null; then
+    IS_CONSUMER="false"
+  else
+    IS_CONSUMER="true"
+  fi
+fi
+# Fallback final se node indisponível
+[[ -z "$IS_CONSUMER" ]] && IS_CONSUMER="false"
+
+MODE_LABEL="canonical (repo do framework)"
+[[ "$IS_CONSUMER" == "true" ]] && MODE_LABEL="consumer (projeto consumidor)"
+printf '┌─ Forge Doctor ─ modo: %s\n' "$MODE_LABEL"
 
 # Acumulador via arquivo temporário — funciona mesmo em subshells e process substitution
 TMP=$(mktemp 2>/dev/null || echo "/tmp/forge-doctor-$$")
@@ -23,14 +55,30 @@ fi
 
 # ─── C1: JSON parse ──────────────────────────────────────────────────
 sep "C1  JSON parse"
+# Arquivos sempre obrigatórios
 for f in docs/forge/manifest.json \
-         reviewer/output-schema.json \
-         reviewer/validation-rules.json \
          .claude/settings.json; do
   if node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" 2>/dev/null; then
     pass "$f"
   else
     fail "$f — JSON inválido ou inacessível"
+  fi
+done
+# Arquivos do reviewer: obrigatórios no canônico, opcionais no consumer
+for f in reviewer/output-schema.json \
+         reviewer/validation-rules.json; do
+  if [[ -f "$f" ]]; then
+    if node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" 2>/dev/null; then
+      pass "$f"
+    else
+      fail "$f — JSON inválido"
+    fi
+  else
+    if [[ "$IS_CONSUMER" == "true" ]]; then
+      pass "$f (ausente — opcional em consumer)"
+    else
+      fail "$f — ausente no repo canônico"
+    fi
   fi
 done
 
@@ -122,6 +170,9 @@ done < <(find hooks -name '*.sh' -print0 2>/dev/null)
 
 # ─── C6: Artefatos órfãos (filesystem sem entry no manifest) ─────────
 sep "C6  Artefatos órfãos (filesystem → manifest)"
+if [[ "$IS_CONSUMER" == "true" ]]; then
+  pass "pulado em modo consumer (manifest local pode não duplicar artefatos canônicos)"
+else
 while IFS= read -r line; do
   case "$line" in
     OK:*)     pass "${line#OK:}" ;;
@@ -158,6 +209,7 @@ scopes.forEach(({dir,ext})=>walk(dir,ext));
 if(orphans.length===0) console.log('OK:nenhum artefato órfão nos escopos verificados');
 else orphans.forEach(o=>console.log('ORPHAN:'+o));
 " 2>/dev/null)
+fi
 
 # ─── C7: Permissions sanity ──────────────────────────────────────────
 sep "C7  Permissions sanity (.claude/settings.json)"
@@ -186,6 +238,10 @@ else issues.forEach(i=>console.log('ISSUE:'+i));
 
 # ─── C8: AIOS templates TDD-ready (Forge v0.9.0+) ────────────────────
 sep "C8  AIOS templates TDD-ready"
+# Em modo consumer: pular se templates/aios/ não existir (consumidor pode não usar AIOS)
+if [[ "$IS_CONSUMER" == "true" && ! -d "templates/aios" ]]; then
+  pass "pulado em modo consumer (templates/aios/ ausente — projeto não usa AIOS)"
+else
 # C8.1 — test_agent/config.json.template declara os modos red/verify
 TA_CFG="templates/aios/agents/test_agent/config.json.template"
 if [[ -f "$TA_CFG" ]]; then
@@ -238,6 +294,8 @@ fi
 TEST_WF="templates/cicd/github-actions-test.template.yml"
 if [[ -f "$TEST_WF" ]]; then
   pass "templates/cicd/github-actions-test.template.yml presente"
+elif [[ "$IS_CONSUMER" == "true" ]]; then
+  pass "$TEST_WF ausente — opcional em consumer (copiar de templates canônicos se usar testes)"
 else
   fail "$TEST_WF — workflow de testes do projeto cliente ausente"
 fi
@@ -246,9 +304,12 @@ fi
 VAL_WF="templates/cicd/github-actions-validate.template.yml"
 if [[ -f "$VAL_WF" ]] && grep -q 'tdd-red-phase-check:' "$VAL_WF" 2>/dev/null; then
   pass "validate workflow inclui gate G6 tdd-red-phase-check"
+elif [[ "$IS_CONSUMER" == "true" && ! -f "$VAL_WF" ]]; then
+  pass "$VAL_WF ausente — opcional em consumer"
 else
   fail "$VAL_WF sem job tdd-red-phase-check (G6)"
 fi
+fi  # fim do bloco C8 (else do skip-consumer-sem-aios)
 
 # ─── Sumário ─────────────────────────────────────────────────────────
 PASS_N=$(grep -c '^P$' "$TMP" 2>/dev/null) || PASS_N=0
