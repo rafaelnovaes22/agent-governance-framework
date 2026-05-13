@@ -1,10 +1,10 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.10.0",
+  "manifest_version": "0.11.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.10.0",
-    "phase": "Forge-11 entregue — Master prompt universal de orquestração para projetos consumidores. Novo `templates/master-prompt.md` v1.0.0 que detecta `project_type` (agentic_saas/platform/automation/hybrid) + `ai_enabled` via manifest do consumidor e adapta interpretação de C1-C8, roteamento de slash commands /acme:* e invocação de Guardians. Substitui necessidade de instruções manuais por projeto e formaliza F27 em decisions.md. Forge-10 (AIOS TDD-first) permanece operacional.",
+    "version": "0.11.0",
+    "phase": "Forge-12 Fase 1 entregue — Camada de usabilidade adaptativa por persona. Novos: HELLO.md (landing por persona vibe/dev/agent), QUICKSTART_VIBE.md (CEO/founder, sem jargão), QUICKSTART_DEV.md (cheatsheet técnico 1 página), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help). F28 em decisions.md formaliza separação Surface/Translator/Core. Forge-11 (master prompt) e Forge-10 (AIOS TDD-first) permanecem operacionais.",
     "last_updated": "2026-05-12",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -1896,6 +1896,18 @@
             "C8"
           ],
           "description": "Escaneia skill files (S1-S5: secrets, URLs, comandos destrutivos, bypass, frontmatter). Uso: bash hooks/scripts/skill-security-scan.sh"
+        },
+        {
+          "id": "script-forge-cli",
+          "path": "scripts/forge",
+          "type": "script",
+          "usage": "interactive CLI wrapper",
+          "version": "1.0.0",
+          "sha256": "51a65deaa040957f",
+          "linked_principles": [
+            "C7"
+          ],
+          "description": "Forge-12 — CLI wrapper unificado. Verbos: start (wizard interativo), doctor (alias forge-doctor.sh), version, mode <vibe|dev|agent>, help. Detecta persona e salva preferência em .forge-mode. Compatível bash 4+ (git bash no Windows)."
         }
       ]
     }

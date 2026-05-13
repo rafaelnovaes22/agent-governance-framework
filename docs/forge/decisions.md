@@ -1,7 +1,7 @@
-# Acme Forge — Decisões F1–F27
+# Acme Forge — Decisões F1–F28
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.10.0 (Forge-11)
-> **Versão atual**: 0.10.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.11.0 (Forge-12 Fase 1)
+> **Versão atual**: 0.11.0
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
 
@@ -682,6 +682,98 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 ---
 
+## F28 (NOVO 2026-05-13) — Camada de usabilidade adaptativa por persona (Forge-12 Fase 1)
+
+**Status**: ✅ **Fase 1 formalizada em 2026-05-13 — Forge-12 Fase 1 entregue**
+
+**Contexto**: Após Forge-11 (master prompt universal), o framework passou a ter um ponto de entrada técnico canônico para projetos consumidores. Porém, esse ponto de entrada **assume um operador familiar com conceitos do Forge** (slash commands `/acme:*`, Guardians, Constitution C1-C8, ADRs). Duas personas reais não atendidas ficaram explicitamente identificadas:
+
+1. **CEO / founder vibecodando** — usa Claude Code interativo, não usa terminal nem git, não conhece nem precisa conhecer conceitos como Constitution ou ADR. Digita pedidos em linguagem natural ("crie um carrossel sobre IA") e espera resultado. Hoje o Forge era invisível para esta persona, e os erros eram intraduzíveis (mensagens como "C3 violation: cost_per_outcome > 0.25" são incompreensíveis).
+2. **Dev novo no time** — entende git/terminal/JSON/Markdown, mas não conhece os ~100KB de documentação do Forge. Tempo até primeira contribuição útil: 2-3 dias só lendo. A documentação otimiza para **referência completa**, não para **onboarding rápido**.
+
+**Problema concreto**: o Forge resolvia governança (correção) mas não usabilidade (acesso). Sem camada de superfície, o framework efetivamente excluía dois públicos importantes — o decisor de negócio (que paga) e o dev recém-contratado (que vai construir).
+
+**Decisão**: criar uma **camada de usabilidade adaptativa** sobre o Forge existente, **sem mudar a base técnica**. A camada se organiza em 3 níveis:
+
+```
+SURFACE (o que o usuário vê)   → HELLO.md + QUICKSTART_VIBE/DEV + scripts/forge
+       ↓
+TRANSLATOR (intenção ↔ Forge)  → master-prompt.md (já em Forge-11) + modo persona
+       ↓
+CORE (governança, não muda)    → Constitution + Guardians + Hooks + Templates
+```
+
+**Princípio fundador da camada Surface**: **traduzir, não esconder**. A Constitution permanece visível e canônica para quem quer aprofundar. A camada de superfície apenas adapta a linguagem ao público.
+
+**Mudanças (Fase 1 — entregues em v0.11.0)**:
+
+1. **`HELLO.md` (raiz)** — landing adaptativo. Pergunta "quem é você?" e direciona para 1 de 4 caminhos: vibe (CEO), dev (programador), agent (IA), wizard interativo (não sei). Substitui a "porta da frente" técnica do README como entrada para humanos.
+
+2. **`QUICKSTART_VIBE.md` (raiz)** — guia para CEO em linguagem natural. 5 min de leitura. Sem jargão. Inclui:
+   - 3 exemplos do mundo real (criar post, criar agente, entender erro)
+   - Glossário leigo (Forge = "regras invisíveis", Outcome = "o que o cliente paga", etc.)
+   - 5 receitas práticas (templates de pedido natural)
+   - Sinais de "tá tudo bem" vs "para aí"
+   - O que fazer quando der errado (frases mágicas)
+   - Como pedir bem (3 elementos obrigatórios: O que / Para quem / Em qual canal)
+
+3. **`QUICKSTART_DEV.md` (raiz)** — cheatsheet técnico de 1 página. 15 min de leitura. Otimizado para **scanning**:
+   - Estrutura do repo em 30 segundos
+   - Setup em 3 minutos
+   - Tabela dos 15 slash commands + scripts bash
+   - "Como adicionar X" (skill, command, Guardian, hook, template)
+   - Tabela dos 10 Guardians com modo (ATIVO/CONSULTOR/PASSIVO)
+   - Tabela dos 9 hooks + o que cada um bloqueia
+   - Top 10 erros + como resolver
+   - Loop de desenvolvimento (do diff ao push)
+   - Princípios mentais
+
+4. **`scripts/forge` (executável bash)** — CLI wrapper unificado com 5 verbos:
+   - `start` — wizard interativo, detecta persona, salva preferência em `.forge-mode` (gitignored)
+   - `doctor` — alias para `scripts/forge-doctor.sh`
+   - `version` — versão + fase Forge + modo local
+   - `mode <vibe|dev|agent>` — define modo de operação
+   - `help [verbo]` — ajuda contextual
+   
+   Compatível com bash 4+ (git bash no Windows). Não substitui slash commands `/acme:*` (esses continuam sendo invocados dentro do Claude Code). Manifesta-se também na detecção de path absoluto Unix↔Windows (uso de `cd` para path relativo evita problemas no Node).
+
+**Mudanças (manifest.json)**:
+
+5. Nova entrada `script-forge-cli` em `artifacts.scripts[]`, com `linked_principles: [C7]` (portability — o wrapper é portável bash sem dependências externas além de jq/node opcionais com fallback grep).
+
+**Gates novos (consolidando v0.11.0)**:
+
+| Gate | Onde | O que valida |
+|---|---|---|
+| Persona-aware entry | HELLO.md | Usuário escolhe persona antes de continuar; previne onboarding desalinhado |
+| Vibe Mode glossary | QUICKSTART_VIBE.md | Termos técnicos têm tradução leiga obrigatória |
+| Dev cheatsheet scannability | QUICKSTART_DEV.md | Tudo cabe em 1 página A4 quando renderizado |
+| CLI verb whitelist | scripts/forge | Apenas 5 verbos canônicos; verbos desconhecidos retornam erro com sugestão |
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-12 Fase 1 aplica |
+|---|---|
+| C1 (Diagnose-before-build) | QUICKSTART_VIBE.md ensina CEO a sempre confirmar antes do agente executar |
+| C2 (Outcome contratual) | QUICKSTART_VIBE.md inclui receita "como pedir bem" (3 elementos obrigatórios — força outcome implícito) |
+| C3 (Unit economics) | QUICKSTART_VIBE.md mostra exemplo "custo estimado: R$ 2,40" antes de executar — transparência de C3 para não-técnico |
+| C4 (Verifiable evaluation) | scripts/forge doctor é primeira porta de entrada para validação |
+| C5 (ADR) | QUICKSTART_DEV.md tem section "Como adicionar X" referenciando ADR para mudanças arquiteturais |
+| C6 (Telemetry) | Glossário leigo traduz "Langfuse" como "registro do que aconteceu" para CEO |
+| C7 (Portability) | scripts/forge é o exemplo canônico de portabilidade: bash puro, fallback graceful, detecção de jq/node opcionais |
+| C8 (Anti-heroic) | HELLO.md elimina dependência de "alguém que já conhece o Forge" — qualquer um se onboarda sozinho |
+
+**Decisão de versionamento**: MINOR bump (v0.10.0 → v0.11.0). Adiciona capability nova (camada de surface) sem mudar Constitution ou quebrar APIs. Projetos consumidores em Forge ≤ 0.10.x continuam funcionando — toda a Fase 1 é **opcional** e **adicional**. A camada Surface não substitui nada existente, apenas adiciona caminhos alternativos.
+
+**Trade-off aceito**: Forge-12 Fase 1 cria **superfície de manutenção adicional** — sempre que adicionarmos verb/command/hook novo, os 3 quickstarts podem precisar atualizar. Em troca, o framework passa a ter portas de entrada distintas para 3 personas reais, reduzindo TTV (time-to-value) de ~3 dias (dev) e impossível (CEO) para ~30min/5min respectivamente.
+
+**Próximas evoluções previstas (Forge-12 Fases 2-3)**:
+
+- **Fase 2** (próxima): `PLAYGROUND/` com 3 exemplos executáveis para dev; `COMMON_ERRORS.md` com top 10 erros e soluções; hook `friendly-errors` que traduz erros C1-C8 para humano.
+- **Fase 3** (depois de Fase 2 validada): `GLOSSARY_PLAIN.md` standalone (hoje embutido no VIBE); `forge-router` subagent (referenciado em F27.x — automação de linguagem natural → slash commands); modo persona detectado automaticamente baseado em comportamento.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -697,3 +789,4 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | 0.7.0 | 2026-05-07 | F25 adicionada; Forge-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |
 | 0.9.0 | 2026-05-12 | F26 adicionada; Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |
 | 0.10.0 | 2026-05-13 | F27 adicionada; Forge-11 master prompt universal entregue | `templates/master-prompt.md` v1.0.0 com detecção automática de project_type + ai_enabled, interpretação adaptativa de C1-C8, roteamento de /acme:* por tipo, invocação correta dos 10 Guardians, output padronizado em 5 seções; substitui instruções manuais nos CLAUDE.md de projetos consumidores; aplica-se a TODOS os project_types (agentic_saas, platform, automation, hybrid) |
+| 0.11.0 | 2026-05-13 | F28 adicionada; Forge-12 Fase 1 camada de usabilidade entregue | HELLO.md (landing adaptativo), QUICKSTART_VIBE.md (CEO sem jargão), QUICKSTART_DEV.md (cheatsheet técnico), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help); reduz TTV de ~3 dias (dev) e ~impossível (CEO) para 30min/5min |

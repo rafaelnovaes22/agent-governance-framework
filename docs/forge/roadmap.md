@@ -1,13 +1,13 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0) ✅ Forge-12 Fase 1 usabilidade adaptativa (v0.11.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`; ⏳ Forge-12 Fases 2-3 (Playground, friendly-errors hook, forge-router subagent)
 > **Última atualização**: 2026-05-13
-> **Total estimado**: 19–26 dias úteis (paralelo às ondas Acme)
+> **Total estimado**: 20–27 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
 ---
 
-## Visão geral das 11 ondas
+## Visão geral das 12 ondas
 
 | Onda | Foco | Estimativa | Bloqueia |
 |---|---|---|---|
@@ -23,6 +23,7 @@
 | **Forge-9** | Delivery-type agnostic — project_type/ai_enabled, templates platform, reviewer ramificado | 1 dia | adoção por `school-platform` |
 | **Forge-10** | AIOS TDD-first — test_agent red/verify, coverage gate por tier, workflow forge-test | 1 dia | qualquer SKU/módulo Tier C em produção |
 | **Forge-11** | Master prompt universal — orquestrador para projetos consumidores | 0.5 dia | adoção por Acme Social, Aicfo, SchoolPlatform |
+| **Forge-12** | Usabilidade adaptativa por persona — Surface layer (HELLO + quickstarts + forge CLI) | Fase 1: 0.5 dia; Fases 2-3: +3 dias | adoção real por CEO + onboarding rápido de devs |
 
 ---
 
@@ -407,6 +408,55 @@
 - ✅ `forge-doctor.sh` valida sem warnings — **25 OK, 0 WARN, 0 FAIL**
 - ⏳ Pelo menos 1 projeto consumidor adota o master prompt em seu CLAUDE.md — **aguardando primeira adoção**
 - ⏳ Primeiro caso real onde o master prompt acelera onboarding de novo consumidor — **aguardando**
+
+---
+
+## Forge-12 — Usabilidade adaptativa por persona (Fase 1 ✅ v0.11.0)
+
+**Objetivo**: o Forge passa a ter **portas de entrada distintas para 3 personas reais** — CEO/founder vibecodando, dev novo no time, agente IA — sem mudar a base técnica. Reduz time-to-value de ~3 dias (dev) e ~impossível (CEO) para 30min/5min.
+
+> **Contexto**: Forge-11 entregou ponto de entrada técnico canônico (master prompt), mas assumia operador familiar com `/acme:*`, Guardians, Constitution, ADRs. CEO vibecoder e dev recém-contratado ficavam de fora. Forge-12 cria camada Surface sobre Core, traduzindo sem esconder.
+
+**Arquitetura em 3 camadas:**
+```
+SURFACE     → HELLO.md + QUICKSTART_VIBE/DEV + scripts/forge        (NOVA — Forge-12)
+TRANSLATOR  → templates/master-prompt.md + modo persona             (Forge-11)
+CORE        → Constitution + Guardians + Hooks + Templates          (Forge-0..10)
+```
+
+### Fase 1 — Entregue em v0.11.0 (2026-05-13)
+
+#### Tasks
+
+- [x] **F12.1** `HELLO.md` (raiz) — landing adaptativo com 4 caminhos (vibe/dev/agent/wizard)
+- [x] **F12.2** `QUICKSTART_VIBE.md` (raiz) — guia leigo 5 min com glossário, receitas e frases mágicas
+- [x] **F12.3** `QUICKSTART_DEV.md` (raiz) — cheatsheet técnico 1 página otimizado para scanning
+- [x] **F12.4** `scripts/forge` (executável bash) — CLI wrapper com 5 verbos canônicos
+- [x] **F12.5** Entrada `script-forge-cli` no manifest com `linked_principles: [C7]`
+- [x] **F12.6** `.gitignore` atualizado para `.forge-mode` (preferência local de modo)
+- [x] **F12.7** F28 em `decisions.md` formalizando arquitetura Surface/Translator/Core
+
+#### Critério de pronto (Fase 1)
+
+- ✅ HELLO.md presente e direciona para 4 caminhos verificáveis — **entregue**
+- ✅ QUICKSTART_VIBE.md sem termos técnicos não traduzidos — **entregue**
+- ✅ QUICKSTART_DEV.md cabe em 1 página A4 renderizada — **entregue**
+- ✅ `scripts/forge start` interage com input do usuário e salva `.forge-mode` — **entregue**
+- ✅ `forge-doctor.sh` valida sem warnings — **25 OK, 0 WARN, 0 FAIL**
+- ⏳ Pelo menos 1 CEO real (Ana) usa modo vibe em workflow real — **aguardando**
+- ⏳ Pelo menos 1 dev recém-contratado faz primeiro PR em ≤ 1 dia usando os quickstarts — **aguardando**
+
+### Fase 2 — Planejada (depois de Fase 1 validada)
+
+- [ ] **F12.8** `PLAYGROUND/` com 3 exemplos executáveis end-to-end (criar agente / módulo platform / módulo híbrido)
+- [ ] **F12.9** `COMMON_ERRORS.md` top 10 erros consolidados com causa-raiz + solução copy-paste
+- [ ] **F12.10** Hook `friendly-errors` (PostToolUse) que intercepta mensagens C1-C8 e traduz para humano (modo vibe lê de `.forge-mode`)
+
+### Fase 3 — Planejada (depois de Fase 2 validada)
+
+- [ ] **F12.11** `GLOSSARY_PLAIN.md` standalone (hoje embutido no VIBE)
+- [ ] **F12.12** `forge-router` subagent — referenciado em F27.x — lê input em linguagem natural e dispara pipeline correto sem operador conhecer slash commands
+- [ ] **F12.13** Modo persona auto-detectado baseado em comportamento (sem precisar `forge mode`)
 
 ---
 

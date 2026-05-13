@@ -9,6 +9,72 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.11.0] — 2026-05-13
+
+### Added (Forge-12 Fase 1 — Camada de usabilidade adaptativa por persona)
+
+**O Forge passa a ter portas de entrada distintas para 3 personas reais (CEO vibecoder, dev novo no time, agente IA) sem mudar a base técnica. Foco em reduzir tempo-até-primeira-contribuição de dias para minutos.**
+
+**Novos arquivos na raiz:**
+
+- **`HELLO.md`** — landing adaptativo. Pergunta "quem é você?" e direciona para 1 de 4 caminhos:
+  - 🎨 CEO / vibecoder → `QUICKSTART_VIBE.md`
+  - 🛠️ dev → `QUICKSTART_DEV.md`
+  - 🤖 agente IA → `templates/master-prompt.md`
+  - 🆘 não sei → wizard interativo (`bash scripts/forge start`)
+
+- **`QUICKSTART_VIBE.md`** — guia em linguagem natural, sem jargão técnico (5 min de leitura). Inclui:
+  - 3 exemplos do mundo real (criar carrossel, criar agente, entender erro)
+  - Glossário leigo (Forge = "regras invisíveis"; Outcome = "o que o cliente paga")
+  - 5 receitas práticas (templates de pedido natural)
+  - Sinais de "tá tudo bem" vs "para aí"
+  - Frases mágicas para socorro ("me explica em português")
+  - Como pedir bem (3 elementos obrigatórios: O que / Para quem / Em qual canal)
+
+- **`QUICKSTART_DEV.md`** — cheatsheet técnico de 1 página (15 min). Otimizado para scanning:
+  - Estrutura do repo em 30s
+  - Setup em 3 min
+  - Tabelas dos 15 slash commands + 10 Guardians + 9 hooks + 8 princípios C1-C8
+  - "Como adicionar X" (skill, command, Guardian, hook, template)
+  - Top 10 erros + como resolver
+  - Loop de desenvolvimento (do diff ao push)
+  - Checklist pré-PR
+
+**Novo script:**
+
+- **`scripts/forge`** — CLI wrapper unificado (bash 4+, compatível Windows via git bash). 5 verbos canônicos:
+  - `start` — wizard interativo (detecta persona, salva em `.forge-mode` gitignored)
+  - `doctor` — alias para `scripts/forge-doctor.sh`
+  - `version` — versão + fase Forge + modo local
+  - `mode <vibe|dev|agent>` — define modo de operação
+  - `help [verbo]` — ajuda contextual
+  
+  Fallback graceful: usa `jq` se disponível, depois `node`, depois `grep`. Cores ANSI apenas se terminal suporta. Resolução de path Unix↔Windows via `cd` para path relativo (evita problemas no Node).
+
+**Mudanças em manifest.json:**
+
+- Nova entrada `script-forge-cli` em `artifacts.scripts[]` v1.0.0 com `linked_principles: [C7]` (portability).
+
+**Mudanças em .gitignore:**
+
+- `.forge-mode` adicionado (preferência de modo por usuário, não commitar).
+
+**Decisões formalizadas:**
+
+- **F28** em `docs/forge/decisions.md` registrando arquitetura Surface/Translator/Core, princípio fundador ("traduzir, não esconder"), gates novos (persona-aware entry, vibe glossary, dev cheatsheet scannability, CLI verb whitelist), mapeamento com Constitution e trade-off aceito.
+
+### Próximas evoluções previstas (Forge-12 Fases 2-3)
+
+- **Fase 2** — `PLAYGROUND/` com 3 exemplos executáveis para dev; `COMMON_ERRORS.md` top 10 erros e soluções; hook `friendly-errors` que traduz erros C1-C8 para humano.
+- **Fase 3** — `GLOSSARY_PLAIN.md` standalone; `forge-router` subagent (automação linguagem natural → slash commands); modo persona detectado automaticamente.
+
+### Versionamento
+
+- **MINOR bump** (v0.10.0 → v0.11.0): adiciona capability nova (camada de surface) sem mudar Constitution ou quebrar APIs. Projetos consumidores em Forge ≤ 0.10.x continuam funcionando — toda Fase 1 é **opcional** e **adicional**.
+- Não exige ADR de Constitution.
+
+---
+
 ## [0.10.0] — 2026-05-13
 
 ### Added (Forge-11 — Master prompt universal para projetos consumidores)

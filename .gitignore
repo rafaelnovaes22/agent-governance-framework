@@ -9,6 +9,9 @@ Thumbs.db
 # Claude Code per-developer overrides (NUNCA commitar)
 .claude/settings.local.json
 
+# Forge-12 — preferência de modo por usuário (vibe/dev/agent)
+.forge-mode
+
 # Audit outputs (geram localmente; contêm dados de produção)
 docs/forge/audits/
 docs/forge/session-gate-reports/
