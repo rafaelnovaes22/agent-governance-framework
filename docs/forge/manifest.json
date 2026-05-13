@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.13.0",
+  "manifest_version": "0.14.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "canonical": true,
-    "phase": "Forge-13 Sprint 1 entregue — Consumer-mode hardening. Novos: forge-doctor.sh suporta `--consumer`/`--canonical` (auto-detect via manifest.framework.canonical) e relaxa órfãos/reviewer*/workflows ausentes em modo consumer (F30); F26 duplicado resolvido (Forge-9 mantém F26 canônica; Forge-10 TDD renomeada para F26-bis, F31); metadados stale do manifest corrigidos (forge-decisions/forge-roadmap/forge-manifest/changelog/claude-md-meta com versões e descrições alinhadas a 0.13.0, F33); reviewer prompt bumpado para v0.5.0 incorporando retroativamente checks C4.tdd.* (F26-bis), C8.master_prompt.* (F27) e C7.surface.* (F28/F29) com política de retro-aplicação; dogfooding CI ativo em .github/workflows/forge-validate.yml. Sem novas capabilities — apenas torna o framework consumível sem fricção.",
+    "phase": "Forge-13 Sprint 2 entregue — Consumer-mode automation. Novos: scripts/forge-sync.sh (F32) sincroniza artefatos canônicos para consumer com guard contra cwd canônico, preservação de settings/manifest/CLAUDE.md locais, suporte a --dry-run/--from/--force/--verbose, audit trail em docs/forge/sync-history.md, e cygpath para compat Windows; forge-doctor C9 (F37) detecta drift quando framework.framework_version_required < canônico atual (resolve FORGE_PATH ou ../agent-governance-framework/ ou ~/Projetos/agent-governance-framework/); INSTALL.md (F42) reescrito para liderar com forge-sync.sh + Surface-aware persona routing (vibe/dev/agent/wizard). Manual permanece como fallback documentado.",
     "last_updated": "2026-05-13",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -237,9 +237,9 @@
           "audience": [
             "human-developer"
           ],
-          "version": "0.9.0",
-          "sha256": "1d605d07dd27683f",
-          "description": "Instalação manual detalhada"
+          "version": "0.14.0",
+          "sha256": null,
+          "description": "Instalação automatizada via forge-sync.sh + Surface-aware (persona routing). Manual permanece como fallback. v0.14.0 (Forge-13 Sprint 2)."
         },
         {
           "id": "contributing",
@@ -305,9 +305,9 @@
           "audience": [
             "all"
           ],
-          "version": "0.13.0",
+          "version": "0.14.0",
           "sha256": null,
-          "description": "Histórico de versões (entradas até v0.13.0 — Forge-13 consumer-mode hardening)"
+          "description": "Histórico de versões (entradas até v0.14.0 — Forge-13 Sprint 2 consumer-mode automation)"
         }
       ],
       "forge_docs": [
@@ -333,9 +333,9 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.13.0",
+          "version": "0.14.0",
           "sha256": null,
-          "description": "Decisões F1-F29 + F26-bis (F26 Forge-9 delivery-type agnostic; F26-bis Forge-10 AIOS TDD-first — renomeada em v0.13.0 para resolver colisão de IDs)"
+          "description": "Decisões F1-F29 + F26-bis (F26 Forge-9 delivery-type agnostic; F26-bis Forge-10 AIOS TDD-first). Atualizada em v0.14.0 para refletir Sprint 2 do Forge-13 (sync + drift + INSTALL refresh)."
         },
         {
           "id": "forge-roadmap",
@@ -381,7 +381,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.13.0",
+          "version": "0.14.0",
           "sha256": null,
           "linked_principles": [
             "C6"
@@ -1899,17 +1899,29 @@
       ],
       "scripts": [
         {
+          "id": "script-forge-sync",
+          "path": "scripts/forge-sync.sh",
+          "type": "script",
+          "usage": "consumer-side — copia artefatos canônicos do Forge para o projeto consumidor",
+          "version": "1.0.0",
+          "sha256": null,
+          "linked_principles": [
+            "C7"
+          ],
+          "description": "Sincroniza .claude/{CONSTITUTION,agents,commands,skills}, hooks/, scripts/forge*, templates/, reviewer/* a partir do repo Forge canônico para o consumer. Preserva settings.json local, manifest local (atualizando apenas framework_version_required + last_synced_at), e CLAUDE.md local. Suporta --dry-run, --from, --force, --verbose. Guard: refuse se cwd for canônico. Audit trail em docs/forge/sync-history.md."
+        },
+        {
           "id": "script-forge-doctor",
           "path": "scripts/forge-doctor.sh",
           "type": "script",
           "usage": "standalone CI/PR/pre-push",
-          "version": "0.5.0",
+          "version": "0.6.0",
           "sha256": null,
           "linked_principles": [
             "C6",
             "C7"
           ],
-          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity, C8 AIOS TDD-ready. v0.5.0 (Forge-13/F30) suporta `--consumer`/`--canonical` (auto-detect via manifest.framework.canonical) e relaxa reviewer/* + órfãos + workflows ausentes em modo consumer. Exit 0/1/2."
+          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity, C8 AIOS TDD-ready, C9 drift vs canônico (consumer-only). v0.6.0 (Forge-13 Sprint 2 / F37) adiciona C9 que compara framework_version_required do consumer com canônico atual via FORGE_PATH/../agent-governance-framework/~/Projetos/agent-governance-framework. v0.5.0 (Sprint 1 / F30) suporta --consumer/--canonical. Exit 0/1/2."
         },
         {
           "id": "script-skill-security-scan",

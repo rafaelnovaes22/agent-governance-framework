@@ -9,6 +9,60 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.14.0] — 2026-05-13
+
+### Added (Forge-13 Sprint 2 — Consumer-mode automation)
+
+**Fechamento da onda Forge-13: o consumidor passa a fazer upgrade do framework com um comando.**
+
+**`scripts/forge-sync.sh` v1.0.0 (F32):**
+
+- Novo script consumer-side que sincroniza artefatos canônicos do Forge para o projeto consumidor sem fricção.
+- **Guard contra cwd canônico**: se executado dentro do repo Forge canônico, falha com mensagem clara — sync é unidirecional (canônico → consumer).
+- **Paths sincronizados** (lista canônica explícita no script para evitar deriva via manifest):
+  - `.claude/CONSTITUTION.md` + `.claude/{agents,commands,skills}/`
+  - `hooks/{pre-tool-use,post-tool-use,stop}/` + `hooks/scripts/`
+  - `scripts/forge-doctor.sh` + `scripts/forge` (a próprio `forge-sync.sh` é copiado também para próximos upgrades)
+  - `templates/` inteiro (specs platform/agentic, AIOS, CI/CD, master-prompt)
+  - `reviewer/{prompt.template.md, output-schema.json, validation-rules.json, example-audit.md, README.md}` + `reviewer/deepagents/skills/`
+- **Paths preservados** (nunca sobrescreve): `.claude/settings.json`, `.claude/settings.local.json`, `docs/forge/manifest.json`, `docs/forge/project.json`, `CLAUDE.md`.
+- **Manifest update controlado**: atualiza no consumer apenas `framework.framework_version_required` + `framework.last_synced_at`; mantém `framework.version` (= última versão aplicada com sucesso) intocada para audit trail.
+- Flags: `--dry-run` (mostra diff sem escrever), `--from <path>` (alternativa a `FORGE_PATH` env e auto-detect), `--force`, `--verbose`, `--help`.
+- Audit trail: cria/atualiza `docs/forge/sync-history.md` no consumer com entrada (data, versão canônica, versão anterior, ADD/UPDATE/UNCHANGED/SKIPPED).
+- **Compat Windows**: helper `to_node_path` converte paths Git Bash (`/c/...`) via `cygpath -m` antes de passar a `node`.
+
+**`scripts/forge-doctor.sh` v0.6.0 — novo check C9 drift (F37):**
+
+- Em modo consumer, doctor agora compara `framework.framework_version_required` (set pelo forge-sync) com versão atual do canônico local.
+- Resolução do canônico: `FORGE_PATH` env → `../agent-governance-framework/` → `~/Projetos/agent-governance-framework/` → PASS com nota de "drift check pulado".
+- Drift detectado vira WARN com mensagem actionable: `consumer espera vX.Y.Z; canônico atual=A.B.C — rode 'bash scripts/forge-sync.sh'`.
+- Sem rede, sem dependência externa. Compat Windows via mesmo `to_node_path` helper.
+
+**`INSTALL.md` v0.14.0 (F42):**
+
+- Reescrito para liderar com **Surface-aware persona routing** (tabela CEO/dev/agente/wizard logo no topo).
+- Caminho principal: 3 comandos (`git clone`, `cd`, `forge-sync.sh`) — não mais 6 passos manuais.
+- Bloco de **upgrade** explicado com diff prévio (`--dry-run`) e commit message sugerido.
+- Manual instalado movido para "fallback" (preservado para auditabilidade).
+- Validação pós-instalação expandida: tabela de 6 checks (consumer doctor, sync history, project.json, Constitution, master-prompt referência, Claude Code carrega).
+- 4 soluções de problemas cobrindo drift + manifest perdido + hashes Windows + Constitution não carregada.
+
+**Manifest:**
+
+- `install` 0.9.0 → 0.14.0 (descrição reescrita).
+- `script-forge-doctor` 0.5.0 → 0.6.0 (linked_principles, descrição inclui C9).
+- Nova entrada `script-forge-sync` v1.0.0.
+- `forge-decisions` 0.13.0 → 0.14.0 (descrição inclui Sprint 2).
+- `forge-manifest` 0.13.0 → 0.14.0.
+- `changelog` 0.13.0 → 0.14.0.
+
+### Versionamento
+
+- **MINOR bump** (v0.13.0 → v0.14.0): adiciona capability nova (sync automation + drift detection + INSTALL reescrito). Backwards-compatible — projetos consumidores em ≤ v0.13.x continuam funcionando; sync é opcional, manual permanece como fallback.
+- Não exige ADR de Constitution.
+
+---
+
 ## [0.13.0] — 2026-05-13
 
 ### Added (Forge-13 Sprint 1 — Consumer-mode hardening)

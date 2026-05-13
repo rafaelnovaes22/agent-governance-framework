@@ -39,6 +39,16 @@ MODE_LABEL="canonical (repo do framework)"
 [[ "$IS_CONSUMER" == "true" ]] && MODE_LABEL="consumer (projeto consumidor)"
 printf '┌─ Forge Doctor ─ modo: %s\n' "$MODE_LABEL"
 
+# ─── Helper: path Git Bash → Node-friendly (compat Windows) ──────────
+to_node_path() {
+  local p="$1"
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -m "$p" 2>/dev/null || echo "$p"
+  else
+    echo "$p"
+  fi
+}
+
 # Acumulador via arquivo temporário — funciona mesmo em subshells e process substitution
 TMP=$(mktemp 2>/dev/null || echo "/tmp/forge-doctor-$$")
 trap 'rm -f "$TMP"' EXIT
@@ -310,6 +320,45 @@ else
   fail "$VAL_WF sem job tdd-red-phase-check (G6)"
 fi
 fi  # fim do bloco C8 (else do skip-consumer-sem-aios)
+
+# ─── C9 (apenas consumer): Drift vs canônico ─────────────────────────
+# Compara framework.framework_version_required (set pelo forge-sync) com
+# a versão atual do Forge canônico local (resolvido via FORGE_PATH env ou
+# diretório adjacente ../agent-governance-framework/). Sem rede, sem dependência externa.
+if [[ "$IS_CONSUMER" == "true" ]]; then
+  sep "C9  Drift vs canônico (consumer-only)"
+  CANON_PATH=""
+  if [[ -n "${FORGE_PATH:-}" ]] && [[ -f "$FORGE_PATH/docs/forge/manifest.json" ]]; then
+    CANON_PATH="$FORGE_PATH"
+  elif [[ -f "../agent-governance-framework/docs/forge/manifest.json" ]]; then
+    CANON_PATH="../agent-governance-framework"
+  elif [[ -f "$HOME/Projetos/agent-governance-framework/docs/forge/manifest.json" ]]; then
+    CANON_PATH="$HOME/Projetos/agent-governance-framework"
+  fi
+
+  if [[ -z "$CANON_PATH" ]]; then
+    pass "drift check pulado — Forge canônico não resolvido (defina FORGE_PATH ou clone em ../agent-governance-framework/)"
+  else
+    DRIFT_CONSUMER_M="$(to_node_path "docs/forge/manifest.json")"
+    DRIFT_CANON_M="$(to_node_path "$CANON_PATH/docs/forge/manifest.json")"
+    DRIFT_RESULT=$(node -e "
+      const fs=require('fs');
+      const cm=JSON.parse(fs.readFileSync('$DRIFT_CONSUMER_M','utf8'));
+      const km=JSON.parse(fs.readFileSync('$DRIFT_CANON_M','utf8'));
+      const required=(cm.framework&&cm.framework.framework_version_required)||(cm.framework&&cm.framework.version)||'unknown';
+      const canon=km.framework&&km.framework.version||'unknown';
+      const synced=cm.framework&&cm.framework.last_synced_at||'never';
+      if(required===canon) console.log('OK:em dia com canônico v'+canon+' (last_synced_at='+synced+')');
+      else console.log('DRIFT:consumer espera v'+required+' (synced='+synced+'); canônico atual='+canon+' — rode \`bash scripts/forge-sync.sh\`');
+    " 2>/dev/null) || DRIFT_RESULT="ERROR:falha ao comparar manifests"
+
+    case "$DRIFT_RESULT" in
+      OK:*)    pass "${DRIFT_RESULT#OK:}" ;;
+      DRIFT:*) warn "${DRIFT_RESULT#DRIFT:}" ;;
+      *)       warn "drift check falhou ($DRIFT_RESULT)" ;;
+    esac
+  fi
+fi
 
 # ─── Sumário ─────────────────────────────────────────────────────────
 PASS_N=$(grep -c '^P$' "$TMP" 2>/dev/null) || PASS_N=0
