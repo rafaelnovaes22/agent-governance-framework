@@ -1,0 +1,171 @@
+# Acme Forge — PLAYGROUND walkthroughs validation
+#
+# Garante que os 4 exemplos do PLAYGROUND não driftam silenciosamente.
+# Roda em todo PR/push para master quando PLAYGROUND/ é tocado.
+#
+# Validação CHEIA via execução LLM real é cost-prohibitive em CI; este workflow
+# valida estrutura + integridade + referências cruzadas — suficiente para
+# detectar drift em 90% dos casos sem custo de tokens.
+#
+# Forge-14 / F41.
+
+name: PLAYGROUND Validate
+
+on:
+  pull_request:
+    paths:
+      - 'PLAYGROUND/**'
+      - 'templates/project.template.json'
+      - '.github/workflows/forge-playground-validate.yml'
+  push:
+    branches: [master, main]
+    paths:
+      - 'PLAYGROUND/**'
+
+jobs:
+  validate-playground:
+    name: Validar 4 exemplos PLAYGROUND
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cada PLAYGROUND/NN-{tipo}/ tem README + walkthrough + project.json
+        run: |
+          fails=0
+          for dir in PLAYGROUND/[0-9]*-*; do
+            if [ ! -d "$dir" ]; then continue; fi
+            for required in README.md walkthrough.md docs/forge/project.json; do
+              if [ ! -f "$dir/$required" ]; then
+                echo "::error file=$dir::Arquivo obrigatório ausente: $required"
+                fails=$((fails+1))
+              fi
+            done
+          done
+          if [ "$fails" -gt 0 ]; then
+            echo "::error::$fails ausências detectadas"
+            exit 2
+          fi
+          echo "✓ Todos os PLAYGROUND/NN-{tipo}/ têm README + walkthrough + project.json"
+
+      - name: project.json de cada PLAYGROUND é JSON válido
+        run: |
+          for f in PLAYGROUND/[0-9]*-*/docs/forge/project.json; do
+            if ! node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" 2>/dev/null; then
+              echo "::error file=$f::JSON inválido"
+              exit 2
+            fi
+          done
+          echo "✓ Todos os project.json parseiam"
+
+      - name: project_type ∈ {agentic_saas, platform, automation, hybrid}
+        run: |
+          fails=0
+          for f in PLAYGROUND/[0-9]*-*/docs/forge/project.json; do
+            t=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).project_type)")
+            case "$t" in
+              agentic_saas|platform|automation|hybrid)
+                echo "  ✓ $f → $t"
+                ;;
+              *)
+                echo "::error file=$f::project_type inválido: $t"
+                fails=$((fails+1))
+                ;;
+            esac
+          done
+          [ "$fails" -gt 0 ] && exit 2
+          echo "✓ Todos os project_type são válidos"
+
+      - name: Cobertura dos 4 project_types
+        run: |
+          types=$(for f in PLAYGROUND/[0-9]*-*/docs/forge/project.json; do
+            node -e "console.log(JSON.parse(require('fs').readFileSync('$f','utf8')).project_type)"
+          done | sort -u)
+          echo "Tipos cobertos:"
+          echo "$types" | sed 's/^/  - /'
+          for required in agentic_saas platform hybrid automation; do
+            if ! echo "$types" | grep -q "^$required$"; then
+              echo "::warning::project_type '$required' não coberto pelo PLAYGROUND"
+            fi
+          done
+          echo "✓ Cobertura validada (warns para gaps esperados)"
+
+      - name: walkthrough.md tem >= 5 passos numerados
+        run: |
+          fails=0
+          for f in PLAYGROUND/[0-9]*-*/walkthrough.md; do
+            # Tolera emojis ou outros caracteres entre ## e Passo/Step
+            n=$(grep -cE "^##? .*(Passo|Step) [0-9]+" "$f" || echo 0)
+            if [ "$n" -lt 5 ]; then
+              echo "::error file=$f::walkthrough tem apenas $n passos (mínimo 5)"
+              fails=$((fails+1))
+            else
+              echo "  ✓ $f → $n passos"
+            fi
+          done
+          [ "$fails" -gt 0 ] && exit 2
+          echo "✓ Todos os walkthroughs têm >= 5 passos"
+
+      - name: README.md menciona outcome contratual
+        run: |
+          fails=0
+          for f in PLAYGROUND/[0-9]*-*/README.md; do
+            if ! grep -qiE "outcome|contratual|crit[ée]rio de aceite" "$f"; then
+              echo "::error file=$f::README sem menção a outcome/critério"
+              fails=$((fails+1))
+            fi
+          done
+          [ "$fails" -gt 0 ] && exit 2
+          echo "✓ Todos os READMEs mencionam outcome/critério"
+
+      - name: PLAYGROUND/README.md lista todos os subdiretórios
+        run: |
+          missing=""
+          for dir in PLAYGROUND/[0-9]*-*; do
+            name=$(basename "$dir")
+            if ! grep -q "$name" PLAYGROUND/README.md; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::PLAYGROUND/README.md não lista:$missing"
+            exit 2
+          fi
+          echo "✓ PLAYGROUND/README.md cobre todos os subdiretórios"
+
+      - name: Referências cruzadas internas válidas
+        run: |
+          # Detecta links markdown para arquivos relativos dentro de PLAYGROUND
+          # e valida que o destino existe
+          fails=0
+          for f in PLAYGROUND/[0-9]*-*/README.md PLAYGROUND/[0-9]*-*/walkthrough.md PLAYGROUND/README.md; do
+            [ ! -f "$f" ] && continue
+            dir=$(dirname "$f")
+            # Extrai paths de links markdown estilo [text](./path) ou [text](../path)
+            paths=$(grep -oE '\]\((\.\.?[^)]*)\)' "$f" 2>/dev/null | sed 's/^](\(.*\))$/\1/' | sort -u || true)
+            for p in $paths; do
+              # Remove anchor (#section)
+              clean="${p%%#*}"
+              [ -z "$clean" ] && continue
+              # Resolve relativo ao arquivo
+              resolved="$dir/$clean"
+              if [ ! -e "$resolved" ]; then
+                # Pode estar fora do PLAYGROUND (ex: ../../INSTALL.md) — testar como repo-relativo
+                root_relative="${clean#../}"
+                root_relative="${root_relative#../}"
+                if [ ! -e "$root_relative" ]; then
+                  echo "::warning file=$f::Link interno quebrado: $p"
+                fi
+              fi
+            done
+          done
+          echo "✓ Referências cruzadas validadas (warns para quebras possíveis)"
+
+      - name: Resumo
+        if: always()
+        run: |
+          echo "PLAYGROUND validation completa."
+          echo "Diretórios validados:"
+          ls -d PLAYGROUND/[0-9]*-*/ 2>/dev/null | sed 's/^/  - /'

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "_comment": "Acme Forge layer (versioned). Per-developer overrides go in settings.local.json (gitignored).",
-  "_forge_version": "0.14.0",
+  "_forge_version": "0.15.0",
   "_constitution_version": "0.3.0",
   "permissions": {
     "allow": [
@@ -54,10 +54,15 @@
   "hooks": {
     "PreToolUse": [
       {
-        "_forge_hooks": "active-forge-4",
-        "_ids": ["outcome-clause-guard", "adr-approval-gate", "secret-scan", "any-type-guard"],
+        "_forge_hooks": "active-forge-14",
+        "_ids": ["outcome-clause-guard", "adr-approval-gate", "secret-scan", "any-type-guard", "persona-detect"],
         "matcher": "Edit|Write",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash hooks/pre-tool-use/persona-detect.sh",
+            "timeout": 2000
+          },
           {
             "type": "command",
             "command": "bash hooks/pre-tool-use/outcome-clause-guard.sh",

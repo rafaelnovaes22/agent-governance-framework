@@ -118,6 +118,52 @@ SemVer estrito:
 
 Tags git: `vX.Y.Z` no commit que bumpa a versão.
 
+### Processo para MAJOR bumps (breaking changes)
+
+MAJOR bump quebra contrato e força ação no consumidor. **Raríssimo** — só justificável quando o custo de manter compatibilidade é maior que o custo do consumidor migrar. Em geral, **prefira MINOR com deprecation path de ≥3 versões**.
+
+**Antes de propor MAJOR**:
+
+1. **Verifique alternativas MINOR**:
+   - Adicionar capability nova ao lado da antiga (deprecated) → MINOR
+   - Adicionar campo opcional ao manifest com default backwards-compatible → MINOR
+   - Renomear arquivo mantendo old path como symlink/wrapper → MINOR
+
+2. **Se MAJOR for inevitável**, abra issue com header `[MAJOR proposal]` contendo:
+   - Princípio afetado (C1-C8) ou contrato quebrado
+   - Justificativa econômica/técnica
+   - Lista de consumidores conhecidos impactados (Acme Social, Aicfo, SchoolPlatform, etc.)
+   - Estimativa de esforço de migração POR consumidor
+   - Plano de deprecation path se aplicável
+
+**Processo formal de MAJOR**:
+
+1. Issue aprovada pelo mantenedor + ≥1 reviewer externo (cross-LLM ou humano)
+2. Branch `forge/major-vX.0.0` com:
+   - ADR formal em `docs/forge/decisions.md` (próxima Fxx disponível)
+   - Bump da `framework.version` E `manifest.framework.constitution_version` (se C1-C8 afetada)
+   - `CHANGELOG.md` com seção `### Breaking Changes` explicando:
+     - O que quebrou
+     - Como migrar (passo-a-passo)
+     - Qual versão LTS anterior permanece suportada e até quando
+   - Migration guide em `docs/forge/migrations/vX.0.0-to-vY.0.0.md` com exemplos antes/depois
+3. PR aberto com tag `[BREAKING]` no título
+4. **Aviso prévio aos consumidores conhecidos** (≥7 dias antes do merge):
+   - Issue ou comentário no manifest.json deles
+   - Convite a testar o branch antes do release
+5. Após merge: tag `vX.0.0`, anúncio em CHANGELOG, release notes detalhadas
+
+**O que MAJOR bump NÃO precisa exigir** (regra anti-bloat):
+- Reescrita de todos os templates (apenas os afetados)
+- Quebra de manifest schema (preferir migration via campo `manifest_version`)
+- Renomeação de princípios sem mudança de semântica (use `renamed_from_v{X}_{Y}` field, mantém ID)
+
+**Suporte de versão N-1**:
+
+Quando v(N).0.0 sai, o framework mantém v(N-1).x.y em "security-only support" por **6 meses** ou até o último consumidor conhecido migrar, o que vier primeiro. Bugs sérios em v(N-1) recebem patch, mas features novas não. Documentar em `docs/forge/support-policy.md` (se aplicável).
+
+**Quando o último MAJOR aconteceu**: até v0.13.0 (Forge-13 Sprint 1), **ZERO MAJOR bumps** ocorreram desde Forge-0. Toda evolução foi feita via MINOR com matriz de interpretação ou flags backwards-compat. Isso é o caso desejado — preserve.
+
 ---
 
 ## Estilo

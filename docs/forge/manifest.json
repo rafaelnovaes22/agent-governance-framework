@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.14.0",
+  "manifest_version": "0.15.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "canonical": true,
-    "phase": "Forge-13 Sprint 2 entregue — Consumer-mode automation. Novos: scripts/forge-sync.sh (F32) sincroniza artefatos canônicos para consumer com guard contra cwd canônico, preservação de settings/manifest/CLAUDE.md locais, suporte a --dry-run/--from/--force/--verbose, audit trail em docs/forge/sync-history.md, e cygpath para compat Windows; forge-doctor C9 (F37) detecta drift quando framework.framework_version_required < canônico atual (resolve FORGE_PATH ou ../agent-governance-framework/ ou ~/Projetos/agent-governance-framework/); INSTALL.md (F42) reescrito para liderar com forge-sync.sh + Surface-aware persona routing (vibe/dev/agent/wizard). Manual permanece como fallback documentado.",
+    "phase": "Forge-14 entregue — Surface layer Fase 3 + bonus consumer hardening. Novos: forge-router subagent (F34) com catálogo fechado de 9 intents canônicos (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status) + output YAML parseável + modo persona-aware; hook pre-tool-use persona-detect.sh (F35) LGPD-safe com sinais SOMENTE de filesystem (TTY, src/, package.json, docs/clients/, team.has_non_technical_stakeholder em project.json), one-shot idempotente com guard contra canônico, log auditável; PLAYGROUND/04-automation (F36) com walkthrough RPA completo (sync ERP→Warehouse); GLOSSARY_PLAIN.md (F45) standalone 60+ termos em PT-BR leigo; friendly-errors v2.0.0 (F44) expandido de 10 para 18 padrões (cobre C1-C9 + TDD RED + Tier C coverage + Gate 6 + persona detect + provider lock-in + manifest órfão); .github/workflows/forge-playground-validate.yml (F41) valida estrutura dos 4 PLAYGROUNDs em todo PR (sem custo LLM); reviewer/aios-agent-config-schema.json (F43) + forge-doctor C10 validam os 6 AIOS configs contra schema canônico; CONTRIBUTING.md v0.3.0 (F49) doc do processo MAJOR bump + política de suporte N-1. PLAYGROUND/03-hybrid/walkthrough.md criado de bonus (gap histórico).",
     "last_updated": "2026-05-13",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -248,9 +248,9 @@
           "audience": [
             "framework-maintainer"
           ],
-          "version": "0.2.0",
-          "sha256": "608cdd4c667299e6",
-          "description": "Como evoluir o framework"
+          "version": "0.3.0",
+          "sha256": null,
+          "description": "Como evoluir o framework. v0.3.0 (Forge-14 / F49) adiciona seção 'Processo para MAJOR bumps' com alternativas obrigatórias, ADR formal, aviso prévio a consumidores, e política de suporte N-1."
         },
         {
           "id": "deepagent-guide",
@@ -262,6 +262,21 @@
           "version": "0.2.0",
           "sha256": "3dbf19411146a6f2",
           "description": "Como agente autônomo navega e audita projetos Forge"
+        },
+        {
+          "id": "glossary-plain",
+          "path": "GLOSSARY_PLAIN.md",
+          "type": "documentation",
+          "audience": [
+            "human-developer",
+            "non-technical-stakeholder"
+          ],
+          "version": "1.0.0",
+          "sha256": null,
+          "linked_principles": [
+            "C7"
+          ],
+          "description": "Glossário em linguagem leiga (PT-BR) — extraído do QUICKSTART_VIBE e expandido para 60+ termos. Foco em CEO/fundador/decisor não-técnico. Cada entrada: o que é + por que importa + equivalente técnico. Forge-14 / F45."
         },
         {
           "id": "glossary",
@@ -305,9 +320,9 @@
           "audience": [
             "all"
           ],
-          "version": "0.14.0",
+          "version": "0.15.0",
           "sha256": null,
-          "description": "Histórico de versões (entradas até v0.14.0 — Forge-13 Sprint 2 consumer-mode automation)"
+          "description": "Histórico de versões (entradas até v0.15.0 — Forge-14 Surface layer Fase 3)"
         }
       ],
       "forge_docs": [
@@ -333,9 +348,9 @@
           "id": "forge-decisions",
           "path": "docs/forge/decisions.md",
           "type": "documentation",
-          "version": "0.14.0",
+          "version": "0.15.0",
           "sha256": null,
-          "description": "Decisões F1-F29 + F26-bis (F26 Forge-9 delivery-type agnostic; F26-bis Forge-10 AIOS TDD-first). Atualizada em v0.14.0 para refletir Sprint 2 do Forge-13 (sync + drift + INSTALL refresh)."
+          "description": "Decisões F1-F29 + F26-bis (F26 Forge-9 delivery-type agnostic; F26-bis Forge-10 AIOS TDD-first). Atualizada em v0.15.0 para refletir Forge-14 (Surface Fase 3 — router, persona auto-detect, glossário leigo, friendly-errors expandido, PLAYGROUND/04, schema AIOS configs, MAJOR bump policy)."
         },
         {
           "id": "forge-roadmap",
@@ -381,7 +396,7 @@
           "id": "forge-manifest",
           "path": "docs/forge/manifest.json",
           "type": "manifest",
-          "version": "0.14.0",
+          "version": "0.15.0",
           "sha256": null,
           "linked_principles": [
             "C6"
@@ -987,6 +1002,22 @@
         "description": "JSON schema do output da auditoria mensal"
       },
       {
+        "id": "reviewer-aios-agent-config-schema",
+        "path": "reviewer/aios-agent-config-schema.json",
+        "type": "schema",
+        "version": "1.0.0",
+        "sha256": null,
+        "audience": [
+          "framework-maintainer",
+          "deep-agent"
+        ],
+        "linked_principles": [
+          "C5",
+          "C7"
+        ],
+        "description": "JSON schema canônico para templates/aios/agents/*/config.json.template. Validado por forge-doctor C10 (Forge-14 / F43). Garante que os 6 agentes AIOS mantêm contrato consistente (name/description/tools/meta/build) ao bumpar versão."
+      },
+      {
         "id": "reviewer-validation-rules",
         "path": "reviewer/validation-rules.json",
         "type": "reviewer-asset",
@@ -1341,6 +1372,19 @@
             "C3"
           ],
           "description": "Economic firewall — c3_check, baseline-cost, recalc_unit_economics. Bloqueia /acme:sla-threshold se unviable."
+        },
+        {
+          "id": "agent-forge-router",
+          "path": ".claude/agents/forge-router.md",
+          "type": "subagent",
+          "model": "claude-sonnet-4-6",
+          "version": "1.0.0",
+          "sha256": null,
+          "tier": "router",
+          "linked_principles": [
+            "C7"
+          ],
+          "description": "Roteador de linguagem natural → pipeline /acme:* canônico. Catálogo fechado de 9 intents (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status). Modo persona-aware (vibe/dev/agent via .forge-mode). Output YAML parseável. Refuse-to-invent novos intents. Forge-14 / F34."
         },
         {
           "id": "agent-promotion-officer",
@@ -1804,6 +1848,22 @@
           "exit_block": 2,
           "bypass_aware": true,
           "description": "Bloqueia uso de 'any' TypeScript em src/skus/** e src/agents/**."
+        },
+        {
+          "id": "hook-persona-detect",
+          "path": "hooks/pre-tool-use/persona-detect.sh",
+          "type": "hook",
+          "hook_type": "PreToolUse",
+          "matcher": "Edit|Write",
+          "version": "1.0.0",
+          "sha256": null,
+          "linked_principles": [
+            "C7"
+          ],
+          "exit_block": null,
+          "bypass_aware": false,
+          "lgpd_safe": true,
+          "description": "Detecta persona (vibe/dev/agent) na PRIMEIRA invocação baseado em sinais de FILESYSTEM (presença de src/, package.json, docs/clients/, TTY, team.has_non_technical_stakeholder em project.json). NUNCA lê conteúdo de prompts ou histórico shell (LGPD-safe). One-shot — após primeira detecção (.forge-mode existe) é no-op idempotente. Guard contra canonical repo. Log auditável em docs/forge/persona-detection.log. Forge-14 / F35."
         }
       ],
       "post_tool_use": [
@@ -1855,13 +1915,14 @@
           "type": "hook",
           "hook_type": "PostToolUse",
           "matcher": "Edit|Write",
-          "version": "1.0.0",
-          "sha256": "15cb955ecefc1c98",
+          "version": "2.0.0",
+          "sha256": null,
           "linked_principles": [
             "C7"
           ],
           "exit_warn": 0,
-          "description": "Forge-12 Fase 2 — Intercepta mensagens de erro de violação C1-C8 e traduz para linguagem amigável conforme .forge-mode (vibe=leigo, dev=técnico+tradução, agent=passa direto). Não bloqueia execução."
+          "patterns_covered": 18,
+          "description": "Intercepta mensagens de erro C1-C8 e traduz para linguagem amigável conforme .forge-mode (vibe=leigo, dev=técnico+tradução, agent=passa direto). v2.0.0 (Forge-14 / F44) expande de 10 para 18 padrões: C1-C8 + hash mismatch + secret + C9 drift + project.json missing + forge-router low confidence + TDD RED não falha + coverage Tier C + Gate 6 CI/CD + persona detect ambíguo + provider lock-in src/ + manifest órfão. Não bloqueia execução."
         }
       ],
       "stop": [
@@ -1915,13 +1976,14 @@
           "path": "scripts/forge-doctor.sh",
           "type": "script",
           "usage": "standalone CI/PR/pre-push",
-          "version": "0.6.0",
+          "version": "0.7.0",
           "sha256": null,
           "linked_principles": [
+            "C5",
             "C6",
             "C7"
           ],
-          "description": "Validador CI: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity, C8 AIOS TDD-ready, C9 drift vs canônico (consumer-only). v0.6.0 (Forge-13 Sprint 2 / F37) adiciona C9 que compara framework_version_required do consumer com canônico atual via FORGE_PATH/../agent-governance-framework/~/Projetos/agent-governance-framework. v0.5.0 (Sprint 1 / F30) suporta --consumer/--canonical. Exit 0/1/2."
+          "description": "Validador CI com 10 checks: C1 JSON parse, C2 paths existem, C3 versões coerentes, C4 constitution coerente, C5 bash -n hooks, C6 artefatos órfãos, C7 permissions sanity, C8 AIOS TDD-ready, C9 drift vs canônico (consumer-only), C10 AIOS agent configs vs schema canônico (canonical-only). v0.7.0 (Forge-14 / F43) adiciona C10. v0.6.0 (Forge-13 Sprint 2 / F37) adicionou C9. v0.5.0 (Sprint 1 / F30) suporta --consumer/--canonical. Exit 0/1/2."
         },
         {
           "id": "script-skill-security-scan",

@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acme.com.br/forge/aios-agent-config-schema-v1.json",
+  "title": "Acme Forge — AIOS Agent Config Schema",
+  "description": "Schema canônico para templates/aios/agents/*/config.json.template. Forge-14 / F43.",
+  "type": "object",
+  "required": ["name", "description", "tools", "meta", "build"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Identificador do agente. Pode usar placeholders {MODULE} para agentes especializados.",
+      "pattern": "^[a-z][a-z_{}A-Z0-9]*$",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "description": {
+      "type": "array",
+      "description": "Descrição em linhas (renderizada como prompt). Cada item é uma frase.",
+      "items": {"type": "string", "minLength": 10},
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "tools": {
+      "type": "array",
+      "description": "Ferramentas disponíveis ao agente. AIOS agentes default sem tools (LLM-only).",
+      "items": {"type": "string"}
+    },
+    "meta": {
+      "type": "object",
+      "required": ["author", "version", "tier", "context_isolation", "linked_principles"],
+      "additionalProperties": true,
+      "properties": {
+        "author": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "SemVer obrigatório"
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["shared", "specialized", "{TIER}"],
+          "description": "shared = stack-agnostic compartilhado entre módulos; specialized = especializado por módulo; {TIER} = placeholder no template para resolução em /acme:aios-init"
+        },
+        "context_isolation": {
+          "type": "boolean",
+          "description": "Se true, agente lê APENAS spec do módulo + ctx explícito; nunca lê outros módulos (reforça C5 three-tier)."
+        },
+        "linked_principles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"]
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Princípios da Constitution que este agente endereça. C5 deve aparecer em todos (context isolation)."
+        },
+        "tdd_phase_aware": {
+          "type": "boolean",
+          "description": "True apenas para test_agent (Forge-10 / F26-bis). Habilita modos red/verify."
+        },
+        "modes": {
+          "type": "array",
+          "items": {"type": "string", "enum": ["red", "verify"]},
+          "description": "Modos suportados (test_agent apenas)."
+        },
+        "writes_physical_files": {
+          "type": "boolean",
+          "description": "True se o agente escreve arquivos no filesystem (test_agent RED escreve em tests/{module}/)."
+        },
+        "writes_scope": {
+          "type": "string",
+          "description": "Path scope onde o agente pode escrever (deve usar {module} placeholder)."
+        },
+        "coverage_defaults": {
+          "type": "object",
+          "description": "Defaults de coverage por tier (test_agent apenas).",
+          "properties": {
+            "A": {"$ref": "#/$defs/coverageTier"},
+            "B": {"$ref": "#/$defs/coverageTier"},
+            "C": {"$ref": "#/$defs/coverageTier"}
+          },
+          "required": ["A", "B", "C"]
+        },
+        "stack_agnostic": {
+          "type": "boolean",
+          "description": "True se o agente não depende de stack específica (schema_agent)."
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "required": ["entry", "module"],
+      "additionalProperties": false,
+      "properties": {
+        "entry": {
+          "type": "string",
+          "pattern": "^[a-z][a-z_]*\\.(py|ts|js)$",
+          "description": "Arquivo de entrada do agente."
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^[A-Z][a-zA-Z0-9]*$",
+          "description": "Classe a importar do entry."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "coverageTier": {
+      "type": "object",
+      "required": ["line", "branch", "critical_path"],
+      "additionalProperties": false,
+      "properties": {
+        "line": {"type": "integer", "minimum": 0, "maximum": 100},
+        "branch": {"type": "integer", "minimum": 0, "maximum": 100},
+        "critical_path": {"type": "integer", "minimum": 0, "maximum": 100}
+      }
+    }
+  }
+}

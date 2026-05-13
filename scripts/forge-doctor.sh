@@ -321,6 +321,67 @@ else
 fi
 fi  # fim do bloco C8 (else do skip-consumer-sem-aios)
 
+# ─── C10: Validação de schema dos AIOS configs (canonical-only) ──────
+# Valida que todo templates/aios/agents/*/config.json.template conforma
+# ao schema canônico em reviewer/aios-agent-config-schema.json.
+# Em consumer mode, pulado (consumer pode não copiar reviewer/).
+if [[ "$IS_CONSUMER" == "false" ]] && [[ -d "templates/aios/agents" ]] && [[ -f "reviewer/aios-agent-config-schema.json" ]]; then
+  sep "C10  AIOS agent configs vs schema canônico"
+  while IFS= read -r line; do
+    case "$line" in
+      OK:*)   pass "${line#OK:}" ;;
+      FAIL:*) fail "${line#FAIL:}" ;;
+    esac
+  done < <(node -e "
+    const fs=require('fs');
+    const path=require('path');
+    const schema=JSON.parse(fs.readFileSync('reviewer/aios-agent-config-schema.json','utf8'));
+    const validKeys=new Set(['name','description','tools','meta','build']);
+    const required=schema.required;
+    const dir='templates/aios/agents';
+    const agents=fs.readdirSync(dir).filter(f=>fs.statSync(path.join(dir,f)).isDirectory());
+
+    function validateAgent(agentDir) {
+      const cfgPath=path.join(dir,agentDir,'config.json.template');
+      if(!fs.existsSync(cfgPath)) return {ok:false,err:'config.json.template ausente'};
+      let cfg;
+      try { cfg=JSON.parse(fs.readFileSync(cfgPath,'utf8')); }
+      catch(e) { return {ok:false,err:'JSON inválido: '+e.message}; }
+      // Top-level required
+      for(const r of required) if(!(r in cfg)) return {ok:false,err:'campo top-level ausente: '+r};
+      // Tipos
+      if(typeof cfg.name!=='string') return {ok:false,err:'name deve ser string'};
+      if(!Array.isArray(cfg.description) || cfg.description.length===0) return {ok:false,err:'description deve ser array não-vazio'};
+      if(!Array.isArray(cfg.tools)) return {ok:false,err:'tools deve ser array'};
+      if(typeof cfg.meta!=='object') return {ok:false,err:'meta deve ser objeto'};
+      if(typeof cfg.build!=='object') return {ok:false,err:'build deve ser objeto'};
+      // Meta required
+      const metaReq=['author','version','tier','context_isolation','linked_principles'];
+      for(const r of metaReq) if(!(r in cfg.meta)) return {ok:false,err:'meta.'+r+' ausente'};
+      // SemVer
+      if(!/^[0-9]+\.[0-9]+\.[0-9]+$/.test(cfg.meta.version)) return {ok:false,err:'meta.version não é SemVer: '+cfg.meta.version};
+      // Tier enum
+      if(!['shared','specialized','{TIER}'].includes(cfg.meta.tier)) return {ok:false,err:'meta.tier inválido: '+cfg.meta.tier};
+      // linked_principles
+      if(!Array.isArray(cfg.meta.linked_principles) || cfg.meta.linked_principles.length===0) return {ok:false,err:'meta.linked_principles deve ser array não-vazio'};
+      const validPrinciples=['C1','C2','C3','C4','C5','C6','C7','C8'];
+      for(const p of cfg.meta.linked_principles) if(!validPrinciples.includes(p)) return {ok:false,err:'meta.linked_principles contém valor inválido: '+p};
+      // Build
+      if(!cfg.build.entry || !cfg.build.module) return {ok:false,err:'build.entry e build.module obrigatórios'};
+      return {ok:true};
+    }
+
+    let agentCount=0;
+    for(const a of agents) {
+      const r=validateAgent(a);
+      agentCount++;
+      if(r.ok) console.log('OK:'+a+' válido contra schema');
+      else console.log('FAIL:'+a+' — '+r.err);
+    }
+    if(agentCount===0) console.log('FAIL:nenhum agente AIOS encontrado em '+dir);
+  " 2>/dev/null)
+fi
+
 # ─── C9 (apenas consumer): Drift vs canônico ─────────────────────────
 # Compara framework.framework_version_required (set pelo forge-sync) com
 # a versão atual do Forge canônico local (resolvido via FORGE_PATH env ou

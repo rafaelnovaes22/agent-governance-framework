@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../../templates/project.template.json",
+  "project_name": "playground-04-rpa-sync-job",
+  "project_type": "automation",
+  "ai_enabled": false,
+  "ai_providers": [],
+  "telemetry": {
+    "structured_logs": {
+      "enabled": true,
+      "provider": "pino+sentry"
+    },
+    "audit_trail": {
+      "enabled": true,
+      "retention_days": 2555,
+      "_comment": "Toda execução do job grava em audit_log: started_at, completed_at, rows_processed, errors[], exit_code"
+    }
+  },
+  "economics_model": "per_execution_cost",
+  "outcome_unit": "synced_record",
+  "outcome_price_brl": 0.05,
+  "modules": [
+    {
+      "id": "erp-to-warehouse-sync",
+      "type": "automation_job",
+      "ai_enabled": false,
+      "criticality": "B",
+      "current_stage": "draft",
+      "has_ui": false,
+      "schedule": "cron:0 */6 * * *",
+      "idempotency_key": "sync_window_start",
+      "max_retries": 3
+    }
+  ],
+  "forge_version_compatible": ">=0.13.0",
+  "consumer_declared_at": "2026-05-13",
+  "_comment": "Exemplo didático — RPA/Job determinístico que sincroniza ERP→Warehouse a cada 6h. Não rodar em produção."
+}

@@ -174,6 +174,114 @@ if echo "${TOOL_OUTPUT}" | grep -qiE "(secret.?scan|api.?key|password|token).*(d
   esac
 fi
 
+# C9 — Drift vs canônico (consumer-only, Forge-13 Sprint 2)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(C9|drift|framework_version_required|forge-sync\\.sh)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="⚙️ Tem uma versão nova do Forge — vou atualizar suas regras automaticamente. Pode demorar 30 segundos."
+      ;;
+    dev)
+      FRIENDLY_MSG="C9 drift detected — framework_version_required < canônico atual. Rode: bash scripts/forge-sync.sh --from \$FORGE_PATH --dry-run primeiro, depois sem --dry-run."
+      ;;
+  esac
+fi
+
+# project.json missing (Forge-9+)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(project\\.json (missing|not found|ausente)|project_type undeclared)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="📋 Esse projeto ainda não me disse que tipo de coisa ele é (plataforma? agente IA? automação?). Me ajuda a decidir?"
+      ;;
+    dev)
+      FRIENDLY_MSG="docs/forge/project.json ausente — declare project_type ∈ {agentic_saas, platform, automation, hybrid} + ai_enabled. Copie templates/project.template.json."
+      ;;
+  esac
+fi
+
+# forge-router baixa confiança (Forge-14)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(forge.?router.*low.confidence|intent.*ambiguous|escalate.*master.?prompt)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🤷 Não entendi bem o que você quer. Tenta de novo descrevendo: O QUÊ você quer fazer + PARA QUEM (cliente, módulo, agente)?"
+      ;;
+    dev)
+      FRIENDLY_MSG="forge-router confidence < 0.75 — intent ambíguo. Reformule com verbo + objeto explícitos OU invoque /acme:* diretamente."
+      ;;
+  esac
+fi
+
+# AIOS TDD RED não falha (Forge-10 / F26-bis)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(tdd.?red.*not.?failing|red phase.*green|tests should fail.*red)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🧪 Os testes deveriam estar falhando agora (porque ainda não construímos a coisa). Se eles passam, é porque tem placeholder ou mock incorreto."
+      ;;
+    dev)
+      FRIENDLY_MSG="TDD RED phase não falha — test_agent --mode red gerou testes que passam sem implementação. Revise mocks, fixtures, ou remova hardcoded returns. Veja COMMON_ERRORS.md #10."
+      ;;
+  esac
+fi
+
+# Coverage gate Tier C (Forge-10)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(coverage.*below.*threshold|tier.?c.*coverage|critical_path.*<.*100)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🛡️ Esse módulo é crítico (financeiro/contratual) e ainda não está testado o suficiente. Eu preciso de mais testes antes de poder cobrar."
+      ;;
+    dev)
+      FRIENDLY_MSG="Coverage gate fail — Tier C exige line ≥ 95% e critical_path 100%. Adicione testes em tests/{module}/unit/ e tests/{module}/integration/. Workflow forge-test bloqueia merge."
+      ;;
+  esac
+fi
+
+# Gate 6 CI/CD ausente para AUTONOMOUS (Forge-8)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(gate.?6.*cicd|cicd.checklist.*not.signed|assisted.?to.?autonomous.*ci)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🚦 Pra promover esse agente pra modo final (cobrando do cliente), eu preciso que o CI esteja rodando. Já configuramos?"
+      ;;
+    dev)
+      FRIENDLY_MSG="Gate 6 missing — assisted→autonomous exige CI/CD ativo (forge-validate + forge-eval workflows + branch protection). Veja templates/cicd/cicd-checklist.template.md."
+      ;;
+  esac
+fi
+
+# Persona detect → vibe inadequado (Forge-14 / F35)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(persona.?detect|forge-mode.*invalid|mode.*ambiguous)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🎭 O Forge tentou detectar seu modo de operação automático mas ficou inseguro. Você pode rodar: bash scripts/forge mode vibe (ou dev / agent)."
+      ;;
+    dev)
+      FRIENDLY_MSG="persona-detect uncertain — sinais filesystem ambíguos. Override explícito: bash scripts/forge mode <vibe|dev|agent>. Log em docs/forge/persona-detection.log."
+      ;;
+  esac
+fi
+
+# Provider lock-in detectado em produção (C7 extended)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(import.*from.*['\"]anthropic['\"].*src/(skus|agents|modules)|require\\(.*['\"]openai['\"].*src/)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="🔒 Esse código tá amarrado a um provider de IA específico — se quisermos trocar, vai dar muito trabalho. Vou abstrair em adapter."
+      ;;
+    dev)
+      FRIENDLY_MSG="C7 violation — SDK de provider importado fora de src/llm/adapters/. Refatore via adapter pattern. Veja COMMON_ERRORS.md."
+      ;;
+  esac
+fi
+
+# Manifest entry órfã (Forge-13 / refatoração consumer-mode)
+if echo "${TOOL_OUTPUT}" | grep -qiE "(orphan.*artifact|artifact.*órfão|manifest.?sync.*orphan)"; then
+  case "${FORGE_MODE}" in
+    vibe)
+      FRIENDLY_MSG="📦 Tem um arquivo novo que ainda não está registrado no inventário do projeto. Vou registrar agora ou você quer revisar primeiro?"
+      ;;
+    dev)
+      FRIENDLY_MSG="Artefato órfão — arquivo presente no filesystem mas sem entry em manifest.json. Em consumer mode, isso é OK (manifest local não duplica canônico); em canonical, adicione entry. Veja COMMON_ERRORS.md #3."
+      ;;
+  esac
+fi
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Output amigável (não bloqueia; apenas adiciona contexto)
 # ─────────────────────────────────────────────────────────────────────────────

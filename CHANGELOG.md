@@ -9,6 +9,100 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.15.0] — 2026-05-13
+
+### Added (Forge-14 — Surface layer Fase 3 + bonus consumer hardening)
+
+**Fechamento da camada Surface: persona-aware end-to-end. CEO vibecoder pode operar via linguagem natural, dev tem cheatsheet técnico, agente IA recebe contrato JSON. Inclui também schema canônico para AIOS configs e doc do processo MAJOR bump.**
+
+**Novo subagent `.claude/agents/forge-router.md` v1.0.0 (F34):**
+
+- Roteador de **linguagem natural → comando `/acme:*`** com catálogo **fechado** de 9 intents canônicos (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status).
+- Heurística simples por score de keywords + contexto + pré-requisitos. Threshold rígido (0.75) — abaixo escala ao master-prompt com pergunta clarificadora.
+- **Refuse-to-invent** novos intents: catálogo fechado é gate explícito anti-scope-creep.
+- Output **YAML parseável** em todo turno (intent, confidence, command, args, preconditions_met, next_action, forge_mode_applied, rationale).
+- Modo persona-aware: vibe (PT natural), dev (técnico), agent (JSON puro).
+- Tabela anti-rationalization com 5 tentações documentadas (não inventar intent #10, não disparar cadeia, não bypass pré-req, não esconder comando em vibe, não flexibilizar threshold).
+
+**Novo hook `hooks/pre-tool-use/persona-detect.sh` v1.0.0 (F35):**
+
+- Detecta persona (vibe/dev/agent) na PRIMEIRA invocação baseado em sinais SOMENTE de **filesystem** (TTY, `src/`, `package.json`, `tests/`, `.git/`, `docs/clients/`, `team.has_non_technical_stakeholder` em project.json).
+- **LGPD/GDPR-safe**: NUNCA lê conteúdo de prompt, histórico shell ou arquivos do usuário além de `project.json` (não-PII).
+- One-shot idempotente: após gerar `.forge-mode`, é no-op silencioso.
+- Guard contra repo canônico (não roda no Forge maintainer's repo).
+- Log auditável em `docs/forge/persona-detection.log` (timestamp + detected + confidence + rationale + sinais agregados).
+- Override explícito via `bash scripts/forge mode <vibe|dev|agent>`.
+- Banner discreto via stderr em TTY interativo informando modo detectado.
+
+**Novo `PLAYGROUND/04-automation/` (F36):**
+
+- 4º exemplo executável cobrindo `project_type: automation`, `ai_enabled: false`.
+- `README.md` com outcome contratual (sync ERP→Warehouse a cada 6h, R$ 0,05/registro), stack referência, decisão `automation` vs `platform`, conceitos chave (idempotência não-negociável + audit log obrigatório).
+- `walkthrough.md` (~20 min) com pipeline completo de 9 passos: diagnose → spec automation-job → plan platform → tasks Waves 1P-4P+6P → implement com scaffolding idempotente → tests TDD RED → promote pilot → operação PILOT 14d → promote canonical.
+- `docs/forge/project.json` válido com `project_type=automation`, schedule cron, idempotency_key, max_retries.
+- `PLAYGROUND/README.md` atualizado: 3 exemplos → 4 exemplos.
+- **Bonus**: `PLAYGROUND/03-hybrid/walkthrough.md` criado (gap histórico — 03 só tinha README).
+
+**Novo `GLOSSARY_PLAIN.md` v1.0.0 (F45):**
+
+- Glossário standalone em **PT-BR leigo** com **60+ termos** organizados alfabeticamente.
+- Cada entrada tem 3 partes: o que é (linguagem natural) + por que importa + equivalente técnico.
+- Cobre: A (Agente, AIOS, Audit log, AUTONOMOUS), B (Baseline), C (C1-C8, Canonical, Constitution), D (DRAFT, DeepAgent, Diagnóstico), E (Eval), F (Forge, Forge-router), G (Gate, Guardian), H (Hook, Hybrid), I (ICP, Idempotência), L (Lifecycle), M (Manifest, Master Prompt, Mode, Módulo), O (Outcome), P (PILOT, Platform, Princípios, Project Type, Prompt), R (Reviewer), S (SHADOW, SKU, Spec, Subagent, Sync), T (TDD, Telemetry, Tenant, Tier), U (Unit economics), V (Versionamento, Vibe), W (Walkthrough, Wizard).
+- Extraído e expandido a partir do glossário inline do QUICKSTART_VIBE.md.
+
+**Hook `friendly-errors.sh` v2.0.0 (F44):**
+
+- Padrões cobertos expandidos de **10 para 18**.
+- Novos: C9 drift (Forge-13), project.json missing (Forge-9), forge-router low confidence (Forge-14), TDD RED não falha (Forge-10/F26-bis), coverage Tier C (Forge-10), Gate 6 CI/CD AUTONOMOUS (Forge-8), persona detect ambíguo (Forge-14/F35), provider lock-in em src/ (C7 extended), manifest órfão (Forge-13).
+- Cada padrão tem tradução para vibe (linguagem leiga) + dev (técnico com referência a COMMON_ERRORS.md).
+
+**Novo workflow `.github/workflows/forge-playground-validate.yml` (F41):**
+
+- Roda em todo PR/push que toca `PLAYGROUND/**` ou `templates/project.template.json`.
+- 7 checks SEM custo LLM: presença de README+walkthrough+project.json por subpasta; JSON válido; project_type válido; cobertura dos 4 project_types; walkthroughs ≥ 5 passos; READMEs mencionam outcome; cross-refs internas.
+- Custo: zero tokens (apenas Node + bash); ~30 segundos de CI por PR.
+
+**Novo `reviewer/aios-agent-config-schema.json` v1.0.0 (F43):**
+
+- JSON schema canônico (draft 2020-12) para `templates/aios/agents/*/config.json.template`.
+- Define contrato: name, description (array de frases), tools, meta (author, version SemVer, tier enum, context_isolation, linked_principles C1-C8 obrigatório), build (entry, module).
+- Schema documenta opcionais específicos: tdd_phase_aware, modes (test_agent), writes_physical_files, coverage_defaults por tier, stack_agnostic.
+
+**`scripts/forge-doctor.sh` v0.7.0 — novo check C10 (F43):**
+
+- Em modo canonical, valida que os 6 agentes AIOS conformam ao schema canônico inline (sem dep externa — implementação Node puro).
+- Checa: top-level required, tipos, meta required, SemVer, tier enum, linked_principles válidos, build entry+module.
+- C10 pulado em consumer mode (consumer pode não copiar reviewer/).
+
+**`CONTRIBUTING.md` v0.3.0 — nova seção MAJOR bump (F49):**
+
+- Processo formal para breaking changes:
+  - Verificação obrigatória de alternativas MINOR (deprecation path, campos opcionais, symlinks)
+  - Issue `[MAJOR proposal]` com lista de consumidores impactados + estimativa de esforço de migração POR consumidor
+  - ADR formal + branch `forge/major-vX.0.0` + migration guide
+  - Aviso prévio ≥7 dias aos consumidores conhecidos
+- O que MAJOR NÃO precisa exigir (anti-bloat): reescrita global, quebra de manifest schema, renomeação sem semântica nova.
+- Política de suporte N-1: security-only por 6 meses.
+- Tracking de "zero MAJOR bumps desde Forge-0" — preservar como objetivo.
+
+**Mudanças em `settings.json`:**
+
+- Hook `persona-detect` adicionado ao array `PreToolUse[].hooks[]` com matcher `Edit|Write` e timeout 2000ms.
+- `_ids` atualizado para incluir `persona-detect`.
+- `_forge_hooks` bumped para `active-forge-14`.
+
+**Mudanças em `manifest.json`:**
+
+- Novas entradas: `agent-forge-router` v1.0.0, `hook-persona-detect` v1.0.0, `glossary-plain` v1.0.0, `reviewer-aios-agent-config-schema` v1.0.0.
+- Atualizadas: `hook-friendly-errors` 1.0.0 → 2.0.0, `script-forge-doctor` 0.6.0 → 0.7.0, `contributing` 0.2.0 → 0.3.0, `forge-decisions/forge-manifest/changelog` → 0.15.0.
+
+### Versionamento
+
+- **MINOR bump** (v0.14.0 → v0.15.0): adiciona capabilities novas (router + auto-detect + glossário + PG/04 + schema check) e expande hook existente (friendly-errors 10→18 padrões). Backwards-compatible — projetos consumidores em ≤ v0.14.x continuam funcionando.
+- Não exige ADR de Constitution. F34, F35, F36, F41, F43, F44, F45 e F49 são entries do catálogo da AUDIT_2026-05-13.
+
+---
+
 ## [0.14.0] — 2026-05-13
 
 ### Added (Forge-13 Sprint 2 — Consumer-mode automation)

@@ -1,6 +1,6 @@
 # 🎮 Forge Playground — Aprenda com Exemplos Reais
 
-> **3 exemplos completos** mostrando o pipeline Forge aplicado a cada `project_type` suportado. Otimizado para você **ver fazendo** em vez de **ler sobre**.
+> **4 exemplos completos** mostrando o pipeline Forge aplicado a cada `project_type` suportado. Otimizado para você **ver fazendo** em vez de **ler sobre**.
 
 ---
 
@@ -11,6 +11,7 @@
 | [`01-agentic-saas-agent/`](./01-agentic-saas-agent/) | `agentic_saas` | ✅ true | Acme Social — Carrossel Agent |
 | [`02-platform-module/`](./02-platform-module/) | `platform` | ❌ false | SchoolPlatform — Módulo de Faturamento |
 | [`03-hybrid/`](./03-hybrid/) | `hybrid` | ✅ true (módulo IA) | Aicfo — Análise Financeira |
+| [`04-automation/`](./04-automation/) | `automation` | ❌ false | Job RPA — sync ERP→Warehouse |
 
 Cada pasta tem:
 - ✅ `README.md` — o que vamos construir e por quê
@@ -30,6 +31,9 @@ Cada pasta tem:
 
 ### Você quer entender **plataforma com features IA embutidas**?
 👉 [`03-hybrid/`](./03-hybrid/)
+
+### Você quer entender **job RPA / automação determinística** (sync, ETL, integração)?
+👉 [`04-automation/`](./04-automation/)
 
 ### Você nunca usou o Forge antes?
 👉 Comece pelo **01** (agentic) — é o caso mais didático e mostra o pipeline completo SHADOW→ASSISTED→AUTONOMOUS.
