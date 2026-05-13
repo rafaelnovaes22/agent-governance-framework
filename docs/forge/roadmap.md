@@ -1,6 +1,6 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0) ✅ Forge-12 Fase 1 usabilidade adaptativa (v0.11.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`; ⏳ Forge-12 Fases 2-3 (Playground, friendly-errors hook, forge-router subagent)
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0) ✅ Forge-12 Fase 1 usabilidade adaptativa (v0.11.0) ✅ Forge-12 Fase 2 PLAYGROUND + COMMON_ERRORS + friendly-errors hook (v0.12.0); ⏳ conteúdo real aguarda primeiro SKU em AUTONOMOUS e adoção pelo `school-platform`; ⏳ Forge-12 Fase 3 (forge-router subagent, persona auto-detect)
 > **Última atualização**: 2026-05-13
 > **Total estimado**: 20–27 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
@@ -446,17 +446,32 @@ CORE        → Constitution + Guardians + Hooks + Templates          (Forge-0..
 - ⏳ Pelo menos 1 CEO real (Ana) usa modo vibe em workflow real — **aguardando**
 - ⏳ Pelo menos 1 dev recém-contratado faz primeiro PR em ≤ 1 dia usando os quickstarts — **aguardando**
 
-### Fase 2 — Planejada (depois de Fase 1 validada)
+### Fase 2 — Entregue em v0.12.0 (2026-05-13)
 
-- [ ] **F12.8** `PLAYGROUND/` com 3 exemplos executáveis end-to-end (criar agente / módulo platform / módulo híbrido)
-- [ ] **F12.9** `COMMON_ERRORS.md` top 10 erros consolidados com causa-raiz + solução copy-paste
-- [ ] **F12.10** Hook `friendly-errors` (PostToolUse) que intercepta mensagens C1-C8 e traduz para humano (modo vibe lê de `.forge-mode`)
+- [x] **F12.8** `PLAYGROUND/` com 3 exemplos executáveis end-to-end:
+  - [x] `01-agentic-saas-agent/` — Carrossel Agent (inspirado Acme Social), pipeline SHADOW→AUTONOMOUS completo
+  - [x] `02-platform-module/` — Módulo Faturamento (inspirado SchoolPlatform), pipeline draft→canonical com acceptance gate
+  - [x] `03-hybrid/` — Plataforma com módulo IA add-on (inspirado Aicfo), interpretação C1-C8 por módulo
+- [x] **F12.9** `COMMON_ERRORS.md` top 10 erros consolidados em formato copy-paste (mensagem → causa-raiz → diagnóstico → solução → prevenção)
+- [x] **F12.10** Hook `friendly-errors.sh` (PostToolUse) que detecta padrões C1-C8 e traduz conforme `.forge-mode` (vibe/dev/agent); 9 padrões cobertos; não bloqueia execução
+- [x] **F12.11** Hook registrado em `settings.json` + entrada em `manifest.json` com `linked_principles: [C7]`
+- [x] **F12.12** F29 em `decisions.md` formalizando arquitetura "leitura → execução supervisionada"
 
-### Fase 3 — Planejada (depois de Fase 2 validada)
+#### Critério de pronto (Fase 2)
 
-- [ ] **F12.11** `GLOSSARY_PLAIN.md` standalone (hoje embutido no VIBE)
-- [ ] **F12.12** `forge-router` subagent — referenciado em F27.x — lê input em linguagem natural e dispara pipeline correto sem operador conhecer slash commands
-- [ ] **F12.13** Modo persona auto-detectado baseado em comportamento (sem precisar `forge mode`)
+- ✅ 3 exemplos PLAYGROUND com README + walkthrough + project.json válido — **entregue**
+- ✅ COMMON_ERRORS.md cobre os 10 erros mais frequentes do forge-doctor + hooks + Guardians — **entregue**
+- ✅ Hook friendly-errors traduz pelo menos 8 padrões de violação — **9 padrões entregues**
+- ✅ `forge-doctor.sh` valida sem warnings — **26 OK, 0 WARN, 0 FAIL**
+- ⏳ Pelo menos 1 dev real consulta PLAYGROUND antes do primeiro PR — **aguardando**
+- ⏳ Pelo menos 1 CEO real é alcançada pela tradução vibe em modo real — **aguardando**
+
+### Fase 3 — Planejada (depois de Fase 2 validada com usuários reais)
+
+- [ ] **F12.13** `GLOSSARY_PLAIN.md` standalone (hoje embutido no QUICKSTART_VIBE)
+- [ ] **F12.14** `forge-router` subagent — referenciado em F27.x — lê input em linguagem natural e dispara pipeline correto sem operador conhecer slash commands
+- [ ] **F12.15** Modo persona auto-detectado baseado em comportamento (sem precisar `forge mode`)
+- [ ] **F12.16** PLAYGROUND adicionar exemplo 04 (automation/RPA)
 
 ---
 

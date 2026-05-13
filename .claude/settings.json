@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "_comment": "Acme Forge layer (versioned). Per-developer overrides go in settings.local.json (gitignored).",
-  "_forge_version": "0.11.0",
+  "_forge_version": "0.12.0",
   "_constitution_version": "0.3.0",
   "permissions": {
     "allow": [
@@ -84,7 +84,7 @@
     "PostToolUse": [
       {
         "_forge_hooks": "active-forge-4",
-        "_ids": ["langfuse-trace-check", "unit-economics-recalc", "manifest-sync"],
+        "_ids": ["langfuse-trace-check", "unit-economics-recalc", "manifest-sync", "friendly-errors"],
         "matcher": "Edit|Write",
         "hooks": [
           {
@@ -101,6 +101,11 @@
             "type": "command",
             "command": "bash hooks/post-tool-use/manifest-sync.sh",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash hooks/post-tool-use/friendly-errors.sh",
+            "timeout": 3000
           }
         ]
       }

@@ -1,10 +1,10 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.11.0",
+  "manifest_version": "0.12.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.11.0",
-    "phase": "Forge-12 Fase 1 entregue — Camada de usabilidade adaptativa por persona. Novos: HELLO.md (landing por persona vibe/dev/agent), QUICKSTART_VIBE.md (CEO/founder, sem jargão), QUICKSTART_DEV.md (cheatsheet técnico 1 página), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help). F28 em decisions.md formaliza separação Surface/Translator/Core. Forge-11 (master prompt) e Forge-10 (AIOS TDD-first) permanecem operacionais.",
+    "version": "0.12.0",
+    "phase": "Forge-12 Fase 2 entregue — Aprendizado por exemplos + tradução de erros para humanos. Novos: PLAYGROUND/ com 3 exemplos executáveis (01-agentic-saas-agent, 02-platform-module, 03-hybrid) cada um com README + walkthrough + project.json; COMMON_ERRORS.md (top 10 erros consolidados com causa-raiz + diagnóstico + solução copy-paste + prevenção); hook friendly-errors.sh (PostToolUse) que traduz violações C1-C8 conforme .forge-mode (vibe/dev/agent). F29 em decisions.md formaliza Surface Layer Fase 2. Fase 1 (HELLO + quickstarts + scripts/forge) permanece operacional.",
     "last_updated": "2026-05-12",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -1835,6 +1835,20 @@
           ],
           "exit_warn": 0,
           "description": "Informa quando artefatos Forge mudam e manifest.json precisa ser atualizado."
+        },
+        {
+          "id": "hook-friendly-errors",
+          "path": "hooks/post-tool-use/friendly-errors.sh",
+          "type": "hook",
+          "hook_type": "PostToolUse",
+          "matcher": "Edit|Write",
+          "version": "1.0.0",
+          "sha256": "15cb955ecefc1c98",
+          "linked_principles": [
+            "C7"
+          ],
+          "exit_warn": 0,
+          "description": "Forge-12 Fase 2 — Intercepta mensagens de erro de violação C1-C8 e traduz para linguagem amigável conforme .forge-mode (vibe=leigo, dev=técnico+tradução, agent=passa direto). Não bloqueia execução."
         }
       ],
       "stop": [

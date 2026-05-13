@@ -1,7 +1,7 @@
-# Acme Forge — Decisões F1–F28
+# Acme Forge — Decisões F1–F29
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.11.0 (Forge-12 Fase 1)
-> **Versão atual**: 0.11.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.12.0 (Forge-12 Fase 2)
+> **Versão atual**: 0.12.0
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
 
@@ -774,6 +774,100 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 
 ---
 
+## F29 (NOVO 2026-05-13) — Aprendizado por exemplos + tradução de erros (Forge-12 Fase 2)
+
+**Status**: ✅ **Fase 2 formalizada em 2026-05-13 — Forge-12 Fase 2 entregue**
+
+**Contexto**: F28 (Fase 1) entregou a "porta de entrada" para 3 personas via HELLO.md + quickstarts + CLI wrapper. Porém, ficaram 2 lacunas práticas evidentes ao testar mentalmente o onboarding:
+
+1. **Leitura sem execução não fixa** — devs lendo QUICKSTART_DEV.md entendem **o que existe**, mas não **como aplicar concretamente** o pipeline em um caso real. Faltava material onde a pessoa pudesse ver `project.json` real, spec real, walkthrough do pipeline aplicado, e comparar com seu projeto.
+
+2. **Mensagens de erro permanecem hostis para vibe mode** — mesmo com glossário leigo no QUICKSTART_VIBE, quando o Claude Code retorna uma mensagem como "C3 violation: cost_per_outcome > 0.25", a CEO continua sem entender. O glossário precisa ser **interceptado e aplicado automaticamente**, não consultado manualmente.
+
+**Problema concreto**: Fase 1 trouxe o usuário até a porta. Fase 2 precisa convidá-lo a entrar e mostrar como caminhar dentro.
+
+**Decisão**: três entregas complementares:
+
+1. **`PLAYGROUND/`** — 3 exemplos executáveis end-to-end, cada um cobrindo um `project_type` diferente. Cada exemplo tem:
+   - `README.md` — o que vamos construir e por quê (~3 min de leitura)
+   - `walkthrough.md` — passo a passo do pipeline Forge aplicado com comandos reais, artefatos gerados em cada etapa (~15-25 min)
+   - `docs/forge/project.json` — manifest do consumidor real (não placeholder)
+   - Estrutura espelhando exatamente o que um projeto consumidor real teria
+
+   Exemplos cobertos:
+   - **01-agentic-saas-agent** — Carrossel Agent (inspirado Acme Social): pipeline SHADOW→ASSISTED→AUTONOMOUS, eval-suite LLM-as-judge, unit-economics em tokens, lifecycle 3 estágios.
+   - **02-platform-module** — Módulo Faturamento (inspirado SchoolPlatform): pipeline draft→staging→pilot→canonical, acceptance gate operacional (sem LLM), delivery-economics (infra+suporte), TDD-first Tier C.
+   - **03-hybrid** — Plataforma com Módulo IA (inspirado Aicfo): mistura platform core + agentic_sku, interpretação C1-C8 por módulo, ADR obrigatório para adicionar módulo IA.
+
+2. **`COMMON_ERRORS.md`** — top 10 erros consolidados em formato copy-paste:
+   - Mensagem literal que o usuário vê
+   - Causa-raiz explicada
+   - Comando de diagnóstico
+   - Solução passo a passo
+   - Prevenção para o futuro
+   
+   Cobertura: forge-doctor failures (C2/C3/C6), hooks bloqueando (outcome-clause-guard, adr-approval-gate, secret-scan), Guardians rejeitando (po-guardian, unit-economist), TDD red phase missing (Gate G6 Forge-10), hash mismatch.
+
+3. **Hook `friendly-errors.sh` (PostToolUse)** — intercepta output de tools/comandos Claude Code, detecta padrões de violação C1-C8 (regex sobre strings como "C3 violation", "po-guardian reject", "secret-scan blocked", etc.) e anexa mensagem traduzida conforme `.forge-mode`:
+   - **vibe** — tradução leiga ("Esse SKU está caro demais — você precisa cobrar mais ou cortar custos")
+   - **dev** — tradução + detalhes técnicos + referência a COMMON_ERRORS.md
+   - **agent** — passa direto sem traduzir (output original para downstream automation)
+
+   Não bloqueia execução. Apenas anexa contexto humano. Modo padrão é `dev` se `.forge-mode` não existir.
+
+**Mudanças (estrutura do repo)**:
+
+- Nova pasta `PLAYGROUND/` na raiz com 3 sub-pastas, ~7 arquivos novos.
+- Novo `COMMON_ERRORS.md` na raiz (~600 linhas, 10 erros).
+- Novo `hooks/post-tool-use/friendly-errors.sh` (~270 linhas, 9 padrões de violação detectados).
+
+**Mudanças (settings.json)**:
+
+- Hook `friendly-errors` adicionado ao array `PostToolUse[].hooks[]` com matcher `Edit|Write` e timeout 3000ms.
+- `_ids` atualizado para incluir `friendly-errors`.
+
+**Mudanças (manifest.json)**:
+
+- Nova entrada `hook-friendly-errors` em `hooks.post_tool_use[]` v1.0.0 com `linked_principles: [C7]` (portability — funciona em qualquer projeto consumidor, lê apenas `.forge-mode` que é gitignored).
+
+**Gates novos (consolidando v0.12.0)**:
+
+| Gate | Onde | O que valida |
+|---|---|---|
+| Playground completeness | PLAYGROUND/ | Cada exemplo tem README + walkthrough + project.json válido |
+| Common errors coverage | COMMON_ERRORS.md | Top 10 erros incluem causa-raiz + diagnóstico + solução copy-paste |
+| Friendly errors fallback | friendly-errors.sh | Detecta padrão C1-C8 OU não bloqueia (sempre exit 0) |
+| Mode-aware translation | friendly-errors.sh + .forge-mode | Tradução vibe/dev/agent respeitando preferência local |
+
+**Mapeamento com a Constitution**:
+
+| Princípio | Como Forge-12 Fase 2 aplica |
+|---|---|
+| C1 (Diagnose-first) | PLAYGROUND/01 mostra `diagnostic.md` real antes de qualquer código |
+| C2 (Outcome contratual) | PLAYGROUND/01 e 02 mostram outcomes verificáveis em formatos diferentes (LLM vs operacional) |
+| C3 (Unit economics) | PLAYGROUND/01 mostra C3 em tokens; 02 em infra+suporte; 03 em mix; COMMON_ERRORS #8 ensina recuperação |
+| C4 (Verifiable evaluation) | PLAYGROUND/01 mostra eval-suite; 02 mostra acceptance-report; ambos no walkthrough |
+| C5 (ADR) | PLAYGROUND/01 mostra ADR-001 reduzindo slides; COMMON_ERRORS #5 ensina resposta a hook adr-approval-gate |
+| C6 (Telemetry) | PLAYGROUND/02 mostra logs+audit ao invés de Langfuse; friendly-errors traduz "telemetry" amigavelmente |
+| C7 (Portability) | friendly-errors.sh é o melhor exemplo: lê `.forge-mode` simples (texto), fallback graceful, não acopla nada |
+| C8 (Tenant context) | PLAYGROUND/02 e 03 mostram tenant_id, RLS PostgreSQL, audit trail particionado |
+
+**Decisão de versionamento**: MINOR bump (v0.11.0 → v0.12.0). Adiciona capability nova (Surface layer Fase 2) sem mudar Constitution ou quebrar APIs. Tudo é **opcional** (PLAYGROUND não interfere; COMMON_ERRORS é documentação; hook tem fallback graceful). Projetos consumidores em Forge ≤ 0.11.x continuam funcionando.
+
+**Trade-off aceito**: Forge-12 Fase 2 cria **surface de manutenção significativa** — PLAYGROUND precisa atualizar quando pipeline muda, COMMON_ERRORS precisa expandir quando novos erros aparecem, friendly-errors regex pode quebrar com mudança de mensagens upstream. Em troca:
+- TTV (time-to-value) cai mais ~30% para devs novos (eles agora têm onde **ver fazendo**)
+- Vibe mode passa a entender erros sem ler glossário manualmente
+- COMMON_ERRORS vira fonte única de verdade para top 10 problemas — reduz suporte ad-hoc
+
+**Próxima evolução prevista (Forge-12 Fase 3)**:
+
+- `GLOSSARY_PLAIN.md` standalone (hoje embutido no QUICKSTART_VIBE)
+- `forge-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara `/acme:*` automaticamente — elimina necessidade do operador conhecer slash commands
+- Modo persona auto-detectado baseado em comportamento (sem precisar `forge mode`)
+- PLAYGROUND adicionar exemplo 04 (automation/RPA)
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -790,3 +884,4 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | 0.9.0 | 2026-05-12 | F26 adicionada; Forge-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow forge-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |
 | 0.10.0 | 2026-05-13 | F27 adicionada; Forge-11 master prompt universal entregue | `templates/master-prompt.md` v1.0.0 com detecção automática de project_type + ai_enabled, interpretação adaptativa de C1-C8, roteamento de /acme:* por tipo, invocação correta dos 10 Guardians, output padronizado em 5 seções; substitui instruções manuais nos CLAUDE.md de projetos consumidores; aplica-se a TODOS os project_types (agentic_saas, platform, automation, hybrid) |
 | 0.11.0 | 2026-05-13 | F28 adicionada; Forge-12 Fase 1 camada de usabilidade entregue | HELLO.md (landing adaptativo), QUICKSTART_VIBE.md (CEO sem jargão), QUICKSTART_DEV.md (cheatsheet técnico), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help); reduz TTV de ~3 dias (dev) e ~impossível (CEO) para 30min/5min |
+| 0.12.0 | 2026-05-13 | F29 adicionada; Forge-12 Fase 2 aprendizado por exemplos + tradução de erros entregue | PLAYGROUND/ com 3 exemplos executáveis (agentic_saas / platform / hybrid) cada um com README + walkthrough + project.json; COMMON_ERRORS.md (top 10 erros copy-paste); hook friendly-errors.sh que traduz violações C1-C8 conforme .forge-mode (vibe/dev/agent); fixa lacuna de "leitura sem execução não fixa" e "mensagens hostis no modo vibe" |

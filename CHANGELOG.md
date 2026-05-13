@@ -9,6 +9,85 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.12.0] — 2026-05-13
+
+### Added (Forge-12 Fase 2 — Aprendizado por exemplos + tradução de erros)
+
+**Fecha as 2 lacunas da Fase 1: (a) ler doc não fixa, falta ver fazendo; (b) mensagens de erro técnicas continuam hostis no modo vibe mesmo com glossário leigo. Solução: PLAYGROUND com exemplos reais + tradução automática de erros via hook.**
+
+**Novo `PLAYGROUND/` na raiz com 3 exemplos executáveis end-to-end:**
+
+- **`PLAYGROUND/README.md`** — visão geral, tabela comparativa dos 3 tipos, guia por onde começar.
+
+- **`PLAYGROUND/01-agentic-saas-agent/`** (Carrossel Agent, inspirado Acme Social):
+  - `README.md` — outcome contratual, stack, conceitos-chave
+  - `walkthrough.md` — passo a passo do pipeline (~25 min): diagnose → spec → plan + ADR → tasks → implement (AIOS TDD-first) → eval (20+ cases LLM-as-judge) → promote SHADOW → ASSISTED → AUTONOMOUS
+  - `docs/forge/project.json` — manifest real (`project_type=agentic_saas`, `ai_enabled=true`)
+
+- **`PLAYGROUND/02-platform-module/`** (Módulo Faturamento, inspirado SchoolPlatform):
+  - `README.md` — diferenças críticas vs agentic (C3 audita infra; C4 acceptance gate; lifecycle draft→canonical)
+  - `walkthrough.md` (~20 min) — pipeline platform com delivery-economics, audit-trail-check, acceptance-report assinado pelo decisor cliente
+  - `docs/forge/project.json` — manifest real (`platform`, `ai_enabled=false`, criticality=C para módulo financeiro)
+
+- **`PLAYGROUND/03-hybrid/`** (Plataforma com módulo IA add-on, inspirado Aicfo):
+  - `README.md` — interpretação C1-C8 por módulo, ADR obrigatório para adicionar módulo IA, hooks rodam condicionalmente, reviewer mensal ramifica
+  - `docs/forge/project.json` — 3 módulos heterogêneos (2 platform_module + 1 agentic_sku) no mesmo projeto
+
+**Novo `COMMON_ERRORS.md` na raiz (top 10 erros + soluções copy-paste):**
+
+Cada erro segue padrão: mensagem literal → causa-raiz → diagnóstico → solução passo a passo → prevenção.
+
+Cobertura:
+1. `forge-doctor C2 path missing` (manifest ↔ filesystem)
+2. `forge-doctor C3 version mismatch` (4 fontes divergentes)
+3. `forge-doctor C6 artefato órfão` (arquivo sem entry no manifest)
+4. Hook `outcome-clause-guard` bloqueia spec (C2 vago)
+5. Hook `adr-approval-gate` bloqueia edit (C5 ausente)
+6. Hook `secret-scan` bloqueia commit (env vazio)
+7. `@po-guardian` rejeita spec (outcome vago, ICP fit unclear)
+8. `@unit-economist` falha C3 (custo > 25% preço)
+9. Hash sha256 incorreto no manifest (LF/CRLF, edição sem update)
+10. TDD red phase missing (Gate G6 Forge-10)
+
+**Novo hook `hooks/post-tool-use/friendly-errors.sh` (PostToolUse):**
+
+- Intercepta output de tools/comandos Claude Code
+- Detecta padrões de violação C1-C8 via regex (9 padrões: C1-C8, hash mismatch, secret)
+- Anexa mensagem traduzida conforme `.forge-mode`:
+  - **vibe** — tradução leiga: "Esse SKU está caro demais — você precisa cobrar mais ou cortar custos"
+  - **dev** — tradução + detalhes técnicos + referência a COMMON_ERRORS.md
+  - **agent** — passa direto sem traduzir (downstream automation)
+- Não bloqueia execução (sempre exit 0)
+- Fallback graceful: usa `jq` se disponível, senão `python3`, senão skip
+- Timeout 3000ms (não trava sessão)
+
+**Mudanças em `settings.json`:**
+
+- Hook `friendly-errors` adicionado ao array `PostToolUse[].hooks[]` com matcher `Edit|Write`.
+- `_ids` atualizado para incluir `friendly-errors`.
+
+**Mudanças em `manifest.json`:**
+
+- Nova entrada `hook-friendly-errors` em `artifacts.hooks.post_tool_use[]` v1.0.0 com `linked_principles: [C7]`.
+
+**Decisões formalizadas:**
+
+- **F29** em `docs/forge/decisions.md` registrando arquitetura "leitura → execução supervisionada" via PLAYGROUND, gates novos (playground completeness, common errors coverage, friendly errors fallback, mode-aware translation), mapeamento C1-C8 detalhado e trade-off aceito.
+
+### Próximas evoluções previstas (Forge-12 Fase 3)
+
+- `GLOSSARY_PLAIN.md` standalone (hoje embutido no QUICKSTART_VIBE)
+- `forge-router` subagent — automação completa de linguagem natural → slash commands
+- Modo persona auto-detectado baseado em comportamento
+- PLAYGROUND 04 (automation/RPA)
+
+### Versionamento
+
+- **MINOR bump** (v0.11.0 → v0.12.0): adiciona capability nova (Surface layer Fase 2) sem mudar Constitution ou quebrar APIs. Tudo é OPCIONAL.
+- Não exige ADR de Constitution.
+
+---
+
 ## [0.11.0] — 2026-05-13
 
 ### Added (Forge-12 Fase 1 — Camada de usabilidade adaptativa por persona)
