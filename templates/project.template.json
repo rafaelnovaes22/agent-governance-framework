@@ -34,7 +34,7 @@
 
   "telemetry": {
     "_doc": "Quando ai_enabled=true, llm_trace_provider deve estar configurado e os checks C6.* aplicam-se ao código de chamada LLM. Quando ai_enabled=false, os checks usam audit_log_provider e structured_logging_provider.",
-    "llm_trace_provider": "langfuse | helicone | phoenix | custom | null",
+    "llm_trace_provider": "langfuse | langsmith | helicone | phoenix | custom | null",
     "audit_log_provider": "postgres-audit | elastic | datadog | custom | null",
     "structured_logging_provider": "pino | winston | python-logging | otel | custom | null",
     "metrics_provider": "prometheus | grafana | datadog | custom | null",

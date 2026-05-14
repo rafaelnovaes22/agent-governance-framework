@@ -217,7 +217,7 @@ Cada módulo segue a tabela do seu tipo. Conjunto deve ser auditável.
 
 | `ai_enabled` | Provedor obrigatório | Que eventos rastrear |
 |---|---|---|
-| `true` | Provedor de tracing LLM (`langfuse` / `helicone` / `phoenix` / custom) | Toda chamada LLM em produção (input/output/cost/latency) |
+| `true` | Provedor de tracing LLM (`langfuse` / `langsmith` / `helicone` / `phoenix` / custom) | Toda chamada LLM em produção (input/output/cost/latency) |
 | `false` | `audit_log_provider` + `structured_logging_provider` | Toda mutação crítica de estado (criar/atualizar/deletar dado de negócio), todo login, toda integração externa, todo erro 5xx |
 | `hybrid` (módulo a módulo) | União dos dois conforme `ai_enabled` do módulo | — |
 

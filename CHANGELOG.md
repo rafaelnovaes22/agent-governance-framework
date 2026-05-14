@@ -9,6 +9,14 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **`langsmith` adicionado à enum de `llm_trace_provider`** em `templates/project.template.json` e tabela do C6 em `.claude/CONSTITUTION.md`. Continua respeitando o princípio "Forge não opina sobre provedor" (CONSTITUTION linha 233) — apenas reconhece formalmente o provedor nativo do LangChain/LangGraph como opção válida. Solicitado pelo consumidor Acme Social (ADR-006-PROJ) ao adotar LangGraph como orchestration runtime, onde LangSmith é o tracer nativo. Sem quebra de contrato — consumidores existentes que usam `langfuse`/`helicone`/`phoenix`/`custom` continuam válidos.
+
+---
+
 ## [0.15.0] — 2026-05-13
 
 ### Added (Forge-14 — Surface layer Fase 3 + bonus consumer hardening)
