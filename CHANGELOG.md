@@ -9,6 +9,37 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.19.0] — 2026-05-14
+
+### Added (Forge-18 — Skills de migração e segurança LLM)
+
+**Dois skills que fecham gaps de risco específicos do ecossistema LLM: migrações de SDK sem regressão e hardening contra ameaças que web security clássica não cobre.**
+
+**Nova skill `.claude/skills/L1/sdk-migration.md` v1.0.0 (F53):**
+
+- Gerencia migrações de Anthropic SDK, Langfuse, Prisma e atualizações do Forge framework em consumer projects.
+- Decisão de migração: 5 perguntas (valor único? escopo? substituto pronto? custo migration vs manutenção? risco de regressão?).
+- 3 tipos de migração: Tipo A (SDK externo — C7 torna barato, toca máx. 2–3 arquivos), Tipo B (modelo LLM depreciado — re-eval obrigatória, grep por hardcode detecta violações C8), Tipo C (Forge framework PATCH/MINOR/MAJOR — cada nível com processo específico).
+- Padrões: Strangler (SHADOW como strangler routing natural), Adapter (o `src/llm/adapters/` IS o Adapter Pattern), Feature Flag via TenantContext (nunca `if model === X` no código de negócio — C8).
+- Código zumbi Forge: skills/commands sem consumer ativo há 3+ meses → deprecar com prazo ou atribuir dono.
+- Advisory vs Compulsório: default advisory, compulsório quando há vulnerabilidade, deadline de remoção ou breaking change com data.
+- Regra do Churn: mantenedor do Forge que bumpa breaking change é responsável pelo migration guide + forge-sync.sh + suporte N-1.
+- Re-eval obrigatória: mudança de modelo ou formato de prompt → re-eval. Mudança de cliente HTTP interno → não.
+
+**Nova skill `.claude/skills/L2/llm-security-hardening.md` v1.0.0 (F53):**
+
+- Hardening LLM-específico que complementa `secret-scan.sh` (PreToolUse hook) e `security-privacy-guardian` (agent).
+- Sistema de 3 tiers: Sempre Faça / Pergunte Primeiro / Nunca Faça — versão LLM de `security-and-hardening`.
+- Prompt injection: encapsular input externo (email, ticket, CRM) com delimitadores explícitos + instrução de ignore; tratar output de LLM como não-confiável antes de ação downstream.
+- PII em eval cases (LGPD/GDPR): padrões de sanitização (CPF `012.345.678-90` → `CLIENTE-CPF-001`, CNPJ, email, nome, telefone); comandos grep para verificar antes de commit; base legal (anonimização irreversível ou consentimento).
+- Secret leakage em traces Langfuse: campos seguros (tenantId, artifactId, model, métricas) vs proibidos (API keys, tokens, PII de cliente real); configuração de retenção.
+- Validação de TenantContext na fronteira (Zod `strict()` para entrada HTTP/webhook — sem confiar em TenantContext não-validado).
+- Integração com guardians: tabela de quando cada guarda aciona (secret-scan.sh, security-privacy-guardian, langfuse-trace-check, pre-merge-check G5).
+- Casos adversariais de eval obrigatórios: prompt-injection-attempt, pii-in-response, secret-request — exigidos em promoção `assisted_to_autonomous`.
+- Adaptado de security-and-hardening (agent-skills).
+
+---
+
 ## [0.18.0] — 2026-05-14
 
 ### Added (Forge-17 — Skills SDLC fase 2 adaptadas de agent-skills)

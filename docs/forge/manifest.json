@@ -1,11 +1,11 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.18.0",
+  "manifest_version": "0.19.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.18.0",
+    "version": "0.19.0",
     "canonical": true,
-    "phase": "Forge-17 entregue -- 3 skills SDLC (source-driven-implementation L2, wave-implementation L2, context-engineering L1) adaptadas de agent-skills.",
+    "phase": "Forge-18 entregue -- 2 skills: sdk-migration (L1, C7/C4) e llm-security-hardening (L2, C6/C8).",
     "last_updated": "2026-05-14",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -1299,6 +1299,21 @@
           ],
           "helper_pattern": "none",
           "cache_strategy": "none"
+        },
+        {
+          "id": "skill-sdk-migration",
+          "path": ".claude/skills/L1/sdk-migration.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "1.0.0",
+          "sha256": null,
+          "description": "Migracoes de SDK externo (Anthropic, Langfuse, Prisma), modelos depreciados e atualizacoes do Forge framework em consumers. Patterns: Strangler, Adapter, Feature Flag. Adaptado de deprecation-and-migration (agent-skills).",
+          "linked_principles": [
+            "C7",
+            "C4"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
         }
       ],
       "L2": [
@@ -1458,9 +1473,24 @@
           ],
           "helper_pattern": "none",
           "cache_strategy": "none"
+        },
+        {
+          "id": "skill-llm-security-hardening",
+          "path": ".claude/skills/L2/llm-security-hardening.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": null,
+          "description": "Hardening LLM-especifico: prompt injection, PII em eval cases (LGPD/GDPR), secret leakage em traces Langfuse, validacao TenantContext na fronteira. Integra com secret-scan.sh e security-privacy-guardian. Adaptado de security-and-hardening (agent-skills).",
+          "linked_principles": [
+            "C6",
+            "C8"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
         }
       ],
-      "_status": "Forge-17 complete -- L0: 4/4, L1: 5/5, L2: 8/8. Skills SDLC: debugging-pipeline, prompt-simplification, forge-release-discipline (Forge-16) + source-driven-implementation, wave-implementation, context-engineering (Forge-17)."
+      "_status": "Forge-18 complete -- L0: 4/4, L1: 6/6, L2: 9/9. Skills SDLC: debugging-pipeline, prompt-simplification, forge-release-discipline (F51) + source-driven-implementation, wave-implementation, context-engineering (F52) + sdk-migration, llm-security-hardening (F53)."
     },
     "agents": {
       "guardians_opus": [

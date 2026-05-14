@@ -7,6 +7,26 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 ---
 
+## F53 (NOVO 2026-05-14) — Forge-18: sdk-migration (L1) + llm-security-hardening (L2)
+
+**Decisão**: ✅ **Adicionar 2 skills da terceira rodada da análise comparativa com agent-skills: `sdk-migration` (L1, C7/C4) e `llm-security-hardening` (L2, C6/C8).**
+
+**Motivação**: As rodadas anteriores (F51/F52) cobriram debugging, simplificação, disciplina de release, source-driven, wave implementation e context engineering. Esta rodada fecha dois gaps específicos de risco:
+
+1. **sdk-migration (L1)**: O C7 (portabilidade) já exige que toda dependência SDK seja isolada em `src/llm/adapters/` — mas não havia skill documentando como executar uma migração quando o Anthropic SDK bumpa major, quando um modelo LLM é depreciado, ou quando o próprio Forge bumpa MINOR/MAJOR. Sem este skill, migrações são ad-hoc, sem decisão advisory/compulsório, sem verificação de re-eval, e sem Regra do Churn para o mantenedor do Forge.
+
+2. **llm-security-hardening (L2)**: O `secret-scan.sh` hook e o `security-privacy-guardian` agent já existem, mas focam em code-level secrets. Esta skill preenche o gap de ameaças LLM-específicas: prompt injection via conteúdo externo no prompt, PII em eval cases (LGPD/GDPR — CPF/CNPJ/email em dados reais não sanitizados), secret leakage em traces Langfuse, e validação de TenantContext na fronteira. Inclui casos adversariais de eval (prompt injection, PII protection, secret protection) obrigatórios antes de promoção `assisted_to_autonomous`.
+
+**Artefatos criados**:
+- `.claude/skills/L1/sdk-migration.md` v1.0.0 — linked C7, C4
+- `.claude/skills/L2/llm-security-hardening.md` v1.0.0 — linked C6, C8
+
+**Totais pós-F53**: L0: 4, L1: 6, L2: 9 — total 19 skills.
+
+**SemVer**: MINOR (0.18.0 → 0.19.0) — nova capability (2 skills).
+
+---
+
 ## F52 (NOVO 2026-05-14) — Forge-17: 3 skills SDLC fase 2 (source-driven-implementation, wave-implementation, context-engineering)
 
 **Decisão**: ✅ **Adicionar 3 skills da segunda rodada da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills): `source-driven-implementation` (L2), `wave-implementation` (L2) e `context-engineering` (L1).**
