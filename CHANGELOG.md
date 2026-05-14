@@ -9,6 +9,137 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.18.0] — 2026-05-14
+
+### Added (Forge-17 — Skills SDLC fase 2 adaptadas de agent-skills)
+
+**Três skills que completam a camada SDLC do Forge, segunda rodada da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). Cobrem as lacunas de: integração SDK sem risco de padrões depreciados, disciplina de execução dentro das ondas do pipeline, e curadoria de contexto além da injeção automática do SessionStart.**
+
+**Nova skill `.claude/skills/L2/source-driven-implementation.md` v1.0.0 (F52):**
+
+- Adapta source-driven-development para o ecossistema Forge: Anthropic SDK, Langfuse, Prisma, ClickUp.
+- Processo em 4 steps: detectar versão em `package.json` com script Python, buscar documentação oficial (hierarquia: docs.anthropic.com > langfuse.com/docs > prisma.io/docs), implementar seguindo padrões documentados, citar fontes com URLs completas.
+- "STACK DETECTADA" declaration format para anunciar versões detectadas antes de implementar.
+- "CONFLITO DETECTADO" pattern para surfaçar divergência entre doc e código existente ao usuário (nunca resolver silenciosamente).
+- "NÃO-VERIFICADO" tag para padrões não cobertos por documentação oficial.
+- Integração com C7 (adapters/ sempre verificando doc da versão instalada), C6 (assinatura correta de `observe()` por versão), C8 (documentação mostra model hardcoded — parametrizar).
+- Tabela de fontes primárias para o ecossistema Forge com seções críticas de cada SDK.
+- Racionalizações comuns + red flags para garantir adoção.
+
+**Nova skill `.claude/skills/L2/wave-implementation.md` v1.0.0 (F52):**
+
+- Disciplina de execução dentro das ondas do pipeline `/acme:tasks` — adapta incremental-implementation para o contexto Forge.
+- Ciclo: Implementar → forge-doctor → Commit → Próxima fatia.
+- 3 estratégias de fatiamento: vertical (padrão), TDD-red first (Forge-10 obrigatório para agentic), risk-first (para integrações externas).
+- Regra 0.5 Scope Discipline C8-aware: não adicionar código tenant-specific enquanto implementa feature genérico.
+- Integração com `forge-release-discipline`: save point pattern, commit format, manifest sync por onda.
+- Regra: `forge-doctor.sh` com 0 FAILs é o gate entre commits — não pular, não "resolver depois".
+- Checklist entre fatias com verificações de C6 (observe() presente) e C8 (nenhum tenant hardcoded).
+- Red flags: >100 linhas sem forge-doctor, tenant hardcode "provisório", C6 adiada.
+
+**Nova skill `.claude/skills/L1/context-engineering.md` v1.0.0 (F52):**
+
+- Documenta como a hierarquia L0/L1/L2 *é* context engineering para o Forge.
+- Mapeamento C5 → hierarquia de contexto: Estratégico = L0 + CLAUDE.md (sempre presente), Tático = manifest + spec (por sessão/feature), Operacional = código fonte + erros (por tarefa).
+- CLAUDE.md como rules file de maior alavancagem: template com stack, comandos, princípios ativos e padrões Forge.
+- SessionStart hook (`forge-context.sh`) como injeção automática do nível 1 e 2.
+- 3 estratégias de empacotamento: Brain Dump (início de sessão), Selective Include (por tarefa), Hierarchical Summary (projetos grandes).
+- "CONFLITO DE CONTEXTO" pattern: surfaçar conflito entre spec e Constitution em vez de resolver silenciosamente.
+- "REQUISITO FALTANDO" pattern: parar e perguntar em vez de inventar comportamento.
+- Inline Planning Pattern (30 segundos de plano = 30 minutos de rework poupados).
+- Anti-patterns: context starvation (agente alucina APIs), context flooding (>5000 linhas não-relevantes), context stale, exemplo ausente, conhecimento implícito.
+- Adaptado de context-engineering (agent-skills).
+
+### Fixed
+
+- **manifest.json**: removidas entradas duplicadas de `skill-forge-release-discipline`, `skill-debugging-pipeline` e `skill-prompt-simplification` (introduzidas por bug no script de atualização em v0.17.0).
+
+---
+
+## [0.17.0] — 2026-05-14
+
+### Added (Forge-16 — Skills SDLC adaptadas de agent-skills)
+
+**Três skills operacionais que completam a camada de desenvolvimento do Forge, adaptadas da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). O Forge tinha 9 skills de governança; esta onda adiciona 3 skills de engenharia do dia-a-dia.**
+
+**Nova skill `.claude/skills/L2/debugging-pipeline.md` v1.0.0 (F51):**
+
+- Depuração sistemática de artefatos Forge: tabela de artefatos × sintomas típicos × onde buscar evidência (hooks, evals, SHADOW, manifest).
+- Regra Pare-a-Linha: 6 steps (parar → preservar → diagnosticar → corrigir → guardar → retomar).
+- Checklist de triagem em 6 steps: reproduzir → localizar → reduzir → corrigir causa raiz → guardar contra recorrência → verificar end-to-end.
+- Padrões por tipo de falha: hook bash (JSON malformado, caminho relativo, dependência ausente, timeout), eval regression (prompt_hash, cases desatualizados, modelo mudou, PII), SHADOW drift (volume, prompt editado sem re-eval, trace ausente, tenant hardcode).
+- Tabela de causas raiz comuns mapeadas a soluções Forge concretas.
+- Seção "saída de erro como dado não confiável" — anti-prompt-injection via eval cases ou logs externos.
+- Integrado com `bash scripts/forge-doctor.sh` e `/acme:pre-merge-check` na etapa de verificação.
+
+**Nova skill `.claude/skills/L2/prompt-simplification.md` v1.0.0 (F51):**
+
+- Simplificação de prompts Forge (redução de custo C3 sem mudar comportamento de eval) e código de consumer project (integra com pre-merge-check G1-G3).
+- 5 princípios: preservar comportamento exatamente, respeitar hierarquia de tier C5, clareza > compactação, manter balance (não simplificação excessiva), escopo no que mudou.
+- Processo em 4 steps: entender antes de tocar (Cerca de Chesterton), identificar oportunidades (tabela de padrões para prompts e código), aplicar incrementalmente (eval após cada mudança), verificar o resultado.
+- 4 padrões de compressão de prompt: remover redundância de contexto L0, consolidar instruções duplicadas, trocar parágrafo por template, substituir exemplo genérico por calibrador.
+- Tabela de padrões de código: nesting profundo → guard clauses, ternário encadeado → if/else, C8 violation → TenantContext, C6 violation → observe(), C7 violation → adapters/.
+- Regra: nunca remover exemplos do 3+3 sem verificação via eval.
+
+**Nova skill `.claude/skills/L1/forge-release-discipline.md` v1.0.0 (F51):**
+
+- Disciplina de versionamento SemVer + git workflow para o Forge framework e projetos consumidores.
+- Tabela MAJOR/MINOR/PATCH com exemplos Forge concretos e regra do MAJOR (ADR obrigatória).
+- Checklist de 5 artefatos por release MINOR: manifest.json + CHANGELOG.md + README.md + decisions.md + forge-doctor 0 FAIL.
+- Padrão de commit: `type(scope): descrição` com types e scopes específicos Forge (`skill-L0`, `skill-L1`, `skill-L2`, `hook`, `command`, `agent`).
+- Save point pattern: commit após cada task que passa no forge-doctor, reverter se falhar.
+- Change summary pós-wave: "MUDANÇAS FEITAS / COISAS QUE NÃO TOQUEI / PONTOS DE ATENÇÃO".
+- Higiene pré-commit: forge-doctor → JSON válido → grep secrets → diff staged.
+- Tabela de arquivos que nunca vão para git vs arquivos que são commitados.
+- Uso de `git bisect` com `forge-doctor` para encontrar commit que introduziu violação.
+
+---
+
+## [0.16.0] — 2026-05-14
+
+### Added (Forge-15 — SessionStart hook + orchestration patterns + doubt-driven-review)
+
+**Três lacunas identificadas via análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills): fricção de descoberta no início de sessão, ausência de guia de orquestração declarado, e sem mecanismo estruturado de revisão adversarial pré-SHADOW. Esta onda fecha as três.**
+
+**Novo hook `hooks/session-start/forge-context.sh` v1.0.0 (F50):**
+
+- Hook `SessionStart` que roda automaticamente a cada nova sessão do Claude Code.
+- Lê `docs/forge/manifest.json` para obter versão do framework.
+- Lê `docs/forge/project.json` do projeto consumidor (se existir) para exibir `project_type`, `ai_enabled`, `lifecycle_stage` e contagem de artefatos ativos.
+- Injeta conteúdo completo da meta-skill `using-forge.md` como mensagem `IMPORTANT` no início de toda sessão.
+- Fallback gracioso se `jq` não estiver instalado (informação mínima via python3).
+
+**Nova meta-skill `.claude/skills/L0/using-forge.md` v1.0.0 (F50):**
+
+- Flowchart de descoberta completo: de "novo cliente" até "audit mensal", com rota correta para cada tarefa.
+- Tabela decisória: quando usar skill L0/L1/L2 diretamente vs invocar Guardian vs rodar `/acme:*` command.
+- Hierarquia de contexto C5 documentada com regra de "nunca pular tiers".
+- 5 comportamentos obrigatórios: surface assumptions, parar em incerteza, outcome antes de tudo (C2), custo visível (C3), observabilidade em tudo (C6).
+- Modos de operação (vibe/dev/agent) com critérios de detecção.
+- Quick reference de todos os 14 commands com one-liner.
+- Sequência típica por `project_type` (agentic_saas vs platform).
+
+**Novo `docs/forge/orchestration-patterns.md` v1.0.0 (F50):**
+
+- 6 padrões endossados: invocação direta, slash command como wrapper, fan-out paralelo com merge (promote gate), pipeline sequencial com usuário como orquestrador, isolamento de pesquisa, fan-out de review (pre-merge).
+- 5 anti-padrões documentados: Guardian roteador (meta-orquestrador), Guardian-calls-Guardian, orquestrador sequencial que parafraseia, árvores profundas de Guardian, skill que viola hierarquia de tier C5.
+- Fluxo de decisão: árvore de perguntas para escolher o padrão certo.
+- Compatibilidade com Claude Code: sub-agentes vs Agent Teams, sub-agentes built-in a conhecer, regra de spawn paralelo em único turn.
+- Critérios para adicionar novo padrão ao catálogo (2 usos reais mínimos).
+
+**Nova skill `.claude/skills/L2/doubt-driven-review.md` v1.0.0 (F50):**
+
+- Revisão adversarial fresh-context de artefatos Forge não-triviais antes de SHADOW/promote/merge.
+- Ciclo de 5 steps: AFIRMAÇÃO → EXTRAÇÃO → DUVIDAR → RECONCILIAR → PARAR.
+- Artefatos-alvo: `prompts/{id}/v{n}/system.md`, `docs/specs/{id}.md`, `evals/{id}/cases/`, `docs/clients/{client}/plan-{id}.md`.
+- Tabela de integração com Gates do Forge (G1 pre-merge, Gate 1/4/5 promote, Onda 2 implement).
+- Checklist de classificação de findings por precedência: contrato mal lido / acionável / trade-off / ruído.
+- Limite de 3 ciclos antes de escalar ao usuário.
+- "Doubt theater" como red flag explícito (0 findings acionáveis em 2+ ciclos).
+- Adaptado de `doubt-driven-development` do agent-skills; vocabulário e princípios reescritos para contexto Forge.
+
+---
+
 ## [0.15.0] — 2026-05-13
 
 ### Added (Forge-14 — Surface layer Fase 3 + bonus consumer hardening)

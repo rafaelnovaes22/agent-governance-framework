@@ -1,9 +1,34 @@
-# Acme Forge — Decisões F1–F29
+# Acme Forge — Decisões F1–F52
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.12.0 (Forge-12 Fase 2)
-> **Versão atual**: 0.12.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.18.0 (Forge-17)
+> **Versão atual**: 0.18.0
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
+
+---
+
+## F52 (NOVO 2026-05-14) — Forge-17: 3 skills SDLC fase 2 (source-driven-implementation, wave-implementation, context-engineering)
+
+**Decisão**: ✅ **Adicionar 3 skills da segunda rodada da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills): `source-driven-implementation` (L2), `wave-implementation` (L2) e `context-engineering` (L1).**
+
+**Motivação**: Forge-16 (F51) entregou a primeira rodada de skills SDLC operacionais (debugging, simplificação, disciplina de release). A segunda rodada cobre três lacunas restantes com impacto direto na qualidade de implementação de integrações SDK e na disciplina de desenvolvimento dentro das ondas do pipeline:
+
+1. **source-driven-implementation (L2)**: Projetos consumidores com `ai_enabled=true` dependem de Anthropic SDK, Langfuse e Prisma — SDKs que evoluem, deprecam APIs e mudam assinaturas. Sem este skill, o agente escreve código de SDK de memória, introduzindo padrões depreciados que quebram silenciosamente. O skill força: detectar versão em `package.json`, buscar doc oficial antes de implementar, citar fontes, e surfaçar conflitos entre doc e código existente.
+
+2. **wave-implementation (L2)**: `/acme:implement` e `/acme:tasks` definem ondas (1–6 para agentic, 1–5 para platform), mas não havia disciplina de execução *dentro* de cada onda. Este skill adapta incremental-implementation para o contexto Forge: gate de `forge-doctor` entre commits, TDD-red first (Forge-10), scope discipline C8-aware, e save point pattern integrado com `forge-release-discipline`.
+
+3. **context-engineering (L1)**: O SessionStart hook (Forge-15/F50) injeta contexto mínimo automaticamente, mas não documenta como curar contexto durante o trabalho — como estruturar CLAUDE.md, quando fazer selective include da spec vs carregar tudo, como gerenciar confusão entre Constitution e código existente. Este skill documenta como a hierarquia L0/L1/L2 *é* context engineering para o Forge.
+
+**Artefatos criados**:
+- `.claude/skills/L2/source-driven-implementation.md` v1.0.0 — linked C6, C7
+- `.claude/skills/L2/wave-implementation.md` v1.0.0 — linked C3, C6, C8
+- `.claude/skills/L1/context-engineering.md` v1.0.0 — linked C1, C5, C6
+
+**Limpeza**: duplicatas de `skill-forge-release-discipline`, `skill-debugging-pipeline` e `skill-prompt-simplification` removidas do `manifest.json` (introduzidas por bug no script de atualização anterior).
+
+**Totais de skills pós-F52**: L0: 4, L1: 5, L2: 8 — total 17 skills.
+
+**SemVer**: MINOR (0.17.0 → 0.18.0) — nova capability (3 skills SDLC + manifest cleanup).
 
 ---
 
@@ -872,6 +897,51 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 
 ---
 
+## F50 (NOVO 2026-05-14) — SessionStart hook + meta-skill + orchestration patterns + doubt-driven-review (Forge-15)
+
+**Decisão:** Introduzir 4 artefatos derivados da análise comparativa com `agent-skills` (addyosmani/agent-skills):
+
+1. **`hooks/session-start/forge-context.sh`** — hook SessionStart que auto-injeta a meta-skill `using-forge.md` e contexto do projeto (project_type, lifecycle stage) em toda nova sessão do Claude Code.
+2. **`.claude/skills/L0/using-forge.md`** — meta-skill canônica: flowchart de descoberta (quando usar skill L0/L1/L2, Guardian ou /acme:* command), hierarquia C5, modos de operação (vibe/dev/agent), sequência típica por project_type.
+3. **`docs/forge/orchestration-patterns.md`** — catálogo de referência de padrões endossados (invocação direta, wrapper command, fan-out paralelo, pipeline sequencial, isolamento de pesquisa, fan-out de review) e anti-padrões (meta-orquestrador, Guardian-calls-Guardian, orquestrador sequencial, árvores profundas, violação de tier C5).
+4. **`.claude/skills/L2/doubt-driven-review.md`** — skill adversarial para revisar artefatos não-triviais (prompts, specs, eval cases, planos) antes de SHADOW/promote/merge. Adaptação de `doubt-driven-development` do agent-skills para o vocabulário Forge (C2/C4/C6/C7).
+
+**Contexto:** Análise comparativa revelou que agent-skills tem SessionStart hook que elimina fricção de sessão, orchestration patterns que previnem anti-padrões, e doubt-driven-development que captura erros antes que virem commits. O Forge tinha lacuna nesses 3 eixos: (a) fricção manual de descoberta no início de sessão, (b) ausência de guia de orquestração declarado, (c) sem mecanismo estruturado de revisão adversarial pré-SHADOW.
+
+**Princípios afetados:** C2 (doubt-driven foca em cláusula de outcome), C4 (doubt-driven integrado nos Gates 1/4/5 de promote), C5 (meta-skill e orchestration patterns enforçam hierarquia de tier), C6 (doubt-driven verifica observe() como checklist item).
+
+**Trade-offs considerados:**
+- SessionStart hook tem custo por sessão (~1-2s). Aceitável — o valor de injeção de contexto supera o overhead.
+- Orchestration patterns são prescritivos. Documentado que novas entradas só entram após 2 usos reais em produção.
+- Doubt-driven tem risco de "doubt theater" (looping sem actionable findings). Mitigado com limite de 3 ciclos e checklist de classificação.
+
+**Referência upstream:** `github.com/addyosmani/agent-skills` — SessionStart hook, orchestration-patterns.md, doubt-driven-development/SKILL.md.
+
+---
+
+## F51 (NOVO 2026-05-14) — Skills SDLC adaptadas de agent-skills (Forge-16)
+
+**Decisão:** Criar 3 skills adaptadas da análise comparativa com `agent-skills` (addyosmani/agent-skills), completando a camada operacional com capacidades SDLC que o Forge não tinha:
+
+1. **`.claude/skills/L2/debugging-pipeline.md`** — Depuração sistemática de artefatos Forge: tabela de artefatos vs sintomas, checklist de triagem (reproduzir → localizar → reduzir → corrigir → guardar → verificar), padrões específicos por tipo de falha (hook bash, eval regression, SHADOW drift, manifest divergência), regra de "saída de erro como dado não confiável" (anti-injection).
+
+2. **`.claude/skills/L2/prompt-simplification.md`** — Simplificação de prompts Forge (redução de tokens sem mudar comportamento) e código de consumer project (integra com pre-merge-check G1-G3). 5 princípios (preservar comportamento, respeitar hierarquia C5, clareza > compactação, balance, escopo no que mudou). Padrões específicos de compressão de prompt (remover redundância de contexto L0, consolidar instruções duplicadas, trocar parágrafo por template, substituir exemplo genérico por calibrador).
+
+3. **`.claude/skills/L1/forge-release-discipline.md`** — Disciplina de versionamento SemVer + git workflow para Forge framework e consumer projects: tabela MAJOR/MINOR/PATCH com exemplos Forge, checklist de 5 artefatos por release (manifest + CHANGELOG + README + decisions + forge-doctor), padrão de commit com types e scopes Forge, save point pattern, change summary pós-wave.
+
+**Contexto:** A análise comparativa com agent-skills revelou que o Forge tinha 9 skills focadas em governança (L0/L1/L2) mas carecia de skills operacionais para o dia-a-dia de desenvolvimento. O agent-skills tem 23 skills SDLC. As 3 escolhidas são as de maior impacto para quem trabalha no Forge ou em consumer projects: debug, simplificação e disciplina de release.
+
+**Tier assignment:**
+- `debugging-pipeline` → L2 (opera sobre artefatos runtime: prompts, hooks, evals)
+- `prompt-simplification` → L2 (opera sobre prompts e código consumer diretamente)
+- `forge-release-discipline` → L1 (aplica-se ao projeto como um todo, não a um artefato específico)
+
+**Princípios afetados:** debugging-pipeline (C4 — triagem de pipeline, C6 — detecta traces ausentes), prompt-simplification (C3 — reduz custo de inferência, C5 — respeita hierarquia de tier, C6/C7 — checa violações durante simplificação), forge-release-discipline (C4 — versionamento de lifecycle, C5 — disciplina de contexto por tier).
+
+**Referência upstream:** `github.com/addyosmani/agent-skills` — debugging-and-error-recovery/SKILL.md, code-simplification/SKILL.md, git-workflow-and-versioning/SKILL.md.
+
+---
+
 ## Histórico de mudanças
 
 | Versão | Data | Mudança | Razão |
@@ -889,3 +959,5 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | 0.10.0 | 2026-05-13 | F27 adicionada; Forge-11 master prompt universal entregue | `templates/master-prompt.md` v1.0.0 com detecção automática de project_type + ai_enabled, interpretação adaptativa de C1-C8, roteamento de /acme:* por tipo, invocação correta dos 10 Guardians, output padronizado em 5 seções; substitui instruções manuais nos CLAUDE.md de projetos consumidores; aplica-se a TODOS os project_types (agentic_saas, platform, automation, hybrid) |
 | 0.11.0 | 2026-05-13 | F28 adicionada; Forge-12 Fase 1 camada de usabilidade entregue | HELLO.md (landing adaptativo), QUICKSTART_VIBE.md (CEO sem jargão), QUICKSTART_DEV.md (cheatsheet técnico), scripts/forge (CLI wrapper unificado com verbos start/doctor/version/mode/help); reduz TTV de ~3 dias (dev) e ~impossível (CEO) para 30min/5min |
 | 0.12.0 | 2026-05-13 | F29 adicionada; Forge-12 Fase 2 aprendizado por exemplos + tradução de erros entregue | PLAYGROUND/ com 3 exemplos executáveis (agentic_saas / platform / hybrid) cada um com README + walkthrough + project.json; COMMON_ERRORS.md (top 10 erros copy-paste); hook friendly-errors.sh que traduz violações C1-C8 conforme .forge-mode (vibe/dev/agent); fixa lacuna de "leitura sem execução não fixa" e "mensagens hostis no modo vibe" |
+| 0.16.0 | 2026-05-14 | F50 adicionada; Forge-15 entregue — SessionStart hook + using-forge meta-skill + orchestration-patterns + doubt-driven-review | Análise comparativa com agent-skills (addyosmani) revelou 3 lacunas: fricção de descoberta no início de sessão, ausência de guia de orquestração declarado, sem revisão adversarial estruturada pré-SHADOW |
+| 0.17.0 | 2026-05-14 | F51 adicionada; Forge-16 entregue — 3 skills SDLC adaptadas de agent-skills | debugging-pipeline (L2), prompt-simplification (L2), forge-release-discipline (L1) completam camada operacional com triagem de pipeline, compressão de prompts e disciplina de release |

@@ -1,12 +1,12 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.15.0",
+  "manifest_version": "0.18.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.15.0",
+    "version": "0.18.0",
     "canonical": true,
-    "phase": "Forge-14 entregue — Surface layer Fase 3 + bonus consumer hardening. Novos: forge-router subagent (F34) com catálogo fechado de 9 intents canônicos (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status) + output YAML parseável + modo persona-aware; hook pre-tool-use persona-detect.sh (F35) LGPD-safe com sinais SOMENTE de filesystem (TTY, src/, package.json, docs/clients/, team.has_non_technical_stakeholder em project.json), one-shot idempotente com guard contra canônico, log auditável; PLAYGROUND/04-automation (F36) com walkthrough RPA completo (sync ERP→Warehouse); GLOSSARY_PLAIN.md (F45) standalone 60+ termos em PT-BR leigo; friendly-errors v2.0.0 (F44) expandido de 10 para 18 padrões (cobre C1-C9 + TDD RED + Tier C coverage + Gate 6 + persona detect + provider lock-in + manifest órfão); .github/workflows/forge-playground-validate.yml (F41) valida estrutura dos 4 PLAYGROUNDs em todo PR (sem custo LLM); reviewer/aios-agent-config-schema.json (F43) + forge-doctor C10 validam os 6 AIOS configs contra schema canônico; CONTRIBUTING.md v0.3.0 (F49) doc do processo MAJOR bump + política de suporte N-1. PLAYGROUND/03-hybrid/walkthrough.md criado de bonus (gap histórico).",
-    "last_updated": "2026-05-13",
+    "phase": "Forge-17 entregue -- 3 skills SDLC (source-driven-implementation L2, wave-implementation L2, context-engineering L1) adaptadas de agent-skills.",
+    "last_updated": "2026-05-14",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": "e4c69f3817eac26c",
@@ -1166,6 +1166,26 @@
             3
           ],
           "description": "Carrega catálogo de ofertas (produtos, SKUs, diagnósticos) com lifecycle_stage e pricing_model."
+        },
+        {
+          "id": "skill-using-forge",
+          "path": ".claude/skills/L0/using-forge.md",
+          "type": "skill",
+          "tier": 0,
+          "version": "1.0.0",
+          "sha256": "bfeec206dc68bc9e",
+          "description": "Meta-skill Forge: flowchart de descoberta, hierarquia de contexto C5, modos de operação. Injetada pelo SessionStart hook.",
+          "linked_principles": [
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C5",
+            "C6",
+            "C7",
+            "C8"
+          ],
+          "auto_inject": true
         }
       ],
       "L1": [
@@ -1248,6 +1268,37 @@
             "offerings-loader"
           ],
           "description": "Mapeia processo as-is em formato agent-ready (trigger, steps, decision points, métricas, automatable hypotheses + agent_readiness_score)."
+        },
+        {
+          "id": "skill-forge-release-discipline",
+          "path": ".claude/skills/L1/forge-release-discipline.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "1.0.0",
+          "sha256": "9076a803fd7c911b",
+          "description": "Disciplina de versionamento SemVer + git workflow para o Forge framework e consumer projects: checklist de release, padrão de commit, branches de vida curta, save point pattern. Adaptado de git-workflow-and-versioning (agent-skills).",
+          "linked_principles": [
+            "C4",
+            "C5"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
+        },
+        {
+          "id": "skill-context-engineering",
+          "path": ".claude/skills/L1/context-engineering.md",
+          "type": "skill",
+          "tier": 1,
+          "version": "1.0.0",
+          "sha256": null,
+          "description": "Curadoria deliberada do contexto do agente: hierarquia L0/L1/L2 como context engineering, CLAUDE.md como rules file, SessionStart hook, confusion management e anti-patterns. Adaptado de context-engineering (agent-skills).",
+          "linked_principles": [
+            "C1",
+            "C5",
+            "C6"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
         }
       ],
       "L2": [
@@ -1327,9 +1378,89 @@
             "offerings-loader"
           ],
           "description": "Coordena modo SHADOW (start/tick/report) com mínimo 14 dias mandatórios, output isolado em runs/{client}/shadow/, métricas de concordância e recomendação de promoção (decisão humana)."
+        },
+        {
+          "id": "skill-doubt-driven-review",
+          "path": ".claude/skills/L2/doubt-driven-review.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": "538a8d3908b38191",
+          "description": "Revisão adversarial fresh-context de artefatos Forge antes de SHADOW/promote/merge. Adaptado de doubt-driven-development (agent-skills).",
+          "linked_principles": [
+            "C2",
+            "C4",
+            "C6",
+            "C7"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
+        },
+        {
+          "id": "skill-debugging-pipeline",
+          "path": ".claude/skills/L2/debugging-pipeline.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": "88183b23bb468f52",
+          "description": "Depuração sistemática de artefatos Forge: hooks com falha, regressão de eval, anomalia de SHADOW, prompt com comportamento inesperado. Adaptado de debugging-and-error-recovery (agent-skills).",
+          "linked_principles": [
+            "C4",
+            "C6"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
+        },
+        {
+          "id": "skill-prompt-simplification",
+          "path": ".claude/skills/L2/prompt-simplification.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": "995fe66f1698034c",
+          "description": "Simplificação de prompt Forge (redução de tokens C3) e código de consumer project (integra com pre-merge-check G1-G3). Adaptado de code-simplification (agent-skills).",
+          "linked_principles": [
+            "C3",
+            "C5",
+            "C6",
+            "C7"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
+        },
+        {
+          "id": "skill-source-driven-implementation",
+          "path": ".claude/skills/L2/source-driven-implementation.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": null,
+          "description": "Fundamenta decisoes de SDK em documentacao oficial antes de implementar. Detecta versoes de Anthropic SDK/Langfuse/Prisma, busca doc oficial, cita fontes. Adaptado de source-driven-development (agent-skills).",
+          "linked_principles": [
+            "C6",
+            "C7"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
+        },
+        {
+          "id": "skill-wave-implementation",
+          "path": ".claude/skills/L2/wave-implementation.md",
+          "type": "skill",
+          "tier": 2,
+          "version": "1.0.0",
+          "sha256": null,
+          "description": "Implementa em ondas verticais finas com forge-doctor como gate entre commits. TDD-red first (Forge-10), disciplina de escopo C8, save point pattern. Adaptado de incremental-implementation (agent-skills).",
+          "linked_principles": [
+            "C3",
+            "C6",
+            "C8"
+          ],
+          "helper_pattern": "none",
+          "cache_strategy": "none"
         }
       ],
-      "_status": "Forge-1 generic complete — Tier 1 (L0) 3/3 + Tier 2 (L1) 3/3 + Tier 3 (L2) 3/3. Acme-specific skills (tenant-onboarding, outcome-classifier, billing-calculator, flywheel-collector) reserved for examples/acme/skills/ scope per F13/F14."
+      "_status": "Forge-17 complete -- L0: 4/4, L1: 5/5, L2: 8/8. Skills SDLC: debugging-pipeline, prompt-simplification, forge-release-discipline (Forge-16) + source-driven-implementation, wave-implementation, context-engineering (Forge-17)."
     },
     "agents": {
       "guardians_opus": [
@@ -1783,7 +1914,7 @@
       ]
     },
     "hooks": {
-      "_status": "Forge-4 complete — 9 hooks ativos + skill-security-scan + bypass auditado",
+      "_status": "Forge-15 complete — 10 hooks ativos (1 SessionStart + 5 PreToolUse + 4 PostToolUse + 2 Stop) + skill-security-scan + bypass auditado",
       "bypass_env_var": "ACME_FORGE_BYPASS",
       "bypass_log_path": "docs/forge/bypass-log/",
       "pre_tool_use": [
@@ -2011,8 +2142,33 @@
           ],
           "description": "Forge-12 — CLI wrapper unificado. Verbos: start (wizard interativo), doctor (alias forge-doctor.sh), version, mode <vibe|dev|agent>, help. Detecta persona e salva preferência em .forge-mode. Compatível bash 4+ (git bash no Windows)."
         }
+      ],
+      "session_start": [
+        {
+          "id": "hook-forge-context",
+          "path": "hooks/session-start/forge-context.sh",
+          "type": "hook",
+          "hook_type": "SessionStart",
+          "matcher": null,
+          "version": "1.0.0",
+          "sha256": "bdb357de400dc4ee",
+          "linked_principles": [
+            "C5"
+          ],
+          "description": "Injeta meta-skill using-forge + contexto do projeto (project_type, lifecycle stage) em toda nova sessão."
+        }
       ]
-    }
+    },
+    "references": [
+      {
+        "id": "ref-orchestration-patterns",
+        "path": "docs/forge/orchestration-patterns.md",
+        "type": "reference",
+        "version": "1.0.0",
+        "sha256": "0354e49d2530b38c",
+        "description": "Catálogo de padrões de orquestração endossados: invocação direta, fan-out, pipeline sequencial, isolamento de pesquisa. Anti-padrões: meta-orquestrador, Guardian-calls-Guardian, árvores profundas."
+      }
+    ]
   },
   "external_repos_absorbed": [
     {
