@@ -109,6 +109,7 @@ function collect(o){
   Object.values(o).forEach(collect);
 }
 collect(m.artifacts);
+collect(m.integrations);  // inclui artefatos de integrations.hermes etc.
 const isConsumer=m.framework&&m.framework.canonical!==true;
 const CANONICAL_ONLY=['QUICKSTART.md','ARCHITECTURE.md','INSTALL.md','CONTRIBUTING.md',
   'DEEPAGENT_GUIDE.md','GLOSSARY.md','GLOSSARY_PLAIN.md','CLAUDE.md.template',
@@ -203,6 +204,7 @@ function collect(o){
   Object.values(o).forEach(collect);
 }
 collect(m.artifacts);
+collect(m.integrations);
 const scopes=[
   {dir:'.claude/skills', ext:'.md'},
   {dir:'.claude/agents', ext:'.md'},
@@ -424,6 +426,84 @@ if [[ "$IS_CONSUMER" == "true" ]]; then
       *)       warn "drift check falhou ($DRIFT_RESULT)" ;;
     esac
   fi
+fi
+
+# ─── C11: Integração Hermes (se declarada no manifest) ───────────────
+sep "C11  Integração Hermes (condicional — só se manifest declara integrations.hermes)"
+HERMES_DECLARED=$(node -e "
+  const m=JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8'));
+  process.exit(m.integrations && m.integrations.hermes ? 0 : 1);
+" 2>/dev/null && echo "yes" || echo "no")
+
+if [[ "$HERMES_DECLARED" == "no" ]]; then
+  pass "integrations.hermes não declarado no manifest — check pulado"
+else
+  # C11.1 — workflow forge-headless.yml existe e tem inputs obrigatórios
+  WF="forge-headless.yml"
+  if [[ -f ".github/workflows/$WF" ]]; then
+    if grep -q 'workflow_dispatch' ".github/workflows/$WF" 2>/dev/null && \
+       grep -qE 'command:|consumers:|caller_id:' ".github/workflows/$WF" 2>/dev/null; then
+      pass ".github/workflows/$WF presente com inputs command/consumers/caller_id"
+    else
+      fail ".github/workflows/$WF existe mas falta inputs obrigatórios (command|consumers|caller_id)"
+    fi
+  else
+    fail ".github/workflows/$WF ausente — integrations.hermes declarado mas workflow não encontrado"
+  fi
+
+  # C11.2 — skill forge.skill.md existe e tem frontmatter
+  SKILL="templates/hermes/forge.skill.md"
+  if [[ -f "$SKILL" ]]; then
+    if grep -q '^name:' "$SKILL" 2>/dev/null && grep -q '^version:' "$SKILL" 2>/dev/null; then
+      pass "$SKILL presente com frontmatter name/version"
+    else
+      fail "$SKILL existe mas frontmatter agentskills.io inválido (name/version ausentes)"
+    fi
+  else
+    fail "$SKILL ausente — integrations.hermes declarado mas skill não encontrada"
+  fi
+
+  # C11.3 — status-fast.md existe
+  FAST="templates/hermes/status-fast.md"
+  if [[ -f "$FAST" ]]; then
+    pass "$FAST presente (caminho rápido status)"
+  else
+    warn "$FAST ausente — intent #9 status não tem caminho rápido"
+  fi
+
+  # C11.4 — env.example Railway existe
+  ENV_EX="templates/hermes/railway/env.example"
+  if [[ -f "$ENV_EX" ]]; then
+    pass "$ENV_EX presente"
+  else
+    warn "$ENV_EX ausente — operadores não terão referência de configuração Railway"
+  fi
+
+  # C11.5 — SHAs dos artefatos batem com filesystem
+  while IFS= read -r line; do
+    case "$line" in
+      OK:*)   pass "${line#OK:}" ;;
+      WARN:*) warn "${line#WARN:}" ;;
+    esac
+  done < <(node -e "
+    const fs=require('fs');
+    const crypto=require('crypto');
+    const m=JSON.parse(fs.readFileSync('docs/forge/manifest.json','utf8'));
+    const artifacts=(m.integrations&&m.integrations.hermes&&m.integrations.hermes.artifacts)||[];
+    for(const a of artifacts){
+      if(!fs.existsSync(a.path)){console.log('WARN:integrations.hermes: '+a.path+' no manifest mas ausente no filesystem');continue;}
+      const content=fs.readFileSync(a.path);
+      const sha=crypto.createHash('sha256').update(content).digest('hex').slice(0,16);
+      if(!a.sha256||a.sha256==='null'||a.sha256==='0000000000000000') {
+        console.log('WARN:'+a.path+' — sha256 não declarado no manifest (recalcule com sha256sum)');
+      } else if(sha!==a.sha256){
+        console.log('WARN:'+a.path+' — sha256 no manifest ('+a.sha256+') != calculado ('+sha+') — arquivo modificado após entrada no manifest');
+      } else {
+        console.log('OK:'+a.path+' sha256 OK ('+sha+')');
+      }
+    }
+    if(artifacts.length===0) console.log('WARN:integrations.hermes.artifacts está vazio');
+  " 2>/dev/null)
 fi
 
 # ─── Sumário ─────────────────────────────────────────────────────────

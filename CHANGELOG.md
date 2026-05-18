@@ -9,6 +9,106 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.21.0] — 2026-05-18
+
+### Added (Forge-20 — Self-Harness Loop)
+
+**Self-harness loop fechado: o Forge e cada agente consumer aprendem de sessão para sessão via Hermes/Codex learning orchestrator.**
+
+**Arquitetura:** SessionStart carrega soul+memory → execução → Stop hook gera snapshot → Hermes/Codex sintetiza → PR com novos fatos → próxima sessão carrega memória atualizada.
+
+**Novo `hooks/stop/learning-snapshot.sh`:**
+- Stop hook que roda ao fim de toda sessão Claude Code (local ou headless GH Actions)
+- Detecta `client_id` via `docs/clients/*/diagnostic.md` (C1: learning vinculado a artifact real)
+- Lê gate report mais recente + shadow-status + lifecycle stage para determinar `confidence`
+- C8 guard: marca `is_internal: true` se nenhum diagnostic.md identificado
+- Produz `docs/learnings/{YYYY-MM}/{session-id}.md` com YAML frontmatter rastreável (C6)
+
+**Atualizado `hooks/session-start/forge-context.sh` (v0.2.0):**
+- Carrega `agent-soul.md` e `agent-memory.md` de `docs/clients/{id}/` se existirem
+- Injeta identidade e fatos aprendidos no contexto da sessão antes de qualquer prompt
+- Completa o loop: o que o Hermes aprende e commita de volta via PR chega na próxima sessão
+
+**Novos `templates/hermes/learning/` (3 templates):**
+- `agent-soul.template.md` — identidade durável do agente para um projeto consumer
+- `agent-memory.template.md` — fatos aprendidos do cliente com formato § e 8 seções canônicas
+- `skill-learnings.template.md` — aprendizados procedurais específicos do projeto (docs/clients/{id}/learned-skills/)
+
+**Novo `templates/hermes/learning-loop.md`:**
+- Skill Hermes (Railway/Codex) que orquestra o loop: parse → novelty → decide → PR → Telegram
+- Rate limiting: máx 1 PR de learning por consumer por dia
+- Validação HMAC obrigatória do webhook; rejeita silenciosamente payloads inválidos
+- Prompt Codex estruturado para decidir "should I persist?" com critérios de qualidade
+
+**Novo `templates/hermes/hermes-plugin/agent-governance-framework-memory/plugin.yaml`:**
+- Plugin Hermes com 4 tools: `forge_recall_memory`, `forge_store_learning`, `forge_get_soul`, `forge_propose_pr`
+- Hook `post_forge_run` triggered automaticamente após webhook com exit_code=0
+- PII guard integrado: bloqueia CPF/CNPJ/email/tokens antes de qualquer escrita
+
+**Novo `.claude/agents/learning-curator.md`:**
+- Guardian que revisa snapshots e decide quais fatos persistir em `agent-memory.md`
+- Critérios: acionável, específico, verificável, novo, seguro, rastreável (C6)
+- Invocado automaticamente pelo forge-router após implement/promote/audit
+- NUNCA modifica `.claude/skills/` canônicas; escreve apenas em `docs/clients/{id}/`
+
+**Nova `.claude/skills/L1/self-harness.md`:**
+- Skill L1: ensina o pattern completo de self-harness para devs/agentes
+- Diagrama do loop end-to-end, guia de bootstrap, formato § com exemplos bem/mal formados
+- Checklist de compliance C1-C5-C6-C7-C8 e tabela por guardian (o que cada um aprende)
+- Seção de depuração (agent não lembra / snapshots gerados mas fatos não persistidos)
+
+**Atualizado `.github/workflows/forge-headless.yml`:**
+- Novo step "Extrair learning snapshot" após execução: localiza snapshot gerado pelo Stop hook
+- Webhook callback agora inclui: `event: forge_run_completed`, `learning_snapshot_path`, `learning_snapshot_content`, `is_internal`
+- HMAC signature calculada com `openssl dgst` antes do POST para Hermes Railway
+
+**Decisão F55 em `docs/forge/decisions.md`** — Forge-20: self-harness loop, compliance C1-C8, alternatives considered.
+
+---
+
+## [0.20.0] — 2026-05-18
+
+### Added (Forge-19 — Hermes Agent integration)
+
+**Integração Hermes Agent (Nous Research) + Acme Forge: operação remota via Telegram sem dependência da máquina local.**
+
+**Arquitetura:** Hermes (Railway, Codex/OpenAI como cérebro) → `gh workflow run` → GitHub Actions runner (Claude Code headless) → artifact JSON + callback → Telegram.
+
+**Novo `.github/workflows/forge-headless.yml` (F27):**
+
+- Workflow `workflow_dispatch` + `workflow_call` com inputs `command/consumers/args/caller_id/caller_intent`.
+- Matrix strategy: expande CSV de consumers em N jobs paralelos com `fail-fast: false` (cada consumer é isolado).
+- Allowlist de segurança: comandos write (`/acme:implement`, `/acme:promote`) bloqueados para `caller_id` fora de `HERMES_PRIVILEGED_CHAT_IDS`.
+- Audit trail por run: artifact JSON com timestamp, caller_id, consumer, command, exit_code (C6).
+- Callback opcional para Hermes Railway via `HERMES_WEBHOOK_URL` (HMAC assinado).
+- Exit codes semânticos: 0 ok, 2 allowlist bloqueou, 4 consumer não é projeto Forge.
+
+**Novo `templates/hermes/forge.skill.md` (F27):**
+
+- Skill agentskills.io para o Hermes/Codex: catálogo dos 9 intents do `forge-router` espelhado, mapping intent → `gh workflow run`, lista de consumers disponíveis, política de allowlist, formato de resposta no Telegram.
+- Linked principles: C1, C6.
+
+**Novo `templates/hermes/status-fast.md` (F27):**
+
+- Caminho rápido para intent #9 (`status`) via `gh api` REST — sem disparar runner, latência < 5s.
+- Comandos para ler manifest canônico, `project.json` por consumer, drift de versão, histórico de runs.
+
+**Novo `templates/hermes/railway/env.example` (F27):**
+
+- Template de variáveis de ambiente para configurar no Railway dashboard do serviço Hermes.
+- Cobre: `GH_TOKEN`, `FORGE_REPO`, `HERMES_WEBHOOK_URL/SECRET`, `HERMES_PRIVILEGED_CHAT_IDS`, paralelismo, polling interval.
+
+**Novo `docs/forge/hermes-integration.md` (F27):**
+
+- Manual canônico: pré-requisitos, instalação passo a passo (secrets GH + Railway env + skill install), catálogo de comandos via Telegram, adição de consumers, limites de segurança, troubleshooting, evolução planejada.
+
+**Atualizado `docs/forge/manifest.json`:**
+
+- Novo bloco `integrations.hermes` com todos os 5 artefatos, SHAs e `linked_principles`.
+- Bump `manifest_version`, `framework.version`, `framework.last_updated`, `framework.phase` para Forge-19.
+
+---
+
 ## [0.19.0] — 2026-05-14
 
 ### Added (Forge-18 — Skills de migração e segurança LLM)

@@ -1,9 +1,90 @@
-# Acme Forge — Decisões F1–F52
+# Acme Forge — Decisões F1–F55
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.18.0 (Forge-17)
-> **Versão atual**: 0.18.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.21.0 (Forge-20)
+> **Versão atual**: 0.21.0
+
+---
+
+## F55 (NOVO 2026-05-18) — Forge-20: self-harness loop (agent soul + memory + learning orchestrator)
+
+**Decisão**: ✅ **Integrar o modelo self-harness do Hermes Agent ao Forge, de modo que cada run de `/acme:*` contribui para aprimorar a memória do agente do consumer, e o Hermes/Codex orquestra o loop de aprendizado via Railway.**
+
+**Motivação**: O Forge até a v0.20.0 era puramente input-driven (diagnostic → spec → prompt → eval → shadow → promote). Nenhuma sessão melhora a próxima. O Hermes Agent (Nous Research) resolve este problema com 5 pilares: SOUL, MEMORY, SKILLS, LOOP, CRONS. A decisão F55 adapta estes 5 pilares ao Forge de forma C1-C8 compliant.
+
+**Alternativas consideradas:**
+
+| Alternativa | Descartada porque |
+|---|---|
+| Hardcodar contexto do cliente em `.claude/agents/` | Viola C8 — hardcode por tenant em código |
+| SQLite FTS5 (como o Hermes original usa) | Sem acesso a filesystem persistente em GH Actions runners; markdown é mais portável (C7) |
+| Fine-tuning do modelo com dados do cliente | Custo alto, ciclo lento, viola C7 (lock-in de modelo) |
+| Propagar learnings diretamente para `.claude/skills/` canônicas | Violaria C5 (three-tier) e contaminaria skills portáveis com dados de tenant específico |
+
+**Decisões de design:**
+
+1. **Soul/memory como DATA, não código**: ficam em `docs/clients/{id}/`, nunca em `.claude/skills/` ou `.claude/agents/`
+2. **Formato § para fatos**: `§ [confidence] [date] [run:id] Descrição` — rastreável (C6), portável (C7), sem tenant hardcode (C8)
+3. **Hermes/Codex como orchestrator**: loop automático via Railway webhook; learning-curator como fallback semi-manual
+4. **Confidence ladder**: local < shadow < assisted < autonomous — reflete lifecycle_stage (C4)
+5. **PII guard múltiplas camadas**: no learning-snapshot.sh (Stop hook) + learning-curator + plugin.yaml + webhook payload
+6. **Rate limiting 1 PR/consumer/dia**: evita spam de PRs de learning em sessões muito ativas
+7. **Novelty score ≥ 0.6**: Codex só persiste fatos que realmente mudam o comportamento do agente
+8. **is_internal flag**: sessões sem diagnostic.md identificado não geram PR (C1: learning vinculado a artifact real)
+
+**Componentes entregues (v0.21.0):**
+- `hooks/stop/learning-snapshot.sh` — Stop hook gerador de snapshots
+- `hooks/session-start/forge-context.sh` v0.2.0 — injeção de soul+memory no SessionStart
+- `templates/hermes/learning/agent-soul.template.md` — template de identidade do agente
+- `templates/hermes/learning/agent-memory.template.md` — template de memória com 8 seções canônicas
+- `templates/hermes/learning/skill-learnings.template.md` — template de learned-skills local
+- `templates/hermes/learning-loop.md` — skill Hermes para orquestrar o loop
+- `templates/hermes/hermes-plugin/agent-governance-framework-memory/plugin.yaml` — plugin Hermes com 4 tools
+- `.claude/agents/learning-curator.md` — Guardian revisor de snapshots
+- `.claude/skills/L1/self-harness.md` — skill L1 com tutorial completo do pattern
+
+---
 
 Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas exige nova ADR.
+
+---
+
+## F54 (NOVO 2026-05-18) — Forge-19: integração Hermes Agent (Railway + Codex)
+
+**Decisão**: ✅ **Integrar Hermes Agent (Nous Research, hospedado no Railway) ao Forge via GitHub Actions executor, com Codex (OpenAI) como cérebro de roteamento.**
+
+**Motivação**: O operador principal (Rafael) precisa demandar construção e auditoria de projetos consumer a partir do Telegram (de qualquer lugar, PC desligado) e ter os Guardians/slash commands executando em paralelo em múltiplos repos. A máquina local Windows não pode ser o ponto único de execução de operações de longa duração.
+
+**Alternativas consideradas e descartadas**:
+
+1. **Bridge SSH (máquina local)**: Hermes SSH-ava no Windows, spawnava `claude --print`. Descartada porque Railway é container efêmero sem SSH tradicional e porque colocaria Claude Code dentro do container Hermes — misturando responsabilidades.
+
+2. **Reescrever Guardians como skills Hermes nativas (Codex)**: Descartada — os 11 Guardians são calibrados para o runtime Claude Code (Constitution C1–C8, hooks, ferramentas). Reescrever em Codex duplicaria o framework sem ganho real e fragmentaria a fonte-de-verdade.
+
+3. **MCP server dedicado no Railway**: Válida para fase 2, mas adiciona serviço extra a manter. Para a fase 1, GH Actions é suficiente e zero infraestrutura nova.
+
+**Decisão adotada: GH Actions executor**:
+
+- Hermes (Railway, Codex) recebe Telegram → traduz para `gh workflow run forge-headless.yml` com inputs `command/consumers/args/caller_id`.
+- GitHub Actions runner: `checkout consumer + install claude-cli + claude --print '/acme:xxx'`.
+- Paralelismo real via matrix strategy: 1 dispatch → N jobs concorrentes, isolados por working-dir.
+- Zero dependência da máquina local para execução. Audit trail nativo (GH runs page + artifact JSON por run).
+- Caminho rápido para `status` via `gh api` REST (sem runner, < 5s).
+
+**Política de segurança adotada**:
+- Read-only (`audit-monthly`, `pre-merge-check`, `eval`, `status`): qualquer `caller_id` autorizado.
+- Write (`implement`, `promote`): exige `caller_id` em `HERMES_PRIVILEGED_CHAT_IDS` (secret GH).
+- Voz (Telegram): aceita para read-only; comandos write exigem reconfirmação textual.
+- Máximo 3 consumers por dispatch (limite conservador de quota API Anthropic).
+
+**Artefatos criados**:
+- `.github/workflows/forge-headless.yml` v0.1.0 — linked C1, C6, C7
+- `templates/hermes/forge.skill.md` v0.1.0 — linked C1, C6
+- `templates/hermes/status-fast.md` v0.1.0 — linked C6
+- `templates/hermes/railway/env.example` v0.1.0 — linked C1
+- `docs/forge/hermes-integration.md` v0.1.0 — linked C1, C6
+- `forge-doctor.sh` check C11 — valida integração quando `integrations.hermes` declarado no manifest
+
+**SemVer**: MINOR (0.19.0 → 0.20.0) — nova capability (integração externa, novo executor type).
 
 ---
 

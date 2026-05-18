@@ -1,12 +1,12 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.19.0",
+  "manifest_version": "0.21.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.19.0",
+    "version": "0.21.0",
     "canonical": true,
-    "phase": "Forge-18 entregue -- 2 skills: sdk-migration (L1, C7/C4) e llm-security-hardening (L2, C6/C8).",
-    "last_updated": "2026-05-14",
+    "phase": "Forge-20 entregue -- self-harness loop (Hermes learning loop, agent-soul/memory, learning-curator).",
+    "last_updated": "2026-05-18",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": "e4c69f3817eac26c",
@@ -1314,6 +1314,22 @@
           ],
           "helper_pattern": "none",
           "cache_strategy": "none"
+        },
+        {
+          "id": "skill-self-harness",
+          "path": ".claude/skills/L1/self-harness.md",
+          "type": "skill",
+          "tier": "L1",
+          "version": "1.0.0",
+          "sha256": "57204ceb0fdc588a",
+          "description": "Skill L1: ensina o pattern self-harness (loop fechado de aprendizado) para agentes Forge (Forge-20).",
+          "linked_principles": [
+            "C1",
+            "C5",
+            "C6",
+            "C7",
+            "C8"
+          ]
         }
       ],
       "L2": [
@@ -1650,7 +1666,21 @@
           "description": "Bridge Claude Code → LangChain DeepAgent. Não revisa código diretamente — invoca deepagents CLI e traduz output. F17/F18."
         }
       ],
-      "_status": "Forge-3 — 10/10 agents delivered (4 Opus Guardians + 4 Sonnet Guardians + 2 cross-LLM reviewers). Pending: ADR-002 in consumer + first monthly audit run."
+      "_status": "Forge-3 — 10/10 agents delivered (4 Opus Guardians + 4 Sonnet Guardians + 2 cross-LLM reviewers). Pending: ADR-002 in consumer + first monthly audit run.",
+      "agent-learning-curator": {
+        "id": "agent-learning-curator",
+        "path": ".claude/agents/learning-curator.md",
+        "type": "agent",
+        "version": "1.0.0",
+        "sha256": "491b48df06ad16db",
+        "description": "Guardian: revisa learning snapshots e propõe patches ao agent-memory.md do consumer (Forge-20).",
+        "linked_principles": [
+          "C5",
+          "C6",
+          "C7",
+          "C8"
+        ]
+      }
     },
     "commands": {
       "spec_economics": [
@@ -2117,6 +2147,21 @@
           ],
           "exit_warn": 1,
           "description": "Avisa ao fim da sessão se eval suites têm menos de 30 casos (mínimo C4)."
+        },
+        {
+          "id": "hook-learning-snapshot",
+          "path": "hooks/stop/learning-snapshot.sh",
+          "type": "hook",
+          "hook_type": "Stop",
+          "version": "1.0.0",
+          "sha256": "928b0368a2cb4bb4",
+          "description": "Captura learning snapshot ao fim de cada sessão; produz docs/learnings/{YYYY-MM}/{session-id}.md (Forge-20).",
+          "linked_principles": [
+            "C1",
+            "C6",
+            "C7",
+            "C8"
+          ]
         }
       ],
       "scripts": [
@@ -2180,12 +2225,12 @@
           "type": "hook",
           "hook_type": "SessionStart",
           "matcher": null,
-          "version": "1.0.0",
-          "sha256": "bdb357de400dc4ee",
+          "version": "0.2.0",
+          "sha256": "0f3a95ada9bd670e",
           "linked_principles": [
             "C5"
           ],
-          "description": "Injeta meta-skill using-forge + contexto do projeto (project_type, lifecycle stage) em toda nova sessão."
+          "description": "SessionStart: injeta meta-skill + project context + agent soul/memory (Forge-20)."
         }
       ]
     },
@@ -2299,7 +2344,99 @@
       "0.4.1_to_0.5.0": "Forge-6 AIOS (F23): 3 novos commands (aios-init/run/status) + seção AIOS condicional em plan/tasks/implement + aios-telemetry-pattern.md + aios_tier no template spec + roadmap Forge-6 section.",
       "0.5.0_to_0.6.0": "Forge-7 AIOS portable agents (F24): 6 agentes em templates/aios/agents/ (3 especializados + 3 compartilhados, sendo schema_agent stack-agnostic), orchestrator.py.template + config.yaml.template, /acme:aios-init bumped para v0.2.0 (copia de templates físicos em vez de boilerplate inline), README dos templates AIOS, F24 em decisions, Forge-7 section em roadmap.",
       "0.6.0_to_0.7.0": "Forge-8 CI/CD esteira completa (F25): 4 templates em templates/cicd/ (github-actions-validate/eval/audit + cicd-checklist), Gate 6 adicionado ao /acme:promote (obrigatório para assisted_to_autonomous), Wave 6 no /acme:tasks (T6.1-T6.5), promotion-officer.md atualizado com Gate 6, F25 em decisions, Forge-8 section em roadmap.",
-      "0.7.0_to_0.8.0": "Forge-9 delivery-type agnostic (F26): Constitution v0.3.0 com matriz por project_type ({agentic_saas, platform, automation, hybrid} × {ai_enabled true/false}); novo templates/project.template.json como fonte canônica do consumidor; 4 novos templates platform (platform-module-spec, platform-pilot-state, platform-acceptance-report, delivery-economics); validation-rules v0.3.0 estruturado em common/agentic_saas/platform/automation com applies_when condicional; reviewer prompt v0.3.0 carrega project.json e ramifica checks; reviewer-contract v0.2.0; commands /acme:diagnose|spec|promote|audit-monthly ramificados (versões 0.2.0/0.2.0/0.3.0/0.2.0); supported_project_types e principles[].interpretation_modes adicionados ao manifest; F26 em decisions. Backwards compatible: defaults legados (agentic_saas + ai_enabled=true) quando docs/forge/project.json ausente no consumidor."
+      "0.7.0_to_0.8.0": "Forge-9 delivery-type agnostic (F26): Constitution v0.3.0 com matriz por project_type ({agentic_saas, platform, automation, hybrid} × {ai_enabled true/false}); novo templates/project.template.json como fonte canônica do consumidor; 4 novos templates platform (platform-module-spec, platform-pilot-state, platform-acceptance-report, delivery-economics); validation-rules v0.3.0 estruturado em common/agentic_saas/platform/automation com applies_when condicional; reviewer prompt v0.3.0 carrega project.json e ramifica checks; reviewer-contract v0.2.0; commands /acme:diagnose|spec|promote|audit-monthly ramificados (versões 0.2.0/0.2.0/0.3.0/0.2.0); supported_project_types e principles[].interpretation_modes adicionados ao manifest; F26 em decisions. Backwards compatible: defaults legados (agentic_saas + ai_enabled=true) quando docs/forge/project.json ausente no consumidor.",
+      "0.19.0_to_0.20.0": "Forge-19 Hermes integration (F27): workflow forge-headless.yml (dispatchable, matrix multi-consumer), skill agentskills.io para Codex, caminho rápido status-fast, env.example Railway, manual hermes-integration.md. Hermes (Railway) + Codex (OpenAI) como operador remoto-móvel do Forge via GitHub Actions executor. Zero dependência da máquina local na execução. Decisão F27 em decisions.md."
+    }
+  },
+  "integrations": {
+    "hermes": {
+      "version": "0.1.0",
+      "description": "Integração com Hermes Agent (Nous Research) hospedado no Railway. Codex como cérebro (OpenAI). Executor: GitHub Actions runner com claude --print headless.",
+      "host": "railway",
+      "brain": "codex-openai",
+      "executor": "github-actions",
+      "artifacts": [
+        {
+          "path": ".github/workflows/forge-headless.yml",
+          "type": "github-workflow",
+          "version": "0.1.0",
+          "sha256": "20c136f51ef23249",
+          "description": "Workflow dispatchable — recebe command/consumers/args de Hermes e executa claude --print em matrix multi-consumer",
+          "linked_principles": [
+            "C1",
+            "C6",
+            "C7"
+          ]
+        },
+        {
+          "path": "templates/hermes/forge.skill.md",
+          "type": "hermes-skill",
+          "version": "0.1.0",
+          "sha256": "249971e78178ca59",
+          "description": "Skill agentskills.io para o Hermes/Codex: catálogo de 9 intents, mapping intent → gh workflow run, política de allowlist",
+          "linked_principles": [
+            "C1",
+            "C6"
+          ]
+        },
+        {
+          "path": "templates/hermes/status-fast.md",
+          "type": "hermes-skill",
+          "version": "0.1.0",
+          "sha256": "3b7c04b85af94296",
+          "description": "Caminho rápido para intent #9 status via gh api REST — sem disparar runner, latência < 5s",
+          "linked_principles": [
+            "C6"
+          ]
+        },
+        {
+          "path": "templates/hermes/railway/env.example",
+          "type": "config-template",
+          "version": "0.1.0",
+          "sha256": "2b581b84274aaec6",
+          "description": "Variáveis de ambiente a configurar no Railway dashboard do serviço Hermes",
+          "linked_principles": [
+            "C1"
+          ]
+        },
+        {
+          "path": "docs/forge/hermes-integration.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": "53adc534e995df23",
+          "description": "Manual canônico de instalação e operação da integração Hermes + Forge",
+          "linked_principles": [
+            "C1",
+            "C6"
+          ]
+        }
+      ]
+    },
+    "forge-20-learning": {
+      "version": "1.0.0",
+      "description": "Self-harness loop — agent soul/memory/skills por projeto consumer + Hermes learning orchestrator.",
+      "artifacts": [
+        {
+          "path": "templates/hermes/learning/agent-soul.template.md",
+          "sha256": "51e52ac8209f4426"
+        },
+        {
+          "path": "templates/hermes/learning/agent-memory.template.md",
+          "sha256": "68335ce3719d1026"
+        },
+        {
+          "path": "templates/hermes/learning/skill-learnings.template.md",
+          "sha256": "f7dfc9e03d61a761"
+        },
+        {
+          "path": "templates/hermes/learning-loop.md",
+          "sha256": "b8f0b59cec5d5d80"
+        },
+        {
+          "path": "templates/hermes/hermes-plugin/agent-governance-framework-memory/plugin.yaml",
+          "sha256": "f66356ee8ba99061"
+        }
+      ]
     }
   }
 }
