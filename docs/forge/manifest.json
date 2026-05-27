@@ -1,15 +1,15 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.22.0",
+  "manifest_version": "0.22.1",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.22.0",
+    "version": "0.22.1",
     "canonical": true,
-    "phase": "Forge-21 entregue -- WireLog analytics_provider (eventos de negócio/outcomes), schema de 14 eventos, adapters TS+Python portáveis, C6 bifurcado em llm_trace_provider + analytics_provider.",
+    "phase": "Forge-21 entregue (0.22.0) + patch 0.22.1: drift residual de Langfuse em CONSTITUTION.md sanado (LangSmith canonical conforme F56).",
     "last_updated": "2026-05-26",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
-    "constitution_sha256": "e4c69f3817eac26c",
+    "constitution_sha256": null,
     "supported_project_types": [
       {
         "type": "agentic_saas",

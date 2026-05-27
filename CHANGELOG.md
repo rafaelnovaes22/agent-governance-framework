@@ -9,6 +9,23 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.22.1] — 2026-05-26
+
+### Fixed (patch — drift residual de Langfuse)
+
+Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e WireLog como `analytics_provider`, mas três menções residuais a Langfuse permaneceram em `.claude/CONSTITUTION.md`. Esta patch sana o drift documental sem alterar contrato.
+
+**`.claude/CONSTITUTION.md`**:
+- Linha 115 (audit C3): "tracing 30d (Langfuse/equivalente)" → "tracing 30d (LangSmith/equivalente)"
+- Linha 220 (provider table C6): lista de provedores agora inclui `langsmith` antes de `langfuse / helicone / phoenix / custom` (LangSmith é o canônico, alternativas permanecem por C7)
+- Linha 230 (lint regex C6): exemplo de instrumentação atualizado de `langfuse.observe()` para `traceable()` do LangSmith
+
+**Sem impacto em contratos**: a Constituição já era provider-agnostic ("Forge não opina sobre o provedor"). Esta patch apenas alinha os exemplos ao provedor canônico declarado em F56.
+
+**Próximo passo (consumidores)**: projetos que herdaram cópia da CONSTITUTION antes desta patch (notadamente Aicfo v0.21.0) devem sincronizar.
+
+---
+
 ## [0.22.0] — 2026-05-26
 
 ### Added (Forge-21 — WireLog analytics_provider)
