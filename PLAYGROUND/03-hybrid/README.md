@@ -15,7 +15,7 @@
 
 **Stack do módulo IA:**
 - Anthropic SDK (Claude Opus 4.6) — para análise narrativa
-- Langfuse — telemetria do módulo IA APENAS
+- LANGSMITH — telemetria do módulo IA APENAS
 - LangChain JS — orquestração
 
 **Outcome contratual base:** acesso à plataforma R$ 1.500/mês por tenant
@@ -35,7 +35,7 @@ Forge-9 (F26) formalizou: **a interpretação dos princípios C1-C8 é por módu
 | ai_enabled | false | true |
 | C3 audita | Infra+suporte | Tokens LLM |
 | C4 valida via | Acceptance gate | Eval-suite LLM |
-| C6 | Logs+audit | Langfuse |
+| C6 | Logs+audit | LANGSMITH |
 | Lifecycle | draft→canonical | SHADOW→AUTONOMOUS |
 | Spec template | platform-module-spec | platform-sku-spec |
 
@@ -68,11 +68,11 @@ aicfo-style-hybrid/
 
 ### Para módulos core (platform):
 - Mesmo fluxo do Exemplo 02 (draft → staging → pilot → canonical)
-- Sem Langfuse, sem eval LLM
+- Sem LANGSMITH, sem eval LLM
 
 ### Para módulo IA (`ai-financial-analysis`):
 - Mesmo fluxo do Exemplo 01 (SHADOW → ASSISTED → AUTONOMOUS)
-- Com Langfuse + eval-suite + unit-economics em tokens
+- Com LANGSMITH + eval-suite + unit-economics em tokens
 
 **Como o Forge sabe qual fluxo aplicar?**
 
@@ -99,7 +99,7 @@ Antes de adicionar módulo IA em projeto platform, é **obrigatório criar ADR**
 
 **Consequências:**
 - ✅ Cliente paga R$ 50 add-on por análise (margem positiva)
-- ⚠️ Plataforma precisa configurar Langfuse (não tinha)
+- ⚠️ Plataforma precisa configurar LANGSMITH (não tinha)
 - ⚠️ Eval-suite LLM adicional vai precisar manutenção
 - ✅ Resto do core continua sob regime platform (sem regressão)
 ```
@@ -174,7 +174,7 @@ Como o pipeline para core é idêntico ao Exemplo 02, e o pipeline para módulo 
 # 2. Atualizar project.json
 # Adicionar entrada no modules[] com type=agentic_sku, ai_enabled=true
 
-# 3. Configurar Langfuse (se ainda não tem)
+# 3. Configurar LANGSMITH (se ainda não tem)
 # Hook langfuse-trace-check vai exigir antes do próximo PR
 ```
 

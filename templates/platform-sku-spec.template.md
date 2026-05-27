@@ -140,7 +140,7 @@ graph LR
 
 ### 4.3. Telemetria (C6)
 
-Toda chamada LLM **deve** estar instrumentada via `langfuse.observe(...)`. Cada `Outcome` no DB referencia `trace_id` Langfuse correspondente.
+Toda chamada LLM **deve** estar instrumentada via `observe()`, `ls.trace`, `traceable` ou wrapper equivalente. Cada `Outcome` no DB referencia `trace_id` LangSmith correspondente.
 
 ---
 
@@ -225,4 +225,4 @@ Tudo isso vive em `TenantContext.skuConfig.{{ sku_code }}`.
 - [ ] §7 gates de promoção configurados
 - [ ] §8 configuração por tenant declarada
 - [ ] Diagnóstico Fase 0 vinculado (C1)
-- [ ] Telemetria Langfuse confirmada (C6)
+- [ ] Telemetria LANGSMITH confirmada (C6)

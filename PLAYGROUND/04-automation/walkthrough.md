@@ -85,7 +85,7 @@ acceptance_criteria:
 > /acme:plan
 ```
 
-Plano em `docs/specs/erp-to-warehouse-sync.plan.md` — variante platform (sem seções LLM, sem prompts, sem Langfuse):
+Plano em `docs/specs/erp-to-warehouse-sync.plan.md` — variante platform (sem seções LLM, sem prompts, sem LANGSMITH):
 
 ```markdown
 ## 1. Arquitetura

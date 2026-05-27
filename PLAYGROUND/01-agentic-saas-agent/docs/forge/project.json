@@ -9,7 +9,7 @@
     "ideogram-v2"
   ],
   "telemetry": {
-    "langfuse": {
+    "LANGSMITH": {
       "enabled": true,
       "project_id": "playground-carrossel-agent"
     }

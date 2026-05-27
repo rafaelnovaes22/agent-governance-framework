@@ -1,5 +1,5 @@
 ---
-description: Gera plano técnico do artefato/módulo. Para agentic (ai_enabled=true): define camadas, abstração de modelo (C7), instrumentação Langfuse (C6), TenantContext (C8), cronograma SHADOW. Para platform (ai_enabled=false): define camadas de serviço, audit log (C6), abstração de integração (C7), cronograma PILOT. Lê docs/forge/project.json para detectar tipo automaticamente.
+description: Gera plano técnico do artefato/módulo. Para agentic (ai_enabled=true): define camadas, abstração de modelo (C7), instrumentação LANGSMITH (C6), TenantContext (C8), cronograma SHADOW. Para platform (ai_enabled=false): define camadas de serviço, audit log (C6), abstração de integração (C7), cronograma PILOT. Lê docs/forge/project.json para detectar tipo automaticamente.
 allowed-tools: [Read, Write, Glob, Grep]
 arguments:
   required:
@@ -35,7 +35,7 @@ Traduz a cadeia `spec → c4_thresholds → process-map → baseline-cost` em **
 3. `c4_thresholds` declarados na spec (output de `/acme:sla-threshold`)
 4. `docs/clients/{client_id}/baseline-cost-*.md` com `c3_check.status` ∈ {viable, tight}
 5. `docs/clients/{client_id}/process-*.md` com `agent_readiness_score >= 0.5`
-6. Tracing Langfuse configurado
+6. Tracing LANGSMITH configurado
 
 **Platform (ai_enabled=false):**
 3. `docs/modules/{artifact_id}/pilot-state.md` existe (ou será criado neste plan)

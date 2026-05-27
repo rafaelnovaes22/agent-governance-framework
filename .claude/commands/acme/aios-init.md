@@ -70,7 +70,7 @@ Antes de copiar qualquer arquivo, verificar **todos** os checks:
 4. Python 3.10/3.11 disponível: python --version
 5. ANTHROPIC_API_KEY definida no .env (warning não-bloqueante)
 6. PyYAML instalado: python -c "import yaml" (entry.py.template depende)
-7. langfuse instalado (warning não-bloqueante — _MockTrace é fallback)
+7. LANGSMITH instalado (warning não-bloqueante — _MockTrace é fallback)
 ```
 
 Se qualquer check obrigatório falhar: **parar e orientar com instrução específica de correção.** Não criar nenhum arquivo.
@@ -151,7 +151,7 @@ checks_passed:
   python_ok: true
   pyyaml_installed: true
   api_key_ok: true
-  langfuse_installed: true | false_warning
+  LANGSMITH_installed: true | false_warning
 next_step: "/acme:aios-run --module {module} --step spec"
 ```
 
@@ -161,7 +161,7 @@ next_step: "/acme:aios-run --module {module} --step spec"
 - [x] `${FORGE_ROOT}/templates/aios/` resolvido e acessível
 - [x] `aios/config.yaml` existe e tem `project.name` preenchido (não ainda `{PROJECT_NAME}`)
 - [x] Cada `entry.py` gerado tem todas as substituições aplicadas — nenhum `{PROJECT_NAME}`, `{MODULE}` ou `{TIER}` literal sobrou no resultado
-- [x] Cada `entry.py` gerado preserva o bloco Langfuse + `_MockTrace` (C6)
+- [x] Cada `entry.py` gerado preserva o bloco LANGSMITH + `_MockTrace` (C6)
 - [x] Nenhum `tenantId` hardcoded nos arquivos gerados (C8)
 - [x] SYSTEM_PROMPT funciona standalone sem kernel (C7) — declarado nos comentários do template
 - [x] Agentes compartilhados (schema/test/review) não foram sobrescritos se já existiam
@@ -176,7 +176,7 @@ next_step: "/acme:aios-run --module {module} --step spec"
 | Sobrescrever agentes compartilhados existentes | Apaga customização local feita pelo consumidor | Passo 2 só cria se ausente; nunca sobrescreve |
 | Atualizar `aios/config.yaml` em outros campos além de `modules:` | Pode apagar configurações reais (api_key, log path) | Apenas appende em `modules:`; preserva o resto |
 | Pular o gate de spec existente | Agentes sem spec geram lixo irrecuperável | Check 1 é hard gate — parar se spec não existe |
-| Pular instrumentação Langfuse no boilerplate | Sem trace = outcome não auditável (C6) | Templates já incluem; o command só copia, não modifica |
+| Pular instrumentação LANGSMITH no boilerplate | Sem trace = outcome não auditável (C6) | Templates já incluem; o command só copia, não modifica |
 
 ## Saída de erro estruturada
 

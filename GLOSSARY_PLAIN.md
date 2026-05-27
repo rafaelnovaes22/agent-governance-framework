@@ -286,7 +286,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ### **Telemetry**
 **O que é**: dados de execução que o sistema grava — quantos tokens gastou, quanto tempo demorou, qual foi a saída.
 **Por que importa**: sem isso, você não consegue auditar nada. Forge exige.
-**Equivalente técnico**: Langfuse trace (agentic) ou audit log (platform).
+**Equivalente técnico**: LangSmith trace (agentic) ou audit log (platform).
 
 ### **Tenant**
 **O que é**: um cliente específico dentro do seu sistema multi-cliente. Tipo "o cliente Acme tem suas configurações isoladas do cliente Beta".
@@ -335,6 +335,11 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **O que é**: tutorial passo-a-passo de cada exemplo no PLAYGROUND.
 **Por que importa**: melhor que ler doc seca — você acompanha o pipeline real.
 **Equivalente técnico**: `PLAYGROUND/{NN}-{tipo}/walkthrough.md`.
+
+### **WireLog**
+**O que é**: a "câmera de segurança do negócio" do Forge. Registra o que aconteceu com cada resultado entregue — foi criado? foi entregue? foi cobrado? Alguém tentou mudar o status e falhou?
+**Por que importa**: o LangSmith (câmera técnica) grava o que o agente fez internamente. O WireLog grava o que aconteceu no negócio. São câmeras diferentes com propósitos diferentes. Você, como CEO, se importa mais com a câmera do negócio.
+**Equivalente técnico**: `analytics_provider=wirelog` em `project.json`.
 
 ### **Wizard**
 **O que é**: assistente interativo. `bash scripts/forge start` faz perguntas e te ajuda a configurar.

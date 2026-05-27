@@ -99,7 +99,7 @@ version: "0.1.0"
 |---|---|
 | Faixa metodológica | R$ 1.500–4.000/mês |
 | **Preço proposto** | **R$ `{{ X }}`/mês** |
-| O que cobre | Infra (Langfuse, Postgres, hosting), suporte, observability |
+| O que cobre | Infra (LANGSMITH, Postgres, hosting), suporte, observability |
 
 ### 4.3. Cap mensal (opcional)
 

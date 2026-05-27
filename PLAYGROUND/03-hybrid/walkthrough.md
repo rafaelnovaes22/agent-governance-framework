@@ -8,7 +8,7 @@
 
 ## Cenário
 
-Plataforma B2B de gestão financeira (inspirada em Aicfo). 95% do código é CRUD/contábil sem IA. Mas existe **um módulo de Análise Financeira** que gera insight narrativo via LLM (Claude Opus). Esse módulo precisa de evals, Langfuse, custo controlado por outcome.
+Plataforma B2B de gestão financeira (inspirada em Aicfo). 95% do código é CRUD/contábil sem IA. Mas existe **um módulo de Análise Financeira** que gera insight narrativo via LLM (Claude Opus). Esse módulo precisa de evals, LANGSMITH, custo controlado por outcome.
 
 ---
 
@@ -83,7 +83,7 @@ para permitir trocar por OpenAI/Gemini se preço/qualidade divergirem >30%.
 
 ## Consequências
 - C3 do módulo IA segue cost_per_outcome (≤25%); platform mantém platform_margin.
-- C6 exige Langfuse APENAS para módulo IA.
+- C6 exige LANGSMITH APENAS para módulo IA.
 - C7 — adapter em src/llm/adapters/anthropic.ts; nenhum import direto fora dele.
 - Eval suite obrigatória (não acceptance gate) — módulo IA segue caminho agentic.
 ```
@@ -103,7 +103,7 @@ Spec inclui:
 - Eval suite plan: ≥ 30 casos por categoria
 - System prompt versionado (`prompts/ai-financial-analysis-v1.md`)
 - TenantContext: nenhum hardcode por cliente
-- Section 8 (instrumentação): Langfuse trace_id + observe() em toda chamada LLM
+- Section 8 (instrumentação): LANGSMITH trace_id + observe() em toda chamada LLM
 - Section 9 (AIOS): `aios_tier: B` — coverage gate 85% line
 
 ---
@@ -138,7 +138,7 @@ Cronograma:
 | 1 | scaffolding CRUD | scaffolding com prompt-builder |
 | 2 | service build | prompt + eval seed |
 | 3 | E2E tests | eval suite real (30+ casos) |
-| 4 | PILOT prep | SHADOW prep + Langfuse |
+| 4 | PILOT prep | SHADOW prep + LANGSMITH |
 | 5 | — | metrics |
 | 6 | CI/CD | CI/CD compartilhado |
 
@@ -182,7 +182,7 @@ Forge bloqueia `autonomous` do módulo IA se `billing-stripe` ainda em pilot —
 `/acme:audit-monthly` lê `project.json → modules[]` e ramifica:
 
 - Para módulos `ai_enabled=false`: audita `audited_actions` table, calcula `platform_margin`, valida pilot-state.md de cada um
-- Para módulos `ai_enabled=true`: amostra 5-10% de outcomes em Langfuse, valida `cost_per_outcome`, valida eval suite recente
+- Para módulos `ai_enabled=true`: amostra 5-10% de outcomes em LANGSMITH, valida `cost_per_outcome`, valida eval suite recente
 
 Output em `docs/forge/audits/2026-06.md` tem **2 seções separadas**, uma por classe de módulo.
 

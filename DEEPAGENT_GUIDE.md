@@ -30,7 +30,9 @@ Para rodar como reviewer, você precisa de:
 | **Constitution vigente** | `.claude/CONSTITUTION.md` do projeto auditado |
 | **Manifest do projeto auditado** | `docs/forge/manifest.json` do projeto auditado |
 | **Acesso read-only ao DB do projeto** | (para amostrar outcomes em produção) |
-| **Acesso read-only ao provedor de telemetria** | (Langfuse, Helicone, ou equivalente) |
+| **Acesso read-only ao `llm_trace_provider`** | LangSmith API key read-only (quando `ai_enabled=true`) |
+| **Acesso read-only ao `analytics_provider`** | WireLog API key read-only (quando `analytics_provider=wirelog`) — para cruzar DB outcomes ↔ WireLog events |
+| **Project config do consumidor** | `docs/forge/project.json` do projeto auditado (resolve `project_type`, `ai_enabled`, `telemetry.*`) |
 
 ---
 
@@ -130,7 +132,7 @@ Detalhe completo em [`reviewer/validation-rules.json`](./reviewer/validation-rul
 | **C3 — Cost ≤ 25%** | `unit-economics.md` declara razão ≤ 25% E traces 30d confirmam? |
 | **C4 — SHADOW** | Toda promoção SHADOW→ASSISTED ou ASSISTED→AUTONOMOUS no período tem gates passing registrados? |
 | **C5 — Three-tier** | Toda skill em `.claude/skills/` declara `tier: 1\|2\|3` no frontmatter? |
-| **C6 — Telemetry** | Outcomes no DB ↔ traces no Langfuse com desvio ≤ 1%? |
+| **C6 — Telemetry** | Outcomes no DB ↔ traces no LangSmith com desvio ≤ 1%? |
 | **C7 — Portability** | Imports de SDK LLM proibidos fora da camada de abstração? |
 | **C8 — Anti-custom** | Sem `if (tenantId === ...)` em código de produção? |
 
@@ -143,7 +145,7 @@ Procedimento padrão:
 1. Query DB: `SELECT * FROM outcomes WHERE created_at >= NOW() - INTERVAL '30 days' AND status IN ('DELIVERED', 'BILLED')`
 2. Agrupar por categoria (`payload.category` ou equivalente)
 3. Para cada categoria, amostrar 5-10% (mínimo 3 por categoria)
-4. Para cada outcome amostrado, fetch trace correspondente em Langfuse
+4. Para cada outcome amostrado, fetch trace correspondente em LangSmith
 5. Re-classificar **você (reviewer)** o outcome a partir do input bruto (`payload.input` ou equivalente)
 6. Comparar:
    - Decisão do agente em produção
@@ -251,7 +253,7 @@ Implicações:
 | Constitution não encontrada | FAIL crítico, abortar |
 | Versão do manifest incompatível | FAIL crítico, abortar |
 | Acesso ao DB negado | WARN, prosseguir sem amostragem (registrar limitação) |
-| Acesso a Langfuse negado | WARN, prosseguir sem cross-check de traces |
+| Acesso a LangSmith negado | WARN, prosseguir sem cross-check de traces |
 | Princípio individual: dados insuficientes | WARN com `evidence: "dados insuficientes para validar — recomendar revisão na próxima auditoria"` |
 
 ---

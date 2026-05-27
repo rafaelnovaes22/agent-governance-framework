@@ -22,7 +22,7 @@ RUN_ID="${GITHUB_RUN_ID:-local}"
 CONSUMER="${FORGE_CONSUMER:-$(basename "$REPO_ROOT")}"
 COMMAND="${FORGE_COMMAND:-unknown}"
 EXIT_CODE="${FORGE_EXIT_CODE:-0}"
-TRACE_ID="${LANGFUSE_TRACE_ID:-local}"
+TRACE_ID="${LANGSMITH_TRACE_ID:-local}"
 CONFIDENCE="local"
 
 # Detectar se rodou em SHADOW/AUTONOMOUS (muda confiança do learning)

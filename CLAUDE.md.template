@@ -16,7 +16,7 @@ Os 8 princípios listados ali são **não-negociáveis** e orientam toda decisã
 3. **C3** — Custo ≤ 25% do preço
 4. **C4** — SHADOW antes de cobrar
 5. **C5** — Three-tier context (Sincra L0/L1/L2)
-6. **C6** — Telemetry-by-default (Langfuse obrigatório)
+6. **C6** — Telemetry-by-default (LangSmith obrigatório)
 7. **C7** — Portability over lock-in
 8. **C8** — Anti-customização heroica
 
@@ -33,7 +33,7 @@ Consultoria de IA aplicada que pivotou para **plataforma Service-as-a-Software (
 - **ICP**: PMEs R$2M+ com CEO bombeiro (caos operacional, falta de processo, dependência do CEO)
 - **Modelo**: setup fee + plataforma fixa mensal + variável por outcome com SLA contratual
 - **Modos por subscription**: SHADOW → ASSISTED → AUTONOMOUS (com gates de promoção)
-- **Stack core**: Node/TS, LangGraph, Langfuse, PostgreSQL/Prisma, BullMQ/Redis, Fastify, Anthropic SDK
+- **Stack core**: Node/TS, LangGraph, LangSmith, PostgreSQL/Prisma, BullMQ/Redis, Fastify, Anthropic SDK
 - **Cliente nunca loga** — admin é via API + ClickUp interno da Acme
 
 ### Documentos canônicos da metodologia
@@ -55,7 +55,7 @@ Leia conforme contexto da tarefa:
 
 ### Decisões arquiteturais
 
-- [`docs/adr/001-stack-saas2.md`](docs/adr/001-stack-saas2.md) — Stack arquitetural SaaS² (LangGraph + Langfuse + Postgres + BullMQ + webhook adapters customizados)
+- [`docs/adr/001-stack-saas2.md`](docs/adr/001-stack-saas2.md) — Stack arquitetural SaaS² (LangGraph + LangSmith + Postgres + BullMQ + webhook adapters customizados)
 
 ### Onda 0 (decisões estratégicas pós-pivot)
 
@@ -78,7 +78,7 @@ Leia conforme contexto da tarefa:
 - **Web**: Fastify 5
 - **Orquestração de agentes**: `@langchain/langgraph` 1.2
 - **LLM**: `@anthropic-ai/sdk` 0.39 (primário); reviewer GPT-5.5 via OpenAI (Forge-3)
-- **Observability**: `langfuse` 3.38
+- **Observability**: `langsmith`
 - **DB**: PostgreSQL via Prisma 6
 - **Filas**: BullMQ 5 + ioredis 5
 - **Validação**: Zod 3
@@ -140,17 +140,20 @@ evals/{sku-code}/            # Eval suites versionadas por SKU
 
 ### Telemetria (C6)
 
-Toda chamada LLM em `src/agents/**` deve estar instrumentada com Langfuse:
+Toda chamada LLM em `src/agents/**` deve estar instrumentada com LangSmith:
 
 ```ts
-import { langfuseTrace } from "@/observability/langfuse";
+import { traceable } from "langsmith/traceable";
 
-const trace = langfuseTrace.observe({
+const classifyOutcome = traceable(async () => {
+  const response = await anthropic.messages.create(...);
+  return { response, costBrl: calculateCost(response.usage) };
+}, {
   name: "outcome-classifier",
-  input: { tenantId, payload },
+  run_type: "llm",
 });
-const response = await anthropic.messages.create(...);
-trace.end({ output: response, costBrl: calculateCost(response.usage) });
+
+const { response, costBrl } = await classifyOutcome();
 ```
 
 Sem trace, **não conta como outcome auditável**.
@@ -183,7 +186,7 @@ Este projeto é auditado mensalmente por um **Deep Agent externo** (GPT-5.5) que
 
 Para que o reviewer funcione:
 - Toda mudança no Forge atualiza `docs/forge/manifest.json`
-- Toda LLM call tem trace Langfuse
+- Toda LLM call tem trace LangSmith
 - Toda promoção de modo (SHADOW → ASSISTED → AUTONOMOUS) é registrada via `/acme:promote`
 
 ---

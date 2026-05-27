@@ -1,9 +1,9 @@
 {
   "$schema": "https://acme.com.br/forge/validation-rules-v1.json",
-  "validation_rules_version": "0.3.0",
+  "validation_rules_version": "0.4.0",
   "constitution_version": "0.3.0",
 
-  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/forge/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0).",
+  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/forge/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Forge-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados.",
 
   "project_config_loader": {
     "primary_path": "docs/forge/project.json",
@@ -236,13 +236,73 @@
             "validation": "regex_lint",
             "scope_glob": ["src/{agents,core/pipeline,skus,products,modules}/**/*.{ts,js,py}"],
             "must_have_near_llm_call": [
-              "langfuse.observe",
-              "langfuse.trace",
+              "observe(",
+              "ls.trace",
+              "traceable",
+              "langsmith",
               "trace.span",
               "helicone",
               "phoenix"
             ],
             "max_distance_lines": 10
+          }
+        ]
+      },
+
+      "C6_analytics": {
+        "principle": "C6",
+        "name": "Analytics provider — eventos de negócio (WireLog)",
+        "_doc": "Aplica-se quando project.telemetry.analytics_provider == 'wirelog'. Não bloqueia quando analytics_provider=null. Torna-se FAIL em AUTONOMOUS se analytics_provider=wirelog declarado.",
+        "checks": [
+          {
+            "id": "C6.analytics.1",
+            "description": "Desvio DB outcomes ↔ forge_outcome_delivered no WireLog ≤ 5% (WARN) e ≤ 1% (PASS)",
+            "validation": "count_comparison",
+            "applies_when": "project.telemetry.analytics_provider == 'wirelog' AND project.ai_enabled == true",
+            "source_a": {"type": "db", "query": "SELECT COUNT(*) FROM outcomes WHERE status='DELIVERED' AND created_at > NOW() - INTERVAL '30 days'"},
+            "source_b": {"type": "analytics_provider_from_project_json", "event_type": "forge_outcome_delivered"},
+            "max_deviation_pct_pass": 1.0,
+            "max_deviation_pct_warn": 5.0,
+            "severity_above_warn": "FAIL"
+          },
+          {
+            "id": "C6.analytics.2",
+            "description": "Nenhum evento WireLog contém tenant_id cru (deve usar tenant_id_hash)",
+            "validation": "field_absence_check",
+            "applies_when": "project.telemetry.analytics_provider == 'wirelog'",
+            "forbidden_fields_in_events": ["tenant_id", "tenantId", "email", "cpf", "cnpj"],
+            "sample_size": 20,
+            "severity": "FAIL"
+          },
+          {
+            "id": "C6.analytics.3",
+            "description": "Eventos forge_gate_failed incluem gate_id e lifecycle_stage",
+            "validation": "event_field_presence",
+            "applies_when": "project.telemetry.analytics_provider == 'wirelog'",
+            "event_type": "forge_gate_failed",
+            "required_fields": ["gate_id", "artifact_id", "lifecycle_stage"],
+            "severity": "WARN"
+          },
+          {
+            "id": "C6.analytics.4",
+            "description": "Adapter WireLog presente em camada de abstração (C7 compliance)",
+            "validation": "file_exists",
+            "applies_when": "project.telemetry.analytics_provider == 'wirelog'",
+            "path_pattern_options": [
+              "src/observability/wirelog-adapter.{ts,js}",
+              "src/infra/wirelog-adapter.{ts,js}",
+              "src/observability/wirelog_adapter.py",
+              "src/infra/wirelog_adapter.py"
+            ],
+            "severity": "WARN"
+          },
+          {
+            "id": "C6.analytics.5",
+            "description": "WireLog recomendado quando lifecycle=AUTONOMOUS e analytics_provider não declarado",
+            "validation": "config_recommendation",
+            "applies_when": "lifecycle_stage == 'AUTONOMOUS' AND (project.telemetry.analytics_provider == null OR project.telemetry.analytics_provider == '')",
+            "recommendation": "Declarar analytics_provider=wirelog em project.json para auditoria completa em AUTONOMOUS",
+            "severity": "WARN"
           }
         ]
       },

@@ -29,7 +29,7 @@
 | **C3 audita** | Tokens LLM | Infra + suporte |
 | **C4 valida via** | Eval-suite LLM-as-judge | Acceptance gate + testes E2E |
 | **Lifecycle** | SHADOW→ASSISTED→AUTONOMOUS | draft→staging→pilot→canonical |
-| **C6 Langfuse** | Obrigatório | Não exigido (logs estruturados + Sentry) |
+| **C6 LANGSMITH** | Obrigatório | Não exigido (logs estruturados + Sentry) |
 | **Telemetry foco** | Cost-per-outcome | Operational SLOs |
 | **Promotion gates** | 5 (incluindo eval) | 4 (sem eval LLM, com audit-trail) |
 | **Spec template** | `platform-sku-spec` | `platform-module-spec` |

@@ -16,19 +16,56 @@ import yaml
 from cerebrum import BaseAgent
 
 try:
-    from langfuse import Langfuse
-    _LF_AVAILABLE = bool(os.environ.get("LANGFUSE_PUBLIC_KEY"))
-    if _LF_AVAILABLE:
-        langfuse = Langfuse(
-            public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
-            secret_key=os.environ.get("LANGFUSE_SECRET_KEY", ""),
-            host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
-        )
-    else:
-        langfuse = None
+    import langsmith as ls
+    _LS_AVAILABLE = (
+        os.environ.get("LANGSMITH_TRACING", "").lower() in {"true", "1", "yes"}
+        and bool(os.environ.get("LANGSMITH_API_KEY"))
+    )
 except Exception:
-    _LF_AVAILABLE = False
-    langfuse = None
+    ls = None
+    _LS_AVAILABLE = False
+
+
+class _LangSmithGeneration:
+    def __init__(self, name: str, model: str, input_messages):
+        self._ctx = ls.trace(
+            name=name,
+            run_type="llm",
+            inputs={"messages": input_messages},
+            metadata={"model": model},
+        )
+        self._run = self._ctx.__enter__()
+
+    def end(self, output=None, **kwargs):
+        outputs = {"output": output} if output is not None else kwargs
+        self._run.end(outputs=outputs)
+        self._ctx.__exit__(None, None, None)
+
+
+class _LangSmithTrace:
+    def __init__(self, name: str, metadata: dict):
+        self._ctx = ls.trace(name=name, run_type="chain", inputs={}, metadata=metadata)
+        self._run = self._ctx.__enter__()
+        self.id = str(self._run.id)
+
+    def generation(self, **kwargs):
+        return _LangSmithGeneration(
+            name=kwargs.get("name", "send_request"),
+            model=kwargs.get("model", "unknown"),
+            input_messages=kwargs.get("input"),
+        )
+
+    def update(self, status_message="completed", **kwargs):
+        self._run.end(outputs={"status": status_message, **kwargs})
+        self._ctx.__exit__(None, None, None)
+
+
+class _LangSmithClient:
+    def trace(self, *, name: str, metadata: dict):
+        return _LangSmithTrace(name=name, metadata=metadata)
+
+
+telemetry = _LangSmithClient() if _LS_AVAILABLE else None
 
 
 class _MockTrace:
@@ -176,7 +213,7 @@ class ReviewAgent(BaseAgent):
         if not ctx["spec"]:
             return {"error": f"spec não encontrada para {module_name}"}
 
-        trace = langfuse.trace(
+        trace = telemetry.trace(
             name=f"{self.agent_name}-{module_name}",
             metadata={
                 "agent": self.agent_name,
@@ -185,7 +222,7 @@ class ReviewAgent(BaseAgent):
                 "tier": task_input.get("tier"),
                 "aios_version": "0.2.2",
             },
-        ) if _LF_AVAILABLE else _MockTrace()
+        ) if _LS_AVAILABLE else _MockTrace()
 
         content_parts = [f"Revise o módulo: **{module_name}**\n"]
 

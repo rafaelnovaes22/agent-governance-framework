@@ -38,7 +38,7 @@ Nunca empurre past uma eval com regressão ou hook com falha para continuar a pr
 | Hook bash | Exit code ≠ 0, JSON malformado, timeout | `bypass-log/`, stderr do hook |
 | Prompt system.md | pass_rate cai entre runs, outcome_category errada | `evals/{id}/runs/` |
 | Eval suite | Falso positivo/negativo, case com gabarito errado | `evals/{id}/cases/`, última run vs anterior |
-| SHADOW | agreement_rate drift, cost_per_outcome acima do C3 | `subscriptions/{id}/promotions.md`, Langfuse traces |
+| SHADOW | agreement_rate drift, cost_per_outcome acima do C3 | `subscriptions/{id}/promotions.md`, LANGSMITH traces |
 | Manifest.json | forge-doctor FAIL, hash desatualizado | `docs/forge/manifest.json`, `bash scripts/forge-doctor.sh` |
 
 ## Checklist de Triagem

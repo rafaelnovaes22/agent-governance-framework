@@ -226,7 +226,7 @@ preconditions_checked: { ... }   # só em start
 - [x] Todas as 6 precondições passaram
 - [x] `shadow-status.md` criado com `started_at`, `prompt_hash`, `window_days`
 - [x] Subscription registrada como `mode: shadow`
-- [x] Logs Langfuse/equivalente confirmam ingestão de runs com `delivered: false`
+- [x] Logs LANGSMITH/equivalente confirmam ingestão de runs com `delivered: false`
 
 ### Em `tick`:
 

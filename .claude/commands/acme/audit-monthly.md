@@ -31,9 +31,10 @@ Roda **continuous validation** sobre tudo o que está em produção. A análise 
 1. **Sample 5-10%** de runs por subscription do mês — analisa concordância humano/agente em amostra
 2. **Drift detection** — `prompt_hash` em produção mudou desde último `/acme:eval`? Distribuição de inputs deslocou?
 3. **C3 audit** (`cost_per_outcome`) — `recalc_unit_economics_required` em aberto? Custo médio por outcome vs threshold?
-4. **C6 audit** — % de runs com trace válido no LLM trace provider (alvo 100%)
-5. **C7/C8 audit estrutural** — hash de imports SDK fora de `src/llm/`? hardcode de tenant?
-6. **C4 SLA breach** — agreement_rate caiu abaixo de threshold em N dias seguidos?
+4. **C6 audit — LangSmith** (`llm_trace_provider`) — % de runs com trace válido (alvo 100%)
+5. **C6 audit — WireLog** (`analytics_provider`, quando declarado) — desvio DB outcomes ↔ `forge_outcome_delivered` ≤ 5%? PII crua em eventos? Queries de funil: `forge_outcome_created → delivered → billed`.
+6. **C7/C8 audit estrutural** — hash de imports SDK fora de `src/llm/`? hardcode de tenant?
+7. **C4 SLA breach** — agreement_rate caiu abaixo de threshold em N dias seguidos?
 
 ### Para `platform` / `automation` (módulos PILOT/CANONICAL)
 
@@ -52,8 +53,9 @@ Output é **machine-readable**: o reviewer DeepAgent (Forge-3) lê e compara com
 
 ## Pre-conditions
 
-1. Tracing histórico disponível (Langfuse/equivalente) cobrindo o `--month`
-2. Subscriptions ativas em ASSISTED/AUTONOMOUS detectáveis
+1. Tracing histórico disponível (LangSmith / `llm_trace_provider`) cobrindo o `--month`
+2. Se `analytics_provider=wirelog` no project.json: WireLog API key read-only configurada (`WIRELOG_SECRET_KEY` ou `WIRELOG_API_KEY`)
+3. Subscriptions ativas em ASSISTED/AUTONOMOUS detectáveis
 3. Diretório `docs/forge/audits/` gravável
 4. Templates de auditoria disponíveis (`templates/monthly-audit.template.md`)
 

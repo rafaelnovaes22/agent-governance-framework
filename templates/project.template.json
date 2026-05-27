@@ -33,8 +33,10 @@
   },
 
   "telemetry": {
-    "_doc": "Quando ai_enabled=true, llm_trace_provider deve estar configurado e os checks C6.* aplicam-se ao código de chamada LLM. Quando ai_enabled=false, os checks usam audit_log_provider e structured_logging_provider.",
-    "llm_trace_provider": "langfuse | helicone | phoenix | custom | null",
+    "_doc": "Três dimensões de observabilidade: (1) llm_trace_provider rastreia chamadas LLM — prompts, custo de token, latência, evals (aplica-se quando ai_enabled=true). (2) analytics_provider rastreia eventos de negócio/outcomes, funis de lifecycle, gates e auditoria operacional (WireLog recomendado em SHADOW/ASSISTED; obrigatório em AUTONOMOUS se declarado). (3) audit_log_provider registra mutações críticas como evidência transacional (aplica-se principalmente quando ai_enabled=false ou lifecycle=CANONICAL). Os três provedores são independentes e complementares.",
+    "llm_trace_provider": "langsmith | helicone | phoenix | custom | null",
+    "analytics_provider": "wirelog | posthog | segment | custom | null",
+    "_analytics_provider_doc": "WireLog é o provider recomendado para eventos de negócio server-side. Usar null desabilita envio de eventos (modo offline/desenvolvimento). Nunca enviar PII crua — usar tenant_id_hash (sha256). Schema de eventos em templates/telemetry/wirelog-event-schema.template.md. Adapters portáveis em templates/observability/.",
     "audit_log_provider": "postgres-audit | elastic | datadog | custom | null",
     "structured_logging_provider": "pino | winston | python-logging | otel | custom | null",
     "metrics_provider": "prometheus | grafana | datadog | custom | null",
@@ -80,9 +82,12 @@
       "L2": "operational (per execution/run)"
     },
     "C6": {
-      "telemetry_default_when_ai": "llm_trace_provider",
-      "telemetry_default_when_no_ai": "audit_log_provider + structured_logging_provider",
-      "trace_coverage_target_pct": 99
+      "llm_trace_provider_when_ai": "langsmith",
+      "analytics_provider_recommended": "wirelog",
+      "telemetry_default_when_ai": "llm_trace_provider + analytics_provider",
+      "telemetry_default_when_no_ai": "audit_log_provider + structured_logging_provider + analytics_provider",
+      "trace_coverage_target_pct": 99,
+      "analytics_deviation_max_pct": 5
     },
     "C7": {
       "abstraction_layers_required_for": ["llm", "infra", "integrations", "payments", "messaging", "storage"]

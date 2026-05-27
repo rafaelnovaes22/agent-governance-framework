@@ -80,7 +80,12 @@ judge_model: claude-haiku  # default; pode ser sonnet/gpt-4 conforme spec
 
 8. Persistir evals/{artifact_id}/runs/{YYYY-MM-DD-HHmm}-eval-{prompt_hash}.md
 
-9. Trace end + output structured
+9. Emitir eventos WireLog (se project.telemetry.analytics_provider=wirelog):
+   - forge_eval_started: no início (passo 1) com artifact_id, lifecycle_stage, run_id
+   - forge_eval_completed: após agregar métricas com pass_rate, status, trace_id, latency_ms
+   - Usar adapter em src/observability/wirelog-adapter.{ts,py} — nunca chamar API diretamente
+
+10. Trace end + output structured
 ```
 
 ## Estrutura canônica do report

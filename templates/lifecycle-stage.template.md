@@ -76,7 +76,7 @@ version: "0.1.0"
 ### Promover MVP → Beta
 
 - [ ] Código deploy-ready em ambiente de produção
-- [ ] Telemetria Langfuse instrumentada (C6)
+- [ ] Telemetria LANGSMITH instrumentada (C6)
 - [ ] Eval suite com ≥ 10 casos passing
 - [ ] Termos de uso de Beta redigidos (se produto self-serve)
 - [ ] Sistema de coleta de feedback de beta users

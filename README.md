@@ -3,8 +3,8 @@
 > Framework de governança para projetos que entregam **outcome cobrável** — agentes de IA, plataformas SaaS/operacionais, ou automações.
 > Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
-[![Version](https://img.shields.io/badge/version-0.21.0-blue)](./CHANGELOG.md)
-[![Phase](https://img.shields.io/badge/phase-Forge--20-orange)](./docs/forge/roadmap.md)
+[![Version](https://img.shields.io/badge/version-0.22.0-blue)](./CHANGELOG.md)
+[![Phase](https://img.shields.io/badge/phase-Forge--21-orange)](./docs/forge/roadmap.md)
 [![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)
 [![Project Types](https://img.shields.io/badge/project__types-agentic__saas%20%7C%20platform%20%7C%20automation%20%7C%20hybrid-success)](./templates/project.template.json)
 
@@ -65,7 +65,7 @@ Versionados em [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md):
 3. **C3** — Cost ≤ 25% of price
 4. **C4** — SHADOW antes de cobrar
 5. **C5** — Three-tier context (Strategic / Tactical / Operational)
-6. **C6** — Telemetry-by-default
+6. **C6** — Telemetry-by-default (bifurcado em v0.22.0: `llm_trace_provider` LangSmith + `analytics_provider` WireLog)
 7. **C7** — Portability over lock-in
 8. **C8** — Anti-customização heroica
 
@@ -125,7 +125,7 @@ agent-governance-framework/
 │
 ├── hooks/                           ← 9 hooks runtime + script CI
 │   ├── pre-tool-use/   (outcome-clause-guard, adr-approval-gate, secret-scan, any-type-guard)
-│   ├── post-tool-use/  (langfuse-trace-check, unit-economics-recalc, manifest-sync)
+│   ├── post-tool-use/  (llm-trace-check/langfuse-trace-check legacy, unit-economics-recalc, manifest-sync)
 │   ├── stop/           (5-gates-summary, eval-suite-fresh)
 │   └── scripts/        (skill-security-scan.sh — standalone CI)
 │

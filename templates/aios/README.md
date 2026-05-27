@@ -108,7 +108,7 @@ Todos os arquivos `.template` usam **chaves duplas-chaves** ou `{}` simples conf
 | Princípio | Como os templates aplicam |
 |---|---|
 | **C5** Three-tier | `tier: A | B | C` no `config.json` de cada agente; pipeline respeita gates humanos por tier |
-| **C6** Telemetry-by-default | Todo `entry.py` tem bloco `langfuse.trace() → generation.end()` obrigatório + `_MockTrace` para dev local |
+| **C6** Telemetry-by-default | Todo `entry.py` tem bloco LangSmith (`ls.trace` ou `traceable`) obrigatório + `_MockTrace` para dev local |
 | **C7** Portability | SYSTEM_PROMPT de cada agente funciona **standalone em Claude Code** sem o kernel AIOS rodando — declarado em comentário no topo |
 | **C8** Anti-heroic | `tenantId` em `task_input`, nunca no SYSTEM_PROMPT; nenhuma referência a nome de cliente; stack lida de `aios/config.yaml`, não cravada |
 
@@ -146,9 +146,9 @@ templates/aios/
 
 ## Padrão de telemetria
 
-Cada `entry.py.template` contém o bloco padrão Langfuse documentado em [`docs/forge/aios-telemetry-pattern.md`](../../docs/forge/aios-telemetry-pattern.md).
+Cada `entry.py.template` contém o bloco padrão LangSmith documentado em [`docs/forge/aios-telemetry-pattern.md`](../../docs/forge/aios-telemetry-pattern.md).
 
-O `_MockTrace` é fallback aceitável **apenas em desenvolvimento local** (sem `LANGFUSE_PUBLIC_KEY` no ambiente). Antes de promover para SHADOW, configurar Langfuse de verdade — caso contrário `/acme:promote` rejeita o gate de telemetria.
+O `_MockTrace` é fallback aceitável **apenas em desenvolvimento local** (sem `LANGSMITH_API_KEY` ou com `LANGSMITH_TRACING=false` no ambiente). Antes de promover para SHADOW, configurar LangSmith de verdade — caso contrário `/acme:promote` rejeita o gate de telemetria.
 
 ---
 
@@ -160,7 +160,7 @@ O `_MockTrace` é fallback aceitável **apenas em desenvolvimento local** (sem `
 | Caminhos de contexto | `funcionalidades-edix.md` cravado | `docs/specs/{module}.md` (única fonte) |
 | Stack | Next.js 15 + Prisma + Postgres + Vitest cravados | Lidos de `aios/config.yaml` → `stack.*` |
 | Lista de módulos | Hardcoded em `orchestrator.py` (15 módulos cravados) | Lida de `aios/config.yaml` → `modules:` |
-| Telemetria | Sem Langfuse | `langfuse.trace() → generation.end()` em **todos** os agentes (C6) |
+| Telemetria | Sem LangSmith | LangSmith (`ls.trace` ou `traceable`) em **todos** os agentes (C6) |
 | `tenantId` | Implícito no contexto | Sempre via `task_input["tenant_id"]` (C8) |
 
 ---

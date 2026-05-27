@@ -136,15 +136,18 @@ Como dados entram no produto:
 Toda chamada LLM precisa estar instrumentada. Template:
 
 ```ts
-import { langfuseTrace } from "@/observability/{{ provider }}";
+import { traceable } from "langsmith/traceable";
 
-const trace = langfuseTrace.observe({
+const runAgent = traceable(async () => {
+  const response = await llm.call(...);
+  return { response, costBrl: calculateCost(response.usage) };
+}, {
   name: "{{ agent_name }}",
-  input: { tenantId, payload },
+  run_type: "llm",
   metadata: { product: "{{ product_code }}", outcomeType: "{{ ... }}" },
 });
-const response = await llm.call(...);
-trace.end({ output: response, costBrl: calculateCost(response.usage) });
+
+const { response, costBrl } = await runAgent();
 ```
 
 ---
@@ -211,7 +214,7 @@ Storage: tabela `TenantContext.productConfig.{{ product_code }}` ou equivalente 
 | Auth | {{ ex: Supabase Auth, Auth0 }} | {{ ... }} |
 | Backend / API | {{ ex: Supabase Edge Functions, Next.js API }} | {{ ... }} |
 | LLM | {{ provedor primário + fallback }} | {{ ... }} |
-| Observability | {{ Langfuse / outro }} | {{ ... }} |
+| Observability | {{ LANGSMITH / outro }} | {{ ... }} |
 | Pagamentos | {{ Stripe / Paddle / outro }} | {{ ... }} |
 
 > Princípio C7 (Portability): isolar dependências de modelo/provedor em camada de abstração mesmo em produtos beta.
@@ -264,7 +267,7 @@ Storage: tabela `TenantContext.productConfig.{{ product_code }}` ou equivalente 
 - [ ] §6 unit economics validados em sample (C3)
 - [ ] §7 stage atual e critérios de promoção declarados
 - [ ] §9 stack documentado
-- [ ] Telemetria Langfuse instrumentada (C6)
+- [ ] Telemetria LANGSMITH instrumentada (C6)
 - [ ] Camada de abstração LLM presente (C7)
 
 ## Checklist Beta → GA

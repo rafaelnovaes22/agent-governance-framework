@@ -1,12 +1,12 @@
 {
   "$schema": "https://acme.com.br/forge/manifest-v1.json",
-  "manifest_version": "0.21.0",
+  "manifest_version": "0.22.0",
   "framework": {
     "name": "Acme Forge",
-    "version": "0.21.0",
+    "version": "0.22.0",
     "canonical": true,
-    "phase": "Forge-20 entregue -- self-harness loop (Hermes learning loop, agent-soul/memory, learning-curator).",
-    "last_updated": "2026-05-18",
+    "phase": "Forge-21 entregue -- WireLog analytics_provider (eventos de negócio/outcomes), schema de 14 eventos, adapters TS+Python portáveis, C6 bifurcado em llm_trace_provider + analytics_provider.",
+    "last_updated": "2026-05-26",
     "constitution_version": "0.3.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": "e4c69f3817eac26c",
@@ -171,9 +171,10 @@
       "name": "Telemetry / auditability by default",
       "scope": "all-categories",
       "renamed_from_v0_2_0": "Telemetry-by-default",
+      "bifurcated_in_v0_22_0": "C6 agora tem duas dimensões: llm_trace_provider (LangSmith — tracing LLM) e analytics_provider (WireLog — eventos de negócio/outcomes). Os dois são complementares e independentes.",
       "interpretation_modes": {
-        "ai_enabled_true": "LLM trace provider obrigatório (Langfuse/equivalente)",
-        "ai_enabled_false": "audit_log_provider + structured_logging_provider obrigatórios"
+        "ai_enabled_true": "llm_trace_provider obrigatório (LangSmith/equivalente) + analytics_provider recomendado (WireLog)",
+        "ai_enabled_false": "audit_log_provider + structured_logging_provider obrigatórios; analytics_provider opcional"
       }
     },
     {
@@ -371,7 +372,7 @@
             "C7",
             "C8"
           ],
-          "description": "Padrão oficial de telemetria Langfuse para agentes AIOS — campos obrigatórios, mock fallback, integração com hook langfuse-trace-check"
+          "description": "Padrão oficial de telemetria LangSmith para agentes AIOS — campos obrigatórios, mock fallback, integração com hook langfuse-trace-check legado"
         },
         {
           "id": "forge-reviewer-contract",
@@ -728,6 +729,39 @@
           "hybrid"
         ],
         "introduced_in": "Forge-11 (planned)"
+      },
+      {
+        "id": "template-wirelog-event-schema",
+        "path": "templates/telemetry/wirelog-event-schema.template.md",
+        "type": "template",
+        "version": "1.0.0",
+        "sha256": null,
+        "linked_principles": ["C6", "C7", "C8"],
+        "use_case": "analytics-provider-event-schema",
+        "description": "Forge-21 — Schema canônico de 14 eventos WireLog para analytics_provider (eventos de negócio/outcomes). Regras PII/LGPD, campos obrigatórios/proibidos, 3 exemplos JSON, queries de auditoria mensal. Complementa LangSmith (llm_trace_provider) sem substituí-lo.",
+        "introduced_in": "Forge-21 (v0.22.0)"
+      },
+      {
+        "id": "template-wirelog-adapter-ts",
+        "path": "templates/observability/wirelog-adapter.ts.template",
+        "type": "template",
+        "version": "1.0.0",
+        "sha256": null,
+        "linked_principles": ["C6", "C7", "C8"],
+        "use_case": "analytics-adapter-typescript",
+        "description": "Forge-21 — Adapter TypeScript portável para WireLog. API: trackForgeEvent, identifyForgeActor, flushForgeAnalytics + helpers de conveniência. No-op silencioso sem WIRELOG_SECRET_KEY. PII guard automático. Instalar em src/observability/ ou src/infra/ (C7 compliance).",
+        "introduced_in": "Forge-21 (v0.22.0)"
+      },
+      {
+        "id": "template-wirelog-adapter-py",
+        "path": "templates/observability/wirelog-adapter.py.template",
+        "type": "template",
+        "version": "1.0.0",
+        "sha256": null,
+        "linked_principles": ["C6", "C7", "C8"],
+        "use_case": "analytics-adapter-python",
+        "description": "Forge-21 — Adapter Python portável para WireLog. API: track_forge_event, identify_forge_actor, flush_forge_analytics + helpers de conveniência. No-op silencioso sem WIRELOG_SECRET_KEY. PII guard automático. Instalar em src/observability/ ou src/infra/ (C7 compliance).",
+        "introduced_in": "Forge-21 (v0.22.0)"
       }
     ],
     "templates_aios": {
@@ -933,7 +967,7 @@
             "C7"
           ],
           "use_case": "eval-automation",
-          "description": "Workflow GitHub Actions para eval automático em mudanças de prompts/ — detecta artifact_id, roda eval por categoria, falha PR se pass_rate < threshold, trace Langfuse obrigatório. Copiar para .github/workflows/forge-eval.yml."
+          "description": "Workflow GitHub Actions para eval automático em mudanças de prompts/ — detecta artifact_id, roda eval por categoria, falha PR se pass_rate < threshold, trace LangSmith obrigatório. Copiar para .github/workflows/forge-eval.yml."
         },
         {
           "id": "template-cicd-audit",
@@ -1307,7 +1341,7 @@
           "tier": 1,
           "version": "1.0.0",
           "sha256": null,
-          "description": "Migracoes de SDK externo (Anthropic, Langfuse, Prisma), modelos depreciados e atualizacoes do Forge framework em consumers. Patterns: Strangler, Adapter, Feature Flag. Adaptado de deprecation-and-migration (agent-skills).",
+          "description": "Migracoes de SDK externo (Anthropic, LangSmith, Prisma), modelos depreciados e atualizacoes do Forge framework em consumers. Patterns: Strangler, Adapter, Feature Flag. Adaptado de deprecation-and-migration (agent-skills).",
           "linked_principles": [
             "C7",
             "C4"
@@ -1466,7 +1500,7 @@
           "tier": 2,
           "version": "1.0.0",
           "sha256": null,
-          "description": "Fundamenta decisoes de SDK em documentacao oficial antes de implementar. Detecta versoes de Anthropic SDK/Langfuse/Prisma, busca doc oficial, cita fontes. Adaptado de source-driven-development (agent-skills).",
+          "description": "Fundamenta decisoes de SDK em documentacao oficial antes de implementar. Detecta versoes de Anthropic SDK/LangSmith/Prisma, busca doc oficial, cita fontes. Adaptado de source-driven-development (agent-skills).",
           "linked_principles": [
             "C6",
             "C7"
@@ -1497,7 +1531,7 @@
           "tier": 2,
           "version": "1.0.0",
           "sha256": null,
-          "description": "Hardening LLM-especifico: prompt injection, PII em eval cases (LGPD/GDPR), secret leakage em traces Langfuse, validacao TenantContext na fronteira. Integra com secret-scan.sh e security-privacy-guardian. Adaptado de security-and-hardening (agent-skills).",
+          "description": "Hardening LLM-especifico: prompt injection, PII em eval cases (LGPD/GDPR), secret leakage em traces LangSmith, validacao TenantContext na fronteira. Integra com secret-scan.sh e security-privacy-guardian. Adaptado de security-and-hardening (agent-skills).",
           "linked_principles": [
             "C6",
             "C8"
@@ -1877,7 +1911,7 @@
           "trace_required": true,
           "deep_agent_consumable": true,
           "project_type_aware": true,
-          "description": "Sample 5-10% de runs (agentic) ou audited_actions (platform). v0.2.0 (Forge-9): ramifica auditoria por project_type — outcomes/Langfuse para agentic, audit_log/E2E tests para platform. Output: docs/forge/audits/{YYYY-MM}.md."
+          "description": "Sample 5-10% de runs (agentic) ou audited_actions (platform). v0.2.0 (Forge-9): ramifica auditoria por project_type — outcomes/LangSmith para agentic, audit_log/E2E tests para platform. Output: docs/forge/audits/{YYYY-MM}.md."
         },
         {
           "id": "command-pre-merge-check",
@@ -2070,7 +2104,7 @@
             "C6"
           ],
           "exit_warn": 1,
-          "description": "Avisa quando chamadas LLM em src/agents/** não têm trace Langfuse."
+          "description": "Avisa quando chamadas LLM em src/agents/** não têm trace LangSmith."
         },
         {
           "id": "hook-unit-economics-recalc",

@@ -1,0 +1,215 @@
+/**
+ * WireLog adapter portável para projetos Acme Forge.
+ *
+ * Instalar em: src/observability/wirelog-adapter.ts (ou src/infra/wirelog-adapter.ts)
+ * Nunca importar diretamente em src/skus/, src/products/ ou src/modules/ — viola C7.
+ *
+ * Configuração via env:
+ *   WIRELOG_SECRET_KEY  — habilita envio server-side (obrigatório para enviar)
+ *   WIRELOG_API_KEY     — alternativa ao SECRET_KEY (algum providers usam este nome)
+ *   WIRELOG_HOST        — opcional; override de host (default: https://app.wirelog.com)
+ *
+ * Se nenhuma chave estiver configurada, todas as funções são no-op silencioso.
+ * Nunca lançar erro por ausência de WireLog — analytics é observabilidade opcional.
+ */
+
+import { createHash } from "crypto";
+
+// ─── Tipos públicos ───────────────────────────────────────────────────────────
+
+export type ForgeAnalyticsEvent = {
+  eventType: string;
+  projectId: string;
+  forgeVersion?: string;
+  timestamp?: string;
+  artifactId?: string;
+  projectType?: string;
+  aiEnabled?: boolean;
+  tenantIdHash?: string;
+  actorIdHash?: string;
+  lifecycleStage?: string;
+  outcomeId?: string;
+  traceId?: string;
+  runId?: string;
+  costCents?: number;
+  latencyMs?: number;
+  status?: string;
+  errorCode?: string;
+  gateId?: string;
+  fromMode?: string;
+  toMode?: string;
+  passRate?: number;
+  overallStatus?: string;
+  properties?: Record<string, unknown>;
+};
+
+// ─── Campos proibidos (PII guard — LGPD/GDPR) ────────────────────────────────
+
+const FORBIDDEN_FIELDS: ReadonlySet<string> = new Set([
+  "email",
+  "cpf",
+  "cnpj",
+  "telefone",
+  "phone",
+  "nome",
+  "name",
+  "full_name",
+  "fullName",
+  "customer_name",
+  "customerName",
+  "tenant_id",      // usar tenant_id_hash
+  "tenantId",       // usar tenantIdHash
+  "actor_id",       // usar actor_id_hash
+  "actorId",        // usar actorIdHash
+  "user_id",        // usar actorIdHash
+  "userId",
+  "api_key",
+  "apiKey",
+  "secret",
+  "token",
+  "password",
+  "senha",
+  "payload",        // payload bruto pode conter PII
+]);
+
+// ─── Helpers internos ─────────────────────────────────────────────────────────
+
+/** sha256 hex dos primeiros 16 chars — nunca expõe o ID original. */
+export function hashId(rawId: string): string {
+  return createHash("sha256").update(rawId).digest("hex").slice(0, 16);
+}
+
+function stripForbiddenFields(event: Record<string, unknown>): Record<string, unknown> {
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(event)) {
+    if (FORBIDDEN_FIELDS.has(key)) {
+      // Silently omit — não loga o valor (pode conter PII)
+      continue;
+    }
+    cleaned[key] = val;
+  }
+  return cleaned;
+}
+
+function isConfigured(): boolean {
+  return !!(
+    process.env.WIRELOG_SECRET_KEY ||
+    process.env.WIRELOG_API_KEY
+  );
+}
+
+function getApiKey(): string {
+  return (process.env.WIRELOG_SECRET_KEY ?? process.env.WIRELOG_API_KEY) as string;
+}
+
+function getHost(): string {
+  return process.env.WIRELOG_HOST ?? "https://app.wirelog.com";
+}
+
+async function send(path: string, body: unknown): Promise<void> {
+  if (!isConfigured()) return; // no-op silencioso
+
+  const url = `${getHost()}${path}`;
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getApiKey()}`,
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    // Analytics nunca deve quebrar a aplicação — falha silenciosa
+  }
+}
+
+// ─── API pública ──────────────────────────────────────────────────────────────
+
+/**
+ * Envia um evento de negócio ao WireLog.
+ * Campos proibidos (PII) são removidos automaticamente.
+ * No-op se WIRELOG_SECRET_KEY não estiver configurado.
+ */
+export async function trackForgeEvent(event: ForgeAnalyticsEvent): Promise<void> {
+  if (!isConfigured()) return;
+
+  const enriched = {
+    ...event,
+    timestamp: event.timestamp ?? new Date().toISOString(),
+    forgeVersion: event.forgeVersion ?? process.env.FORGE_VERSION ?? "unknown",
+  };
+
+  const safe = stripForbiddenFields(enriched as Record<string, unknown>);
+
+  await send("/api/v1/events", safe);
+}
+
+/**
+ * Identifica um ator (operador/agente) sem PII.
+ * Use actorIdHash = hashId(userId_real).
+ */
+export async function identifyForgeActor(input: {
+  actorIdHash: string;
+  properties?: Record<string, unknown>;
+}): Promise<void> {
+  if (!isConfigured()) return;
+
+  const safe = stripForbiddenFields({
+    actorIdHash: input.actorIdHash,
+    ...(input.properties ?? {}),
+  });
+
+  await send("/api/v1/identify", safe);
+}
+
+/**
+ * Força flush da fila interna (útil em ambientes serverless antes do handler retornar).
+ * No-op se não houver fila configurada — depende da implementação interna do WireLog SDK.
+ */
+export async function flushForgeAnalytics(): Promise<void> {
+  if (!isConfigured()) return;
+  // WireLog HTTP direto não tem fila local — flush é no-op neste adapter.
+  // Se usar wirelog-node SDK com batching, chame wl.flush() aqui.
+}
+
+// ─── Helpers de conveniência ──────────────────────────────────────────────────
+
+/** Emite forge_outcome_delivered — helper para evitar strings literais espalhadas. */
+export async function trackOutcomeDelivered(params: {
+  projectId: string;
+  artifactId: string;
+  tenantIdHash: string;
+  outcomeId: string;
+  traceId?: string;
+  costCents?: number;
+  latencyMs?: number;
+  lifecycleStage?: string;
+}): Promise<void> {
+  await trackForgeEvent({ eventType: "forge_outcome_delivered", ...params });
+}
+
+/** Emite forge_gate_failed. */
+export async function trackGateFailed(params: {
+  projectId: string;
+  artifactId?: string;
+  gateId: string;
+  fromMode?: string;
+  toMode?: string;
+  errorCode?: string;
+  lifecycleStage?: string;
+}): Promise<void> {
+  await trackForgeEvent({ eventType: "forge_gate_failed", status: "fail", ...params });
+}
+
+/** Emite forge_eval_completed. */
+export async function trackEvalCompleted(params: {
+  projectId: string;
+  artifactId: string;
+  passRate: number;
+  status: "pass" | "fail";
+  traceId?: string;
+  latencyMs?: number;
+}): Promise<void> {
+  await trackForgeEvent({ eventType: "forge_eval_completed", ...params });
+}

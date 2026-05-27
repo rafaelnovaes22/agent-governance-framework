@@ -67,8 +67,8 @@ Opções:
 
 | Opção | Características |
 |---|---|
-| Langfuse self-hosted | Open-source, dados ficam internos |
-| Langfuse cloud | Gerenciado, fácil setup |
+| LANGSMITH self-hosted | Open-source, dados ficam internos |
+| LANGSMITH cloud | Gerenciado, fácil setup |
 | Helicone | Foco em custo + observability |
 | Phoenix (Arize) | OSS, integra com OpenTelemetry |
 | Custom em DB próprio | Controle total, custo de manutenção |
@@ -127,7 +127,7 @@ Se `true`, declarar canal de notificação obrigatório (Slack, email, etc).
 | Credencial | Local |
 |---|---|
 | `OPENAI_API_KEY` (ou ANTHROPIC, GOOGLE) | `{{ secret manager | env do CI | vault }}` |
-| `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` | `{{ ... }}` |
+| `LANGSMITH_API_KEY` | `{{ ... }}` |
 | Acesso ao repo | `{{ deploy key | PAT com scope mínimo }}` |
 
 **Decisão**: `{{ política de credenciais }}`

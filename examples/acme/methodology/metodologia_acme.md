@@ -53,7 +53,7 @@ Essa fase é faturada como **setup fee (R$ 8–25k dependendo da complexidade)**
 
 Aqui entra a engenharia. Princípios não-negociáveis para SaaS²:
 
-**Arquitetura agentic com observabilidade total.** Cada decisão do agente registrada com input, raciocínio, ação, resultado. Sem isso, você não consegue (a) cobrar por outcome com confiança, (b) auditar quando o cliente questionar, (c) melhorar o agente ao longo do tempo. Stack típica: orquestração via LangGraph ou similar, vetor store para memória de contexto, tracing via Langfuse ou equivalente, persistência em PostgreSQL.
+**Arquitetura agentic com observabilidade total.** Cada decisão do agente registrada com input, raciocínio, ação, resultado. Sem isso, você não consegue (a) cobrar por outcome com confiança, (b) auditar quando o cliente questionar, (c) melhorar o agente ao longo do tempo. Stack típica: orquestração via LangGraph ou similar, vetor store para memória de contexto, tracing via LANGSMITH ou equivalente, persistência em PostgreSQL.
 
 **Eval suite antes de produção.** Conjunto de 30–100 casos reais do cliente onde se conhece a resposta certa. Acurácia mínima por categoria de outcome antes de cobrar do cliente. Define-se previamente o threshold (ex: 85% de acerto em qualificação de leads) abaixo do qual o agente continua em modo sombra.
 
@@ -141,7 +141,7 @@ Considerando o portfólio técnico existente (Node/TS, LangGraph, PostgreSQL, Bu
 |-------------------------|-------------------------------------------------------------------------|
 | Orquestração            | LangGraph                                                               |
 | Modelos                 | Claude (raciocínio crítico), GPT-4-mini ou DeepSeek (volume), open-source via Together/Groq (dados sensíveis) |
-| Observabilidade         | Langfuse — essencial para SaaS² (sem trace, sem outcome auditável)      |
+| Observabilidade         | LANGSMITH — essencial para SaaS² (sem trace, sem outcome auditável)      |
 | Filas e persistência    | BullMQ + PostgreSQL                                                     |
 | Integrações             | n8n self-hosted como camada de glue para sistemas legados               |
 | Billing por outcome     | Custom em PostgreSQL nos primeiros 10 clientes; depois Stripe usage-based ou Orb |

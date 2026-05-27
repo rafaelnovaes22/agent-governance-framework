@@ -149,7 +149,7 @@ export async function callLLM(req: LLMRequest): Promise<LLMResponse> {
 // AUTO-GERADO POR /acme:implement
 // Wrapper obrigatório (C6). Toda chamada LLM deve passar por trace.observe().
 
-import { /* provider de telemetria, ex: langfuse */ } from "<provider>";
+import { /* provider de telemetria, ex: LANGSMITH */ } from "<provider>";
 
 export interface TraceContext {
   traceId: string;

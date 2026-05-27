@@ -1,7 +1,61 @@
-# Acme Forge — Decisões F1–F55
+# Acme Forge — Decisões F1–F56
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.21.0 (Forge-20)
-> **Versão atual**: 0.21.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.22.0 (Forge-21)
+> **Versão atual**: 0.22.0
+
+---
+
+## F56 (NOVO 2026-05-26) — Forge-21: WireLog como analytics_provider (eventos de negócio / outcomes)
+
+**Decisão**: ✅ **Introduzir WireLog como `analytics_provider` canônico do Forge, complementando LangSmith (que permanece como `llm_trace_provider`). C6 passa a ter duas dimensões: tracing LLM e analytics de negócio.**
+
+**Motivação**: Até a v0.21.0 o Forge monitorava chamadas LLM via LangSmith (`llm_trace_provider`) e mutações de plataforma via audit log (`audit_log_provider`). Havia uma lacuna para **eventos de negócio e outcomes agregados**: funis de lifecycle (criação → entrega → cobrança), gates falhos por tipo, erros por SKU, análise de promotions por cohort e auditoria mensal de desvio DB↔eventos. LangSmith não é adequado para esse papel (é focado em prompt/trace, não em funil de produto). Um analytics provider portável (WireLog) fecha essa lacuna sem substituir LangSmith.
+
+**Separação de responsabilidades** (definitiva após F56):
+
+| Provider | Responsabilidade | Quando obrigatório |
+|---|---|---|
+| `llm_trace_provider` (LangSmith) | Traces LLM — prompts, custo de token, latência, evals | `ai_enabled=true` |
+| `analytics_provider` (WireLog) | Eventos de negócio — outcomes, funis, gates, auditoria operacional | Opcional por default; recomendado em SHADOW/ASSISTED; obrigatório em AUTONOMOUS se declarado |
+| `audit_log_provider` | Mutações críticas — evidência transacional (INSERT/UPDATE/DELETE auditáveis) | `ai_enabled=false` ou CANONICAL |
+| `structured_logging_provider` | Logs operacionais — diagnóstico técnico, debugging | Sempre |
+
+**Alternativas consideradas e descartadas:**
+
+| Alternativa | Descartada porque |
+|---|---|
+| Usar LangSmith para eventos de negócio | LangSmith é tracer LLM; não suporta funis de produto nem queries de business analytics |
+| PostHog como provider principal | Valid para frontend; fraco para server-side agentic events; C7 prefere interface portável |
+| Segment/Amplitude | Custo mais alto; foco em product analytics B2C; WireLog tem API mais simples para server-side |
+| Adicionar tabela de eventos no próprio DB | Cria acoplamento e overhead de manutenção; reviewer não pode fazer queries padronizadas |
+| Hardcodar eventos em cada command | Viola C7 (portabilidade) e C8 (não-configurável) |
+
+**Decisões de design:**
+
+1. **`analytics_provider` ≠ substituto de LangSmith**: os dois coexistem; reviewer cruza os dois
+2. **WireLog é opcional por padrão**: `analytics_provider: null` é válido; não bloqueia platform/automation sem WireLog
+3. **Obrigatoriedade em AUTONOMOUS**: se projeto declarar `analytics_provider=wirelog` na spec E lifecycle for AUTONOMOUS, gate de auditoria aplica-se
+4. **PII guard**: nenhum evento envia email/CPF/CNPJ/nome completo cru — apenas `tenant_id_hash` (sha256 do tenant_id)
+5. **Adapter portável**: templates TS e Python; nunca SDK importado fora de camada de abstração (C7)
+6. **No-op seguro**: adapter não quebra se `WIRELOG_SECRET_KEY` não estiver configurado
+7. **Reviewer usa WireLog para queries agregadas**: não para decisões de promoção (que continuam via gate humano)
+8. **Eventos mínimos documentados em schema template**: 14 tipos de evento padronizados
+9. **Desvio DB outcomes ↔ WireLog events**: ≤ 1% PASS, ≤ 5% WARN, > 5% FAIL (mesma regra do LangSmith)
+
+**Componentes entregues (v0.22.0):**
+- `templates/telemetry/wirelog-event-schema.template.md` — schema de 14 eventos + regras PII/LGPD
+- `templates/observability/wirelog-adapter.ts.template` — adapter TypeScript portável
+- `templates/observability/wirelog-adapter.py.template` — adapter Python portável
+- `templates/project.template.json` atualizado — campo `analytics_provider` em `telemetry`
+- `reviewer/validation-rules.json` atualizado — checks `C6.analytics.*`
+- `reviewer/prompt.template.md` atualizado — seção WireLog
+- `docs/forge/reviewer-contract.md` atualizado — inputs de analytics_provider
+- `templates/monthly-audit.template.md` atualizado — queries WireLog
+- Commands atualizados: `eval.md`, `promote.md`, `audit-monthly.md`
+- Templates CI/CD atualizados com `WIRELOG_SECRET_KEY` como secret opcional
+- `PLAYGROUND/05-wirelog-analytics/` — playground com eventos fake + queries de auditoria
+
+**SemVer**: MINOR (0.21.0 → 0.22.0) — nova capability (analytics_provider WireLog).
 
 ---
 
@@ -96,7 +150,7 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 1. **sdk-migration (L1)**: O C7 (portabilidade) já exige que toda dependência SDK seja isolada em `src/llm/adapters/` — mas não havia skill documentando como executar uma migração quando o Anthropic SDK bumpa major, quando um modelo LLM é depreciado, ou quando o próprio Forge bumpa MINOR/MAJOR. Sem este skill, migrações são ad-hoc, sem decisão advisory/compulsório, sem verificação de re-eval, e sem Regra do Churn para o mantenedor do Forge.
 
-2. **llm-security-hardening (L2)**: O `secret-scan.sh` hook e o `security-privacy-guardian` agent já existem, mas focam em code-level secrets. Esta skill preenche o gap de ameaças LLM-específicas: prompt injection via conteúdo externo no prompt, PII em eval cases (LGPD/GDPR — CPF/CNPJ/email em dados reais não sanitizados), secret leakage em traces Langfuse, e validação de TenantContext na fronteira. Inclui casos adversariais de eval (prompt injection, PII protection, secret protection) obrigatórios antes de promoção `assisted_to_autonomous`.
+2. **llm-security-hardening (L2)**: O `secret-scan.sh` hook e o `security-privacy-guardian` agent já existem, mas focam em code-level secrets. Esta skill preenche o gap de ameaças LLM-específicas: prompt injection via conteúdo externo no prompt, PII em eval cases (LGPD/GDPR — CPF/CNPJ/email em dados reais não sanitizados), secret leakage em traces LangSmith, e validação de TenantContext na fronteira. Inclui casos adversariais de eval (prompt injection, PII protection, secret protection) obrigatórios antes de promoção `assisted_to_autonomous`.
 
 **Artefatos criados**:
 - `.claude/skills/L1/sdk-migration.md` v1.0.0 — linked C7, C4
@@ -114,7 +168,7 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 **Motivação**: Forge-16 (F51) entregou a primeira rodada de skills SDLC operacionais (debugging, simplificação, disciplina de release). A segunda rodada cobre três lacunas restantes com impacto direto na qualidade de implementação de integrações SDK e na disciplina de desenvolvimento dentro das ondas do pipeline:
 
-1. **source-driven-implementation (L2)**: Projetos consumidores com `ai_enabled=true` dependem de Anthropic SDK, Langfuse e Prisma — SDKs que evoluem, deprecam APIs e mudam assinaturas. Sem este skill, o agente escreve código de SDK de memória, introduzindo padrões depreciados que quebram silenciosamente. O skill força: detectar versão em `package.json`, buscar doc oficial antes de implementar, citar fontes, e surfaçar conflitos entre doc e código existente.
+1. **source-driven-implementation (L2)**: Projetos consumidores com `ai_enabled=true` dependem de Anthropic SDK, LangSmith e Prisma — SDKs que evoluem, deprecam APIs e mudam assinaturas. Sem este skill, o agente escreve código de SDK de memória, introduzindo padrões depreciados que quebram silenciosamente. O skill força: detectar versão em `package.json`, buscar doc oficial antes de implementar, citar fontes, e surfaçar conflitos entre doc e código existente.
 
 2. **wave-implementation (L2)**: `/acme:implement` e `/acme:tasks` definem ondas (1–6 para agentic, 1–5 para platform), mas não havia disciplina de execução *dentro* de cada onda. Este skill adapta incremental-implementation para o contexto Forge: gate de `forge-doctor` entre commits, TDD-red first (Forge-10), scope discipline C8-aware, e save point pattern integrado com `forge-release-discipline`.
 
@@ -139,7 +193,7 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 **Decisão**: ✅ **O Forge passa a suportar formalmente quatro `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) e o booleano `ai_enabled`, com matriz de interpretação por princípio**.
 
-**Motivação**: o framework foi forjado a partir do caso Acme SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem Langfuse, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Forge-Platform", duplicando manutenção; ou **(b)** generalizar o Forge para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
+**Motivação**: o framework foi forjado a partir do caso Acme SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem LangSmith, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Forge-Platform", duplicando manutenção; ou **(b)** generalizar o Forge para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
 
 **Implicações arquiteturais**:
 
@@ -155,7 +209,7 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 
 3. **validation-rules v0.3.0** — estruturado em `common` (sempre aplica) + `agentic_saas` + `platform` + `automation` + `hybrid` (composite). Cada check declara `applies_when` para o reviewer ramificar.
 
-4. **Reviewer prompt v0.3.0** — passo obrigatório de carregar `project.json` antes de qualquer check; ramo de validação por tipo; **NÃO marca FAIL por ausência de LLM/Langfuse/prompts em `ai_enabled=false`**.
+4. **Reviewer prompt v0.3.0** — passo obrigatório de carregar `project.json` antes de qualquer check; ramo de validação por tipo; **NÃO marca FAIL por ausência de LLM/LangSmith/prompts em `ai_enabled=false`**.
 
 5. **4 templates novos**: `platform-module-spec.template.md`, `platform-pilot-state.template.md`, `platform-acceptance-report.template.md`, `delivery-economics.template.md`. Templates agentic existentes mantidos (`platform-sku-spec`, `product-spec`, `unit-economics`).
 
@@ -176,7 +230,7 @@ Decisões fundacionais do framework Acme Forge. Mudança em qualquer uma destas 
 - 4 commands com bumps próprios (versão por command).
 
 **Pendências**:
-- Hooks (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Refator condicional fica para Forge-9.1 ou primeira auditoria real do `school-platform`. Hoje: o hook simplesmente não dispara em projeto platform pois os paths/patterns que ele monitora (prompts/LLM calls) não existem nesses projetos.
+- Hooks (`unit-economics-recalc`, `LangSmith-trace-check`) ainda assumem `ai_enabled=true`. Refator condicional fica para Forge-9.1 ou primeira auditoria real do `school-platform`. Hoje: o hook simplesmente não dispara em projeto platform pois os paths/patterns que ele monitora (prompts/LLM calls) não existem nesses projetos.
 - Reviewer-contract.md atualizado parcialmente; revisão completa quando primeiro projeto platform for auditado.
 - Skills DeepAgent (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas; conversão de skills para platform é Forge-9.2 (não bloqueia adoção pelo `school-platform`).
 
@@ -259,7 +313,7 @@ Helper pattern do BMAD reduz tokens em 70-85% via referências a seções reutil
 | QA, Security, Code Review | **Sonnet** |
 | Lint, format, classificação simples | **Haiku** |
 
-Reavaliar com base em telemetria Langfuse após Forge-3.
+Reavaliar com base em telemetria LangSmith após Forge-3.
 
 ---
 
@@ -537,7 +591,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | Princípio | Como AIOS aplica |
 |---|---|
 | C5 (Three-tier) | Tier A = L2 (autônomo), Tier B = L1 (iteração humana), Tier C = L0 (dev dirige) |
-| C6 (Telemetry) | `send_request()` de cada agente deve ter trace Langfuse — ver `docs/forge/aios-telemetry-pattern.md` |
+| C6 (Telemetry) | `send_request()` de cada agente deve ter trace LangSmith — ver `docs/forge/aios-telemetry-pattern.md` |
 | C7 (Portability) | SYSTEM_PROMPTs funcionam standalone sem o kernel; kernel offline ≠ agente inutilizável |
 | C8 (Anti-heroic) | `tenantId` vai em `task_input`, nunca hardcoded em SYSTEM_PROMPT |
 
@@ -547,7 +601,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 - F6.1/F6.2: no projeto consumidor (orchestrator.py, setup guide, ADR-003) — F6.1/F6.2 entregues lá
 - F6.3: `/acme:plan` (seção 9 condicional), `/acme:tasks` (Wave 2-AIOS), `/acme:implement` (`--via aios`)
 - F6.4: `/acme:aios-init`, `/acme:aios-run`, `/acme:aios-status`
-- F6.5: `docs/forge/aios-telemetry-pattern.md` — padrão Langfuse + mock + campos obrigatórios
+- F6.5: `docs/forge/aios-telemetry-pattern.md` — padrão LangSmith + mock + campos obrigatórios
 - F6.6: `templates/platform-sku-spec.template.md` com `aios_tier` + `aios_context_boundaries` no frontmatter
 
 ---
@@ -566,7 +620,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 - `schema_agent` é **stack-agnostic**: lê `aios/config.yaml → stack.database` e gera schema na stack declarada; se vazia, propõe 1-3 stacks com tradeoffs e pede decisão humana antes do schema definitivo
 - `backend_agent`, `frontend_agent`, `test_agent` leem `stack.{backend,frontend,tests}` da config — não cravam Next.js/Prisma/Vitest
 - `orchestrator.py` lê `modules:` da config (em vez de lista hardcoded de 15 módulos do SchoolPlatform)
-- Todos têm bloco Langfuse + `_MockTrace` obrigatório (C6)
+- Todos têm bloco LangSmith + `_MockTrace` obrigatório (C6)
 - `tenantId` sempre via `task_input["tenant_id"]` (C8)
 
 **Mapeamento com a Constitution**:
@@ -574,7 +628,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | Princípio | Como Forge-7 aplica |
 |---|---|
 | C5 (Three-tier) | `tier: A | B | C` no `config.json` de cada agente especializado; agentes compartilhados marcados `tier: shared` |
-| C6 (Telemetry) | Bloco Langfuse + `_MockTrace` no boilerplate de cada `entry.py.template` (não opcional) |
+| C6 (Telemetry) | Bloco LangSmith + `_MockTrace` no boilerplate de cada `entry.py.template` (não opcional) |
 | C7 (Portability) | SYSTEM_PROMPT funciona standalone em Claude Code (declarado no comentário-cabeçalho); kernel offline ≠ agente inutilizável |
 | C8 (Anti-heroic) | Stack lida de `aios/config.yaml`, nunca cravada; `tenantId` em `task_input`; nenhum nome de cliente em código |
 
@@ -599,7 +653,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 **Contexto**: Forge-0 a Forge-7 construíram toda a governança de IA — Constitution, skills, commands, hooks, agentes AIOS — mas **não impunham CI/CD como pré-requisito mecânico para produção**. O resultado prático era que projetos podiam promover SKUs para AUTONOMOUS sem nenhuma automação de validação: regressões de prompt passavam despercebidas, auditorias mensais eram manuais e inconsistentes, e branch protection não era verificada.
 
-**Problema concreto**: o Gate 5 (aprovação cruzada humana) pode ser executado mesmo sem CI/CD, criando um falso senso de segurança. Um SKU em AUTONOMOUS sem pipeline de eval automático pode ter `prompt_hash` em produção diferente do `prompt_hash` validado — exatamente o drift que `/acme:eval` e o hook `langfuse-trace-check` tentam prevenir no desenvolvimento local.
+**Problema concreto**: o Gate 5 (aprovação cruzada humana) pode ser executado mesmo sem CI/CD, criando um falso senso de segurança. Um SKU em AUTONOMOUS sem pipeline de eval automático pode ter `prompt_hash` em produção diferente do `prompt_hash` validado — exatamente o drift que `/acme:eval` e o hook `LangSmith-trace-check` tentam prevenir no desenvolvimento local.
 
 **Decisão**: tornar CI/CD um **Gate obrigatório (Gate 6)** no `/acme:promote`, especificamente para a transição `assisted_to_autonomous`. Para transições anteriores (start_shadow, shadow_to_assisted), CI/CD é fortemente recomendado mas não bloqueia.
 
@@ -613,7 +667,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 2. **`templates/cicd/github-actions-eval.template.yml`** — eval automático em mudanças de `prompts/`:
    - Detecta artifact_id modificado
    - Roda eval por categoria; falha PR se `pass_rate < agreement_rate_min`
-   - Trace Langfuse obrigatório em CI (C6)
+   - Trace LangSmith obrigatório em CI (C6)
    - Comentário automático no PR com resumo
 
 3. **`templates/cicd/github-actions-audit.template.yml`** — auditoria mensal via cron:
@@ -643,7 +697,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 |---|---|
 | C1 (Audit trail) | Auditoria mensal automatizada; relatório commitado; Issue criada em SLA breach |
 | C4 (SHADOW antes de cobrar) | Gate 6 garante que eval automático está ativo antes de AUTONOMOUS — o dado de produção é monitorado |
-| C6 (Telemetria) | Eval em CI tem trace Langfuse obrigatório (campo `LANGFUSE_PUBLIC_KEY` em secrets) |
+| C6 (Telemetria) | Eval em CI tem trace LangSmith obrigatório (campo `LANGSMITH_API_KEY` em secrets) |
 | C7 (Portabilidade) | Templates de CI são agnósticos de projeto — placeholders `{PROJECT_NAME}`, `{ARTIFACT_ID}` |
 
 **Decisão de versionamento**: Forge-8 adiciona Gate 6 (novo constraint) mas não muda nenhum princípio da Constitution. É MINOR bump (v0.6.0 → v0.7.0). Não exige ADR de Constitution.
@@ -719,7 +773,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 |---|---|
 | C4 (SHADOW antes de cobrar) | Testes RED são a especificação executável — failure inicial obrigatório; coverage por tier enforça evidência mecânica antes de qualquer promoção |
 | C5 (three-tier) | `test_agent` em modo RED não pode ler outros módulos nem o backend que ainda não existe — isolamento absoluto |
-| C6 (telemetry) | Cada execução do `test_agent` é um trace Langfuse separado, com `mode` e `tdd_phase` em metadata |
+| C6 (telemetry) | Cada execução do `test_agent` é um trace LangSmith separado, com `mode` e `tdd_phase` em metadata |
 | C7 (portability) | Comandos de teste lidos de `aios/config.yaml → test_commands` (sem hardcode npm/pytest); workflows usam matrix lida de `modules:` |
 | C8 (anti-heroic) | `tests/{module}/` por convenção, não por cliente; coverage_targets configuráveis sem hardcode |
 
@@ -745,8 +799,8 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 
 1. **Detecta** `project_type` + `ai_enabled` ao ler `docs/forge/manifest.json` (ou `project.json`) do consumidor — não exige instrução manual.
 2. **Adapta** interpretação de C1-C8 conforme matriz já estabelecida em F26 (Forge-9):
-   - `agentic_saas`: C3 audita tokens, C4 exige eval-suite LLM, C6 Langfuse obrigatório, lifecycle SHADOW→ASSISTED→AUTONOMOUS
-   - `platform` (ai_enabled=false): C3 audita infra/operação, C4 usa acceptance gate, C6 condiciona Langfuse, lifecycle draft→staging→pilot→canonical
+   - `agentic_saas`: C3 audita tokens, C4 exige eval-suite LLM, C6 LangSmith obrigatório, lifecycle SHADOW→ASSISTED→AUTONOMOUS
+   - `platform` (ai_enabled=false): C3 audita infra/operação, C4 usa acceptance gate, C6 condiciona LangSmith, lifecycle draft→staging→pilot→canonical
    - `hybrid`: per-module decision via ADR; Forge-10 TDD-first aplicado nos módulos com IA
 3. **Roteia** slash commands `/acme:*` por tipo:
    - `/acme:spec --type=platform-sku` para agentic_saas; `--type=platform-module` para platform
@@ -800,7 +854,7 @@ reviewer/deepagents/skills/reviewer/forge-auditor/
 | C3 (Unit economics) | Master prompt roteia para unit-economist com branch correto (tokens vs infra) conforme `ai_enabled` |
 | C4 (SHADOW antes de cobrar) | Master prompt aplica lifecycle SHADOW→AUTONOMOUS (agentic) OU draft→canonical (platform) sem confundir vocabulários |
 | C5 (ADR) | Master prompt obriga ADR para toda decisão arquitetural e referencia decisions.md do consumidor |
-| C6 (Telemetria) | Master prompt condiciona Langfuse a `ai_enabled=true`; logs estruturados em todos os tipos |
+| C6 (Telemetria) | Master prompt condiciona LangSmith a `ai_enabled=true`; logs estruturados em todos os tipos |
 | C7 (Portability) | Master prompt proíbe acoplar SDK no domain layer; orienta abstração via interfaces |
 | C8 (Anti-heroic) | Master prompt usa templates como fonte; não permite criação ad-hoc fora do framework |
 
@@ -889,7 +943,7 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | C3 (Unit economics) | QUICKSTART_VIBE.md mostra exemplo "custo estimado: R$ 2,40" antes de executar — transparência de C3 para não-técnico |
 | C4 (Verifiable evaluation) | scripts/forge doctor é primeira porta de entrada para validação |
 | C5 (ADR) | QUICKSTART_DEV.md tem section "Como adicionar X" referenciando ADR para mudanças arquiteturais |
-| C6 (Telemetry) | Glossário leigo traduz "Langfuse" como "registro do que aconteceu" para CEO |
+| C6 (Telemetry) | Glossário leigo traduz "LangSmith" como "registro do que aconteceu" para CEO |
 | C7 (Portability) | scripts/forge é o exemplo canônico de portabilidade: bash puro, fallback graceful, detecção de jq/node opcionais |
 | C8 (Anti-heroic) | HELLO.md elimina dependência de "alguém que já conhece o Forge" — qualquer um se onboarda sozinho |
 
@@ -978,7 +1032,7 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | C3 (Unit economics) | PLAYGROUND/01 mostra C3 em tokens; 02 em infra+suporte; 03 em mix; COMMON_ERRORS #8 ensina recuperação |
 | C4 (Verifiable evaluation) | PLAYGROUND/01 mostra eval-suite; 02 mostra acceptance-report; ambos no walkthrough |
 | C5 (ADR) | PLAYGROUND/01 mostra ADR-001 reduzindo slides; COMMON_ERRORS #5 ensina resposta a hook adr-approval-gate |
-| C6 (Telemetry) | PLAYGROUND/02 mostra logs+audit ao invés de Langfuse; friendly-errors traduz "telemetry" amigavelmente |
+| C6 (Telemetry) | PLAYGROUND/02 mostra logs+audit ao invés de LangSmith; friendly-errors traduz "telemetry" amigavelmente |
 | C7 (Portability) | friendly-errors.sh é o melhor exemplo: lê `.forge-mode` simples (texto), fallback graceful, não acopla nada |
 | C8 (Tenant context) | PLAYGROUND/02 e 03 mostram tenant_id, RLS PostgreSQL, audit trail particionado |
 

@@ -299,7 +299,7 @@
         "limitations_encountered": {
           "type": "array",
           "items": {"type": "string"},
-          "description": "Limitações que afetaram a auditoria (ex: 'sem acesso Langfuse', 'apenas 50% dos outcomes amostrados por timeout')"
+          "description": "Limitações que afetaram a auditoria (ex: 'sem acesso LANGSMITH', 'apenas 50% dos outcomes amostrados por timeout')"
         }
       }
     },

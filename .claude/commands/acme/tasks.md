@@ -210,7 +210,7 @@ total_waves: 5
 
 ## Wave 5 — Metrics & dashboards
 
-### T5.1 — Configurar dashboards Langfuse (ou equivalente)
+### T5.1 — Configurar dashboards LANGSMITH (ou equivalente)
 - **Skill/tool**: editor manual + provider-specific config
 - **Output**: dashboards de agreement_rate, latency_p95, cost_per_outcome, runs_total
 - **Gate de pronto**: dashboard renderiza com dados zerados antes do SHADOW iniciar
@@ -244,7 +244,7 @@ total_waves: 5
 - **Gate de pronto**: PR com mudança em `prompts/` dispara eval; relatório gerado em `evals/{id}/runs/`; PR falha se pass_rate < threshold
 - **Depends on**: T3.LAST (eval cases existem)
 - **Tier**: 3
-- **Trace required**: true (eval em CI deve ter trace Langfuse — C6)
+- **Trace required**: true (eval em CI deve ter trace LANGSMITH — C6)
 
 ### T6.3 — Configurar branch protection rules
 - **Skill/tool**: GitHub Settings → Branches (manual) ou `gh api` CLI

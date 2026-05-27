@@ -81,7 +81,7 @@ Custos e volumes reais observados (alimenta unit-economist guardian).
 Dicas para observability-guardian neste projeto.
 
 <!-- Exemplo:
-§ [confidence:local] [2026-05-18] [run:local] Langfuse project_id=prj_happiness — traces ativos
+§ [confidence:local] [2026-05-18] [run:local] LANGSMITH project_id=prj_happiness — traces ativos
 § [confidence:shadow] [2026-05-19] [run:gh-1100] Campo extra útil nos traces: user_segment (free|premium)
 -->
 

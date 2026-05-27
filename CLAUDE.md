@@ -60,7 +60,7 @@ Ele cobre os 3 tipos de projeto suportados (F26):
 
 | Tipo | Exemplo Real | Lifecycle | C3/C4/C6 |
 |------|--------------|-----------|----------|
-| `agentic` + `ai_enabled:true` | Acme Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens, eval LLM, Langfuse |
+| `agentic` + `ai_enabled:true` | Acme Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens, eval LLM, LangSmith |
 | `platform` + `ai_enabled:false` | SchoolPlatform | draft→staging→pilot→canonical | Infra, acceptance, logs |
 | `platform` + `ai_enabled:true` ou `hybrid` | SaaS com features IA | Por módulo | Combinado |
 

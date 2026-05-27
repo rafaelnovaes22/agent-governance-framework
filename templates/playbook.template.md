@@ -83,7 +83,7 @@ interface VerticalTenantContext {
 ### Padrão de instrumentação (C6)
 
 ```
-observe(langfuse, {
+observe(LANGSMITH, {
   name: "{{ vertical }}-sku-{{ operação }}",
   metadata: { tenantId, {{ campos de contexto relevantes para auditoria }} }
 })

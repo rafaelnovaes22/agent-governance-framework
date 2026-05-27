@@ -53,7 +53,7 @@ skip_health_check: false             # pular verificação do kernel (não recom
    → Timestamp de início e fim
    → Módulo e step(s) executados
    → Número de artefatos gerados
-   → Aviso se algum agente não tiver trace Langfuse configurado (C6)
+   → Aviso se algum agente não tiver trace LANGSMITH configurado (C6)
 ```
 
 ## Gates humanos obrigatórios (C4)
@@ -79,10 +79,10 @@ Registrar no console ao final:
 ```
 [AIOS-RUN] Módulo: {module} | Step(s): {step} | Início: {timestamp} | Fim: {timestamp}
 [AIOS-RUN] Artefatos gerados: {lista}
-[AIOS-RUN] Trace Langfuse: {ok | AVISO — LANGFUSE_PUBLIC_KEY não configurada}
+[AIOS-RUN] Trace LangSmith: {ok | AVISO — LANGSMITH_API_KEY/LANGSMITH_TRACING não configurados}
 ```
 
-Aviso obrigatório se `LANGFUSE_PUBLIC_KEY` não estiver no ambiente — chamadas sem trace não contam como outcomes auditáveis (C6).
+Aviso obrigatório se `LANGSMITH_API_KEY` não estiver no ambiente ou `LANGSMITH_TRACING` não estiver ativo — chamadas sem trace não contam como outcomes auditáveis (C6).
 
 ## Instruções de start do kernel (exibir se health check falhar)
 
@@ -113,7 +113,7 @@ artifacts_generated:
   - docs/specs/_review_{module}.md    # se step review
 human_gates_passed: [spec, build]     # gates que passaram com "s"
 human_gate_failed: test               # gate que recebeu "n" (se aplicável)
-langfuse_trace_ok: true | false
+LANGSMITH_trace_ok: true | false
 timestamp_start: <>
 timestamp_end: <>
 trace_id: <>
@@ -125,7 +125,7 @@ next_step: "/acme:aios-run --module {module} --step test"  # se gate_failed
 - [x] Health check executado antes de qualquer chamada ao orchestrator (salvo --skip_health_check)
 - [x] Gate humano explícito após cada step — nunca avança automaticamente
 - [x] Ao resposta "n": comando para sem re-executar; orientação específica por step
-- [x] Aviso de telemetria no console se LANGFUSE_PUBLIC_KEY ausente
+- [x] Aviso de telemetria no console se LANGSMITH_API_KEY ausente ou LANGSMITH_TRACING inativo
 - [x] Artefatos listados no output structured
 - [x] Trace_id gerado para rastreabilidade
 
@@ -149,7 +149,7 @@ hint: <ação específica>
 trace_id: <>
 ```
 
-`error` ∈ `kernel_offline` (iniciar kernel) | `orchestrator_not_found` (verificar aios/orchestrator.py) | `module_agents_not_initialized` (executar /acme:aios-init primeiro) | `spec_not_found` (executar /acme:spec antes de pipeline) | `human_gate_rejected` (corrigir e re-executar step) | `langfuse_not_configured` (aviso, não bloqueante).
+`error` ∈ `kernel_offline` (iniciar kernel) | `orchestrator_not_found` (verificar aios/orchestrator.py) | `module_agents_not_initialized` (executar /acme:aios-init primeiro) | `spec_not_found` (executar /acme:spec antes de pipeline) | `human_gate_rejected` (corrigir e re-executar step) | `LANGSMITH_not_configured` (aviso, não bloqueante).
 
 ## Histórico
 

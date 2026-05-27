@@ -9,6 +9,78 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.22.0] — 2026-05-26
+
+### Added (Forge-21 — WireLog analytics_provider)
+
+**WireLog entra como `analytics_provider` canônico — C6 bifurcado em `llm_trace_provider` (LangSmith) + `analytics_provider` (WireLog).**
+
+**Decisão F56 (docs/forge/decisions.md)**:
+- WireLog é o `analytics_provider` para eventos de negócio/outcomes
+- LangSmith permanece como `llm_trace_provider` para traces LLM
+- Os dois coexistem e se complementam — WireLog nunca substitui LangSmith
+- WireLog opcional por padrão; WARN em AUTONOMOUS se não declarado; sem bloqueio para platform/automation
+
+**Novo `templates/telemetry/wirelog-event-schema.template.md`**:
+- Schema canônico de 14 tipos de evento: outcome lifecycle (created/delivered/billed), eval (started/completed), gate/promotion (failed/requested/approved/blocked), reviewer (audit started/completed), economics (recalculated), errors (agent_error, user_feedback)
+- Regras PII/LGPD: campos proibidos (email, CPF, CNPJ, tenant_id cru) vs campos permitidos (tenant_id_hash, IDs opacos, métricas numéricas, enums)
+- 3 exemplos JSON canônicos + queries de auditoria mensal
+- Regra de desvio DB↔WireLog: ≤ 1% PASS / ≤ 5% WARN / > 5% FAIL
+
+**Novo `templates/observability/wirelog-adapter.ts.template`**:
+- Adapter TypeScript portável com interface pública: `trackForgeEvent`, `identifyForgeActor`, `flushForgeAnalytics`
+- Helpers de conveniência: `trackOutcomeDelivered`, `trackGateFailed`, `trackEvalCompleted`
+- PII guard automático: `stripForbiddenFields` remove campos proibidos antes do envio
+- No-op silencioso quando `WIRELOG_SECRET_KEY` não configurado — nunca quebra a aplicação
+- `hashId` helper para sha256 de IDs sensíveis
+
+**Novo `templates/observability/wirelog-adapter.py.template`**:
+- Equivalente Python com mesma interface e mesmas garantias
+- Usa `httpx` para HTTP direto; dependência leve e portável
+
+**Atualizado `templates/project.template.json`**:
+- Novo campo `telemetry.analytics_provider` com valores `wirelog | posthog | segment | custom | null`
+- `_analytics_provider_doc` explica papel de cada provider
+- `principle_overrides.C6` atualizado para refletir bifurcação
+
+**Atualizado `reviewer/validation-rules.json` (v0.4.0)**:
+- Nova seção `C6_analytics` com 5 checks: desvio DB↔WireLog, ausência de PII, campos obrigatórios em gate_failed, adapter presente (C7), WARN em AUTONOMOUS sem analytics_provider
+
+**Atualizado `reviewer/prompt.template.md` (v0.6.0)**:
+- Nova seção `v0.6.0 (Forge-21)` com checks C6.analytics.*, separação de responsabilidades, queries WireLog e lista de what NOT to check
+
+**Atualizado `docs/forge/reviewer-contract.md` (v0.3.0)**:
+- Nova seção 3.9 para analytics_provider como input do reviewer
+- Cruzamento DB outcomes ↔ WireLog events documentado
+
+**Atualizado `templates/monthly-audit.template.md`**:
+- C6 bifurcado em C6.1 (LangSmith) + C6.2 (WireLog com queries de funil)
+
+**Atualizado commands** (`eval.md`, `promote.md`, `audit-monthly.md`):
+- Passos de emissão WireLog documentados em cada command
+- Pre-conditions de `audit-monthly` incluem WireLog API key quando analytics_provider=wirelog
+
+**Atualizado templates CI/CD**:
+- `github-actions-eval.template.yml`: `WIRELOG_SECRET_KEY` e `WIRELOG_HOST` como env vars opcionais
+- `github-actions-audit.template.yml`: idem
+- `cicd-checklist.template.md`: seção 7 com WIRELOG secrets + smoke test de analytics
+
+**Novo `PLAYGROUND/05-wirelog-analytics/`**:
+- `project.json`: projeto agentic_saas com analytics_provider=wirelog + llm_trace_provider=langsmith
+- `events/sample-wirelog-events.jsonl`: 10 eventos fake de referência (sem PII)
+- `queries/wirelog-monthly-audit.md`: 8 queries de auditoria mensal
+- `README.md` + `walkthrough.md`: guia completo
+
+**Atualizado docs principais**:
+- `ARCHITECTURE.md`: Camada 5 bifurcada em 3 providers; Camada 6 cruza DB + LangSmith + WireLog
+- `README.md`: badge de versão atualizado; C6 com nota de bifurcação
+- `GLOSSARY.md`: termos `analytics_provider` e `WireLog` adicionados; C1-C8 atualizado para v0.3.0
+- `GLOSSARY_PLAIN.md`: `WireLog` em linguagem simples para CEO
+- `DEEPAGENT_GUIDE.md`: analytics_provider adicionado como pré-requisito
+- `docs/forge/roadmap.md`: Forge-21 marcado como ✅
+
+---
+
 ## [0.21.0] — 2026-05-18
 
 ### Added (Forge-20 — Self-Harness Loop)

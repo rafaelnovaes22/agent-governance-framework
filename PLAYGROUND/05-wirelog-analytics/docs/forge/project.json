@@ -1,0 +1,65 @@
+{
+  "$schema": "https://acme.com.br/forge/project-config-v1.json",
+  "_doc": "Configuração de exemplo para o playground WireLog — demonstra analytics_provider=wirelog convivendo com llm_trace_provider=langsmith.",
+
+  "project_config_version": "0.1.0",
+  "framework_version_required": ">=0.22.0",
+
+  "project": {
+    "name": "acme-corp-saas",
+    "owner": "Acme Forge Playground",
+    "type": "agentic_saas",
+    "ai_enabled": true
+  },
+
+  "lifecycle_states": {
+    "agentic": ["SHADOW", "ASSISTED", "AUTONOMOUS"],
+    "default_for_project_type": {
+      "agentic_saas": "agentic"
+    }
+  },
+
+  "telemetry": {
+    "_doc": "Configuração de referência: LangSmith = llm_trace_provider (traces LLM), WireLog = analytics_provider (eventos de negócio). Os dois coexistem e se complementam.",
+    "llm_trace_provider": "langsmith",
+    "analytics_provider": "wirelog",
+    "audit_log_provider": "postgres-audit",
+    "structured_logging_provider": "pino",
+    "metrics_provider": "prometheus",
+    "error_tracking_provider": "sentry"
+  },
+
+  "economics": {
+    "model": "cost_per_outcome",
+    "cost_to_price_ratio_max": 0.25
+  },
+
+  "principle_overrides": {
+    "C6": {
+      "llm_trace_provider_when_ai": "langsmith",
+      "analytics_provider_recommended": "wirelog",
+      "telemetry_default_when_ai": "llm_trace_provider + analytics_provider",
+      "trace_coverage_target_pct": 99,
+      "analytics_deviation_max_pct": 5
+    }
+  },
+  "principle_overrides_signature": null,
+
+  "modules": [
+    {
+      "id": "triagem-comercial",
+      "type": "agentic-skill",
+      "ai_enabled": true,
+      "lifecycle_state": "AUTONOMOUS",
+      "criticality": "critical"
+    }
+  ],
+
+  "_meta": {
+    "created_at": "2026-05-26",
+    "last_updated": "2026-05-26",
+    "validated_by_forge_doctor": false,
+    "consumer_repo": "playground/05-wirelog-analytics",
+    "notes": "Exemplo de referência — não é um projeto real. Demonstra configuração analytics_provider=wirelog com llm_trace_provider=langsmith."
+  }
+}

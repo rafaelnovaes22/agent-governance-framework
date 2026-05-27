@@ -42,7 +42,7 @@ Single skill that runs the **monthly audit** of a Forge-consuming project. Valid
 - [ ] 3.5. **Load `docs/forge/project.json`** (if present) → extract `project.type`, `project.ai_enabled`, `modules[]`
        - If absent: default to `project_type=agentic_saas`, `ai_enabled=true` (backwards compat v0.7.0)
        - If `ai_enabled=false`: switch discovery (step 5) and principle rubrics (step 6) to platform mode
-       - **CRITICAL: NEVER mark FAIL for absence of LLM/Langfuse/prompts when `ai_enabled=false`**
+       - **CRITICAL: NEVER mark FAIL for absence of LLM/LANGSMITH/prompts when `ai_enabled=false`**
 - [ ] 4. Prime Tier 1 caches via L0 loaders: `company-dna`, `icp-loader`, `offerings-loader`
 - [ ] 5. **Discover audit scope** (branched by project_type):
        - `agentic_saas`: subscriptions in ASSISTED/AUTONOMOUS in `--month` (sample 5-10%)
@@ -176,7 +176,7 @@ Each `task` returns:
 ### C6 — Telemetry-by-default
 - **agentic**: `% runs with trace` in audit period (target: 100%; alert if <99%). All `prompts/.../system.md` have Section 8 (instrumentation)? FAIL if absent.
 - **platform**: `audit_log_provider` declared in `project.json`? `auditLog.write()` calls present in module service files? `structured_logging_provider` configured? WARN if audit log coverage < 100% of declared `audited_actions[]`.
-- **NEVER FAIL for absence of Langfuse/llm_trace_provider when `ai_enabled=false`.**
+- **NEVER FAIL for absence of LANGSMITH/llm_trace_provider when `ai_enabled=false`.**
 
 ### C7 — Portability
 - **agentic**: `grep -r "import .* from '@anthropic-ai/sdk\|openai\|@google-ai" src/ | grep -v 'src/llm/adapters/'`. 0 matches → PASS; ≥1 → FAIL.
@@ -337,7 +337,7 @@ deepagents -n -y "Run forge-auditor for last closed month with subscription_filt
 | `manifest_parse_failed` | JSON invalid | `python -c "import json; json.load(open('docs/forge/manifest.json'))"` |
 | `schema_validation_failed` | Output structure broken | Check sub-agent returns; ensure all required fields |
 | `audit_dir_unwritable` | Permissions | Ensure `docs/forge/audits/` writable |
-| `tracing_provider_unreachable` | Langfuse/etc down | Mark `outcomes_sampled: 0` with `tracing_unavailable: true`; partial audit |
+| `tracing_provider_unreachable` | LANGSMITH/etc down | Mark `outcomes_sampled: 0` with `tracing_unavailable: true`; partial audit |
 
 ---
 

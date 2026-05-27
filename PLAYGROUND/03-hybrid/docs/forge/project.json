@@ -15,7 +15,7 @@
       "enabled": true,
       "retention_days": 2555
     },
-    "langfuse": {
+    "LANGSMITH": {
       "enabled": true,
       "scope": "ai_modules_only",
       "project_id": "playground-hybrid-ai-modules"

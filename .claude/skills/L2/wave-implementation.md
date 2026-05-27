@@ -58,7 +58,7 @@ Construa um caminho completo pela stack em cada fatia:
 
 ```
 Fatia 1: Schema + adapter C7 + observe() mínimo
-    → forge-doctor passa, trace aparece no Langfuse
+    → forge-doctor passa, trace aparece no LANGSMITH
 
 Fatia 2: Lógica de negócio + casos de erro
     → forge-doctor passa, casos de erro testados
@@ -235,5 +235,5 @@ Ao completar todas as fatias de uma onda:
 - [ ] Feature funciona de ponta a ponta conforme spec
 - [ ] Sem mudanças não-commitadas
 - [ ] Manifest sincronizado
-- [ ] Se onda agentic: traces visíveis no Langfuse
+- [ ] Se onda agentic: traces visíveis no LANGSMITH
 - [ ] Se onda platform: acceptance tests passando

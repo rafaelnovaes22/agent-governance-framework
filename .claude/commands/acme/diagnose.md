@@ -40,7 +40,7 @@ Antes de invocar, validar:
 2. `docs/icp.md` (ou equivalente) existe → `@icp-loader` carrega
 3. `docs/portfolio.md` (ou equivalente) existe → `@offerings-loader` carrega
 4. Usuário pode escrever em `docs/clients/{client_id}/`
-5. Tracing configurado (`LANGFUSE_*` ou equivalente em env) — diagnose é cobrável, todo run com trace (C6)
+5. Tracing configurado (`LANGSMITH_*` ou equivalente em env) — diagnose é cobrável, todo run com trace (C6)
 
 Se qualquer pré-condição falhar → erro estruturado, **não inicia sessão**.
 
@@ -156,7 +156,7 @@ Se algum item falhar → `status: error` ou `status: partial` com `partial: true
 | "Outcome ambíguo, deixo pra spec resolver" | Ambiguidade aqui contamina spec, contrato e eval | Forçar 3+3 exemplos no Bloco 5; `proposed_outcome: insufficient` se incompleto |
 | "Cliente fora do ICP, mas vale tentar" | Out-of-ICP gasta esforço de pré-venda e vira churn | Marcar `icp_fit: out_of_icp` e propor `next_step: "renegociar escopo ou recusar"` |
 | "Diagnóstico grátis pra fechar venda" | Cliente que não topa pagar diagnóstico raramente vira cliente sério (filtro C1) | Bloco 10 é mandatório com `paid_diagnostic_value` declarado |
-| "Sem trace pra essa sessão piloto" | Quebra C6 — diagnose é cobrável, todo run audit-ready | `trace_required: true`; falhar se `LANGFUSE_*` ausente |
+| "Sem trace pra essa sessão piloto" | Quebra C6 — diagnose é cobrável, todo run audit-ready | `trace_required: true`; falhar se `LANGSMITH_*` ausente |
 | "Vou ler runs antigos pra ter referência" | Runs são Tier 3 — quebra C5 | Apenas Tier 1 (helpers) + Tier 2 do mesmo cliente |
 
 ## Saída de erro estruturada

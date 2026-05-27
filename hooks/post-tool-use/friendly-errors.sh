@@ -115,13 +115,13 @@ if echo "${TOOL_OUTPUT}" | grep -qiE "(C5|ADR|adr-approval-gate|architectural.?d
 fi
 
 # C6 — Observability
-if echo "${TOOL_OUTPUT}" | grep -qiE "(C6|langfuse|telemetry|trace)"; then
+if echo "${TOOL_OUTPUT}" | grep -qiE "(C6|langsmith|LANGSMITH|telemetry|trace)"; then
   case "${FORGE_MODE}" in
     vibe)
       FRIENDLY_MSG="📊 Eu preciso registrar tudo que acontece (pra você saber depois) — vou configurar isso automaticamente, ok?"
       ;;
     dev)
-      FRIENDLY_MSG="C6 violation — telemetria insuficiente. ai_enabled=true exige Langfuse; ai_enabled=false aceita logs estruturados + audit-trail."
+      FRIENDLY_MSG="C6 violation — telemetria insuficiente. ai_enabled=true exige LangSmith; ai_enabled=false aceita logs estruturados + audit-trail."
       ;;
   esac
 fi

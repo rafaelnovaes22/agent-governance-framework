@@ -1,0 +1,211 @@
+"""
+WireLog adapter portável para projetos Acme Forge (Python).
+
+Instalar em: src/observability/wirelog_adapter.py (ou src/infra/wirelog_adapter.py)
+Nunca importar diretamente em módulos de negócio — viola C7.
+
+Configuração via env:
+  WIRELOG_SECRET_KEY  — habilita envio server-side (obrigatório para enviar)
+  WIRELOG_API_KEY     — alternativa ao SECRET_KEY
+  WIRELOG_HOST        — opcional; override de host (default: https://app.wirelog.com)
+
+Se nenhuma chave estiver configurada, todas as funções são no-op silencioso.
+Nunca lançar exceção por ausência de WireLog — analytics é observabilidade opcional.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import os
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
+
+import httpx  # pip install httpx
+
+# ─── Campos proibidos (PII guard — LGPD/GDPR) ─────────────────────────────────
+
+_FORBIDDEN_FIELDS: frozenset[str] = frozenset(
+    [
+        "email",
+        "cpf",
+        "cnpj",
+        "telefone",
+        "phone",
+        "nome",
+        "name",
+        "full_name",
+        "customer_name",
+        "tenant_id",    # usar tenant_id_hash
+        "actor_id",     # usar actor_id_hash
+        "user_id",      # usar actor_id_hash
+        "api_key",
+        "secret",
+        "token",
+        "password",
+        "senha",
+        "payload",      # payload bruto pode conter PII
+    ]
+)
+
+
+# ─── Helpers internos ─────────────────────────────────────────────────────────
+
+
+def hash_id(raw_id: str) -> str:
+    """sha256 hex dos primeiros 16 chars — nunca expõe o ID original."""
+    return hashlib.sha256(raw_id.encode()).hexdigest()[:16]
+
+
+def _strip_forbidden(event: Dict[str, Any]) -> Dict[str, Any]:
+    return {k: v for k, v in event.items() if k not in _FORBIDDEN_FIELDS}
+
+
+def _is_configured() -> bool:
+    return bool(os.getenv("WIRELOG_SECRET_KEY") or os.getenv("WIRELOG_API_KEY"))
+
+
+def _get_api_key() -> str:
+    return os.getenv("WIRELOG_SECRET_KEY") or os.getenv("WIRELOG_API_KEY") or ""
+
+
+def _get_host() -> str:
+    return os.getenv("WIRELOG_HOST", "https://app.wirelog.com")
+
+
+def _send(path: str, body: Dict[str, Any]) -> None:
+    if not _is_configured():
+        return
+
+    url = f"{_get_host()}{path}"
+    try:
+        with httpx.Client(timeout=5.0) as client:
+            client.post(
+                url,
+                json=body,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {_get_api_key()}",
+                },
+            )
+    except Exception:
+        # Analytics nunca deve quebrar a aplicação — falha silenciosa
+        pass
+
+
+# ─── API pública ──────────────────────────────────────────────────────────────
+
+
+def track_forge_event(event: Dict[str, Any]) -> None:
+    """
+    Envia um evento de negócio ao WireLog.
+    Campos proibidos (PII) são removidos automaticamente.
+    No-op se WIRELOG_SECRET_KEY não estiver configurado.
+    """
+    if not _is_configured():
+        return
+
+    enriched = {
+        **event,
+        "timestamp": event.get("timestamp") or datetime.now(timezone.utc).isoformat(),
+        "forge_version": event.get("forge_version") or os.getenv("FORGE_VERSION", "unknown"),
+    }
+
+    safe = _strip_forbidden(enriched)
+    _send("/api/v1/events", safe)
+
+
+def identify_forge_actor(actor_id_hash: str, properties: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Identifica um ator (operador/agente) sem PII.
+    Use actor_id_hash = hash_id(user_id_real).
+    """
+    if not _is_configured():
+        return
+
+    payload = {"actor_id_hash": actor_id_hash, **(properties or {})}
+    safe = _strip_forbidden(payload)
+    _send("/api/v1/identify", safe)
+
+
+def flush_forge_analytics() -> None:
+    """
+    Flush da fila interna — útil em ambientes serverless.
+    No-op para HTTP direto; se usar SDK com batching, chame flush() aqui.
+    """
+    pass  # WireLog HTTP direto não tem fila local
+
+
+# ─── Helpers de conveniência ──────────────────────────────────────────────────
+
+
+def track_outcome_delivered(
+    project_id: str,
+    artifact_id: str,
+    tenant_id_hash: str,
+    outcome_id: str,
+    trace_id: Optional[str] = None,
+    cost_cents: Optional[int] = None,
+    latency_ms: Optional[int] = None,
+    lifecycle_stage: Optional[str] = None,
+) -> None:
+    """Emite forge_outcome_delivered — helper para evitar strings literais espalhadas."""
+    track_forge_event(
+        {
+            "event_type": "forge_outcome_delivered",
+            "project_id": project_id,
+            "artifact_id": artifact_id,
+            "tenant_id_hash": tenant_id_hash,
+            "outcome_id": outcome_id,
+            "trace_id": trace_id,
+            "cost_cents": cost_cents,
+            "latency_ms": latency_ms,
+            "lifecycle_stage": lifecycle_stage,
+        }
+    )
+
+
+def track_gate_failed(
+    project_id: str,
+    gate_id: str,
+    artifact_id: Optional[str] = None,
+    from_mode: Optional[str] = None,
+    to_mode: Optional[str] = None,
+    error_code: Optional[str] = None,
+    lifecycle_stage: Optional[str] = None,
+) -> None:
+    """Emite forge_gate_failed."""
+    track_forge_event(
+        {
+            "event_type": "forge_gate_failed",
+            "project_id": project_id,
+            "artifact_id": artifact_id,
+            "gate_id": gate_id,
+            "from_mode": from_mode,
+            "to_mode": to_mode,
+            "error_code": error_code,
+            "lifecycle_stage": lifecycle_stage,
+            "status": "fail",
+        }
+    )
+
+
+def track_eval_completed(
+    project_id: str,
+    artifact_id: str,
+    pass_rate: float,
+    status: str,
+    trace_id: Optional[str] = None,
+    latency_ms: Optional[int] = None,
+) -> None:
+    """Emite forge_eval_completed."""
+    track_forge_event(
+        {
+            "event_type": "forge_eval_completed",
+            "project_id": project_id,
+            "artifact_id": artifact_id,
+            "pass_rate": pass_rate,
+            "status": status,
+            "trace_id": trace_id,
+            "latency_ms": latency_ms,
+        }
+    )

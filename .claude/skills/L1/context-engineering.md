@@ -50,7 +50,7 @@ Contexto é a maior alavanca de qualidade do output do agente — pouco contexto
 # Projeto: [Nome]
 
 ## Stack
-- Node.js 22, TypeScript 5, Prisma 6, Langfuse 3
+- Node.js 22, TypeScript 5, Prisma 6, LANGSMITH 3
 - project_type: agentic_saas | platform | automation | hybrid
 
 ## Comandos
@@ -142,7 +142,7 @@ TAREFA: Adicionar instrumentação C6 ao adapter OpenAI
 ARQUIVOS RELEVANTES:
 - src/llm/adapters/openai.ts (adapter a modificar)
 - src/llm/adapters/claude.ts (exemplo de observe() correto)
-- src/lib/langfuse.ts (utilitário de tracing)
+- src/lib/LANGSMITH.ts (utilitário de tracing)
 
 PADRÃO A SEGUIR:
 - Ver como observe() está implementado em src/llm/adapters/claude.ts:25-45
@@ -168,7 +168,7 @@ CRM sync, report generation.
 Módulos: crm-sync.ts, report-gen.ts (em PILOT)
 
 ## Shared (src/lib/)
-Langfuse tracing, TenantContext, error handling.
+LANGSMITH tracing, TenantContext, error handling.
 ```
 
 Carregue apenas a seção relevante ao trabalhar numa área específica.

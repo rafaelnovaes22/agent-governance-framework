@@ -30,7 +30,7 @@ PATTERNS=(
   'OPENAI_API_KEY=[A-Za-z0-9_-]{10,}'
   'DATABASE_URL=postgresql://[^[:space:]]{10,}'
   'DATABASE_URL=mysql://[^[:space:]]{10,}'
-  'LANGFUSE_SECRET_KEY=[A-Za-z0-9_-]{10,}'
+  'LANGSMITH_API_KEY=[A-Za-z0-9_-]{10,}'
   'ghp_[A-Za-z0-9]{36,}'
   'github_pat_[A-Za-z0-9_]{20,}'
 )

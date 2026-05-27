@@ -198,7 +198,14 @@ Quando `to_mode` é uma das transições platform (`to_staging`, `to_pilot`, `to
 7. Persistir subscriptions/{subscription_id}/promotions.md (append-only log)
    + atualizar subscription state
 
-8. Trace end + output structured
+8. Emitir eventos WireLog (se project.telemetry.analytics_provider=wirelog):
+   - forge_promotion_requested: no início da transição com from_mode, to_mode, artifact_id, lifecycle_stage
+   - forge_gate_failed: para cada gate que falhar com gate_id, error_code, from_mode, to_mode
+   - forge_promotion_approved: se todos os gates passaram e transição foi registrada
+   - forge_promotion_blocked: se transição foi rejeitada (ilegal ou gates failed) — emitir ao invés de approved
+   - Usar adapter em src/observability/wirelog-adapter.{ts,py}
+
+9. Trace end + output structured
 ```
 
 ## Estrutura canônica do promotions.md (append-only)

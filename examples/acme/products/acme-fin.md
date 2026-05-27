@@ -6,7 +6,7 @@ status: "beta"
 constitution_version: "0.2.0"
 constitution_extension_version: "0.1.0"
 linked_diagnostic: "N/A (primeira análise mensal funciona como diagnóstico — relax C1 para Produtos)"
-linked_unit_economics: "TBD — pendente instrumentação Langfuse"
+linked_unit_economics: "TBD — pendente instrumentação LANGSMITH"
 linked_lifecycle: "products/acme-fin/lifecycle.md (a criar)"
 owners:
   product_lead: "Rafael Novaes"
@@ -142,7 +142,7 @@ Tempo total: < 5 min se cliente já tem planilha pronta
 
 ### 4.2. Telemetria
 
-⚠️ **Status atual (Beta)**: Langfuse **não instrumentado**. Princípio C6 violado.
+⚠️ **Status atual (Beta)**: LANGSMITH **não instrumentado**. Princípio C6 violado.
 
 **Plano**: instrumentar antes de promover Beta → GA. Issue P0 aberta no roadmap.
 
@@ -173,7 +173,7 @@ Tempo total: < 5 min se cliente já tem planilha pronta
 | Pricing planejado (ARPU) | R$ 97-297/mês (a definir) |
 | **Razão custo/preço** | ~1-3% se ARPU R$ 100; **dentro de C3 ≤ 25%** ✅ |
 
-**Confirmar com Langfuse instrumentado** antes de promover.
+**Confirmar com LANGSMITH instrumentado** antes de promover.
 
 ---
 
@@ -196,7 +196,7 @@ Tempo total: < 5 min se cliente já tem planilha pronta
 - [ ] Pricing GA definido e comunicável
 - [ ] Reviewer DeepAgent emitiu auditoria sem FAIL crítico
 - [ ] ≥ N usuários ativos pagantes (definir N)
-- [ ] Langfuse instrumentado (C6)
+- [ ] LANGSMITH instrumentado (C6)
 - [ ] Camada de abstração LLM presente (C7)
 
 Detalhe completo em `lifecycle.md` (a criar).
@@ -228,7 +228,7 @@ Storage: tabela Supabase `tenant_config` com 1 linha por tenant.
 | DB | Supabase Postgres | Multi-tenant via RLS |
 | LLM | Anthropic (Claude Sonnet 4.6 + Opus para análise complexa) | Escolha Forge default |
 | LLM provider auxiliar | OpenAI (fallback opcional) | Não usado atualmente |
-| Observability | ⚠️ **Não instrumentado** (issue P0 antes de GA) | Plano: Langfuse cloud |
+| Observability | ⚠️ **Não instrumentado** (issue P0 antes de GA) | Plano: LANGSMITH cloud |
 | Pagamentos | TBD | Inicialmente subsidiado/gratuito; futuro: Stripe |
 | Hosting | Lovable / Cloudflare CDN | Default Lovable |
 
@@ -241,7 +241,7 @@ Storage: tabela Supabase `tenant_config` com 1 linha por tenant.
 | Risco | Mitigação |
 |---|---|
 | Benchmarks setoriais alucinados (ex: "folha 28-32% para agências") | Eval suite com gabarito + reviewer DeepAgent valida amostra mensal |
-| Custo de inferência cego (sem Langfuse) | Instrumentar antes de cobrar pricing pleno |
+| Custo de inferência cego (sem LANGSMITH) | Instrumentar antes de cobrar pricing pleno |
 | Lock-in Lovable+Supabase | Plano de migração antes de GA OU justificativa explícita pra manter |
 | Cliente entende análise como aconselhamento contábil | Termos de Uso explícitos + disclaimer na UI |
 | Drift de qualidade da análise gerada por LLM ao longo dos meses | Eval suite trimestral + auditoria reviewer |
@@ -264,7 +264,7 @@ Storage: tabela Supabase `tenant_config` com 1 linha por tenant.
 ### Técnicas (C3)
 - Custo de inferência / ARPU: ≤ 25%
 - Latência p95 da análise mensal: < 60 segundos
-- Trace coverage: ≥ 99% (após instrumentação Langfuse)
+- Trace coverage: ≥ 99% (após instrumentação LANGSMITH)
 
 ---
 
@@ -278,7 +278,7 @@ Storage: tabela Supabase `tenant_config` com 1 linha por tenant.
 
 ## 13. Próximos passos prioritários
 
-1. **P0**: Instrumentar Langfuse (cumprir C6)
+1. **P0**: Instrumentar LANGSMITH (cumprir C6)
 2. **P0**: Decidir pricing GA e timeline para sair de Beta
 3. **P1**: Construir eval suite ≥ 30 casos
 4. **P1**: Plano de migração / decisão de manter Lovable+Supabase (cumprir ou ajustar C7)

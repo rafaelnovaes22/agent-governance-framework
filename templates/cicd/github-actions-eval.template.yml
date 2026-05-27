@@ -5,16 +5,18 @@
 #   2. Substitua {PROJECT_NAME} pelo slug do projeto
 #   3. Configure secrets:
 #      - ANTHROPIC_API_KEY (modelo para rodar eval)
-#      - LANGFUSE_PUBLIC_KEY e LANGFUSE_SECRET_KEY (traces de CI — C6)
+#      - LANGSMITH_API_KEY (traces de CI — C6 llm_trace_provider)
+#      - WIRELOG_SECRET_KEY (opcional — analytics_provider; emite forge_eval_completed se configurado)
 #
 # O QUE FAZ:
 #   - Detecta automaticamente qual artifact_id mudou em prompts/
 #   - Roda eval suite via adapter LLM para cada caso em evals/{id}/cases/
 #   - Falha o PR se pass_rate < c4_thresholds.agreement_rate_min
 #   - Gera relatório em evals/{id}/runs/{date}-eval-ci-{hash}.md
-#   - Todo run tem trace Langfuse (C6 obrigatório)
+#   - Todo run tem trace LangSmith (C6 obrigatório — llm_trace_provider)
+#   - Emite forge_eval_completed ao WireLog se WIRELOG_SECRET_KEY configurado (C6 analytics_provider)
 #
-# PRINCÍPIOS: C4 (SHADOW enforçado por dados), C6 (telemetria), C7 (portável)
+# PRINCÍPIOS: C4 (SHADOW enforçado por dados), C6 (telemetria — LangSmith + WireLog), C7 (portável)
 
 name: Forge Eval Suite — {PROJECT_NAME}
 
@@ -96,7 +98,7 @@ jobs:
 
       - name: Instalar dependências do eval runner
         run: |
-          pip install anthropic langfuse pyyaml jinja2
+          pip install anthropic langsmith pyyaml jinja2
 
       - name: Validar evals/{artifact_id}/cases/ existe com ≥30 casos
         run: |
@@ -118,8 +120,11 @@ jobs:
       - name: Rodar eval suite
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGSMITH_TRACING: "true"
+          LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+          LANGSMITH_PROJECT: forge-eval-${{ github.repository }}
+          WIRELOG_SECRET_KEY: ${{ secrets.WIRELOG_SECRET_KEY }}
+          WIRELOG_HOST: ${{ secrets.WIRELOG_HOST }}
           ARTIFACT_ID: ${{ matrix.artifact_id }}
           CI_RUN: "true"
         run: |

@@ -145,13 +145,16 @@ seu-projeto/
 └─────────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────────┐
-│  CAMADA 5 — TELEMETRIA (observação de runtime)                      │
-│  Langfuse traces, AiCall persisted, Outcome.costCents               │
+│  CAMADA 5 — TELEMETRIA (observação de runtime — C6 bifurcado)       │
+│  ├─ llm_trace_provider (LangSmith): traces LLM, prompts, tokens     │
+│  ├─ analytics_provider (WireLog): eventos de negócio, funis         │
+│  └─ audit_log_provider: mutações críticas, evidência transacional   │
 └─────────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────────┐
 │  CAMADA 6 — AUDITORIA (validação independente mensal)               │
 │  Reviewer DeepAgent compara C1-C8 com camadas 3, 4, 5               │
+│  Cruza: DB outcomes ↔ LangSmith traces ↔ WireLog events             │
 │  Output: docs/forge/audits/YYYY-MM-DD.md                            │
 └─────────────────────────────────────────────────────────────────────┘
 ```

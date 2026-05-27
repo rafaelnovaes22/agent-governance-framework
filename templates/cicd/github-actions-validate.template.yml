@@ -117,7 +117,7 @@ jobs:
           # G3: callLLM/send_request sem observe() wrapper = WARN
           total=$(grep -r "callLLM\|send_request\|client\.messages" \
             src/ --include="*.ts" --include="*.py" 2>/dev/null | wc -l)
-          wrapped=$(grep -r "observe(\|trace\.observe\|langfuse\.trace" \
+          wrapped=$(grep -r "observe(\|trace\.observe\|ls\.trace\|traceable(\|langsmith\." \
             src/ --include="*.ts" --include="*.py" 2>/dev/null | wc -l)
           if [ "$total" -gt 0 ] && [ "$wrapped" -lt "$total" ]; then
             echo "::warning::G3 WARN — $total chamadas LLM, $wrapped com observe()"

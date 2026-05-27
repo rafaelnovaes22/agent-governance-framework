@@ -82,7 +82,7 @@ Constitution lida: `0.2.0` (sha256 confirma com manifest)
 **Status**: ⚠️ WARN
 
 **Evidência**:
-- SKU `triagem-comercial-whatsapp`: razão documentada 22%, real (Langfuse 30d) **24.8%** → ⚠️ margem apertada
+- SKU `triagem-comercial-whatsapp`: razão documentada 22%, real (LANGSMITH 30d) **24.8%** → ⚠️ margem apertada
 - SKU `analise-financeira-mensal`: razão documentada 18%, real 17% → ✅
 - SKU `example-triagem-whatsapp`: showcase, modo SHADOW — exceção C3 aplica
 - **Drift de custo**: `triagem-comercial-whatsapp` subiu 18% mês-a-mês (de R$ 0.95 para R$ 1.12) — investigar mudança de prompt
@@ -123,7 +123,7 @@ Constitution lida: `0.2.0` (sha256 confirma com manifest)
 
 **Evidência**:
 - Outcomes no DB: 412
-- Traces correspondentes em Langfuse: 410
+- Traces correspondentes em LANGSMITH: 410
 - Desvio: -0.5% (✅ ≤ 1%)
 - Lint regex passa em 100% dos arquivos relevantes
 
@@ -292,4 +292,4 @@ Detalhamento de discordâncias significativas:
 - **Versão das validation-rules**: 0.2.0
 
 **Limitações encontradas**:
-- 5% dos outcomes não puderam ser amostrados por timeout em query Langfuse (será re-tentado na próxima auditoria)
+- 5% dos outcomes não puderam ser amostrados por timeout em query LANGSMITH (será re-tentado na próxima auditoria)

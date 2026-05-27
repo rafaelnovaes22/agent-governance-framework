@@ -1,6 +1,6 @@
 ---
 name: sdk-migration
-description: Gerencia migração de SDKs externos, modelos depreciados e atualizações do próprio Forge framework em projetos consumidores. Use quando o Anthropic SDK, Langfuse ou Prisma bumpar uma versão com breaking changes, quando um modelo LLM for depreciado pela Anthropic, ou quando um consumer project precisar sincronizar para uma nova versão do Forge. Adaptado de deprecation-and-migration (agent-skills).
+description: Gerencia migração de SDKs externos, modelos depreciados e atualizações do próprio Forge framework em projetos consumidores. Use quando o Anthropic SDK, LANGSMITH ou Prisma bumpar uma versão com breaking changes, quando um modelo LLM for depreciado pela Anthropic, ou quando um consumer project precisar sincronizar para uma nova versão do Forge. Adaptado de deprecation-and-migration (agent-skills).
 tier: 1
 vocabulary_aliases: [L1, migration, sdk, deprecation, upgrade]
 linked_principles: [C7, C4]
@@ -20,7 +20,7 @@ Código é um passivo, não um ativo. SDKs evoluem, modelos são depreciados, o 
 
 - Anthropic SDK bumpa versão com breaking change (ex.: `messages.create` muda assinatura)
 - Modelo LLM é depreciado pela Anthropic (ex.: `claude-2`, `claude-3-sonnet` removidos do catálogo)
-- Langfuse ou Prisma bumpa versão com breaking change
+- LANGSMITH ou Prisma bumpa versão com breaking change
 - Forge framework bumpa MINOR/MAJOR e consumer project precisa sincronizar
 - Skills ou commands obsoletos acumulando no manifest sem uso
 
@@ -51,7 +51,7 @@ Antes de iniciar qualquer migração, responda:
 
 ## Tipos de Migração no Forge
 
-### Tipo A: Migração de SDK (Anthropic, Langfuse, Prisma)
+### Tipo A: Migração de SDK (Anthropic, LANGSMITH, Prisma)
 
 **Por que C7 torna isso barato:** As chamadas SDK ficam em `src/llm/adapters/`, `src/integrations/`, ou `src/infra/`. O código de negócio não importa o SDK diretamente. Uma migração de SDK toca no máximo 2–3 arquivos.
 

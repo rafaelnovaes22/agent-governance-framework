@@ -5,17 +5,20 @@
 #   2. Substitua {PROJECT_NAME} pelo slug do projeto
 #   3. Configure secrets:
 #      - DEEPAGENTS_API_KEY (modelo do reviewer DeepAgent)
-#      - LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY (traces de auditoria — C6)
+#      - LANGSMITH_API_KEY (traces de auditoria — C6 llm_trace_provider)
 #      - GH_TOKEN (criar issues com resultado)
+#      - WIRELOG_SECRET_KEY (opcional — para query read-only de eventos se analytics_provider=wirelog)
+#      - WIRELOG_HOST (opcional — override de host WireLog self-hosted)
 #
 # O QUE FAZ:
 #   - Roda auditoria mensal na 1ª segunda-feira do mês às 06:00 UTC
 #   - Invoca o reviewer DeepAgent (forge-auditor) para auditar C1-C8
+#   - Quando analytics_provider=wirelog: cruza DB outcomes ↔ WireLog events no relatório
 #   - Salva relatório em docs/forge/audits/{YYYY-MM}.md
 #   - Cria GitHub Issue se SLA breach detectado (recomendação de rollback)
 #   - Permite trigger manual para auditoria imediata
 #
-# PRINCÍPIOS: C1 (audit trail), C4 (SLA enforcement), C6 (telemetria)
+# PRINCÍPIOS: C1 (audit trail), C4 (SLA enforcement), C6 (telemetria — LangSmith + WireLog)
 
 name: Forge Audit Mensal — {PROJECT_NAME}
 
@@ -60,7 +63,7 @@ jobs:
 
       - name: Instalar DeepAgents CLI + dependências
         run: |
-          pip install deepagents>=0.0.34 langfuse anthropic pyyaml
+          pip install deepagents>=0.0.34 langsmith anthropic pyyaml
 
       - name: Definir mês de auditoria
         id: set-month
@@ -81,8 +84,11 @@ jobs:
         env:
           DEEPAGENTS_API_KEY: ${{ secrets.DEEPAGENTS_API_KEY }}
           DEEPAGENTS_MODEL: ${{ secrets.DEEPAGENTS_MODEL || 'gpt-4o' }}
-          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGSMITH_TRACING: "true"
+          LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+          LANGSMITH_PROJECT: forge-audit-${{ github.repository }}
+          WIRELOG_SECRET_KEY: ${{ secrets.WIRELOG_SECRET_KEY }}
+          WIRELOG_HOST: ${{ secrets.WIRELOG_HOST }}
           AUDIT_MONTH: ${{ steps.set-month.outputs.audit_month }}
           SAMPLE_RATE: ${{ github.event.inputs.sample_rate || '0.05' }}
         run: |

@@ -105,7 +105,7 @@ Se qualquer um falhar, `/acme:promote --to=canonical` é bloqueado.
    ↓
 2. /acme:spec --type=automation-job
    ↓ (gera docs/specs/erp-to-warehouse-sync.md com payload_schema + log_location)
-3. /acme:plan (variante platform — sem prompts, sem Langfuse)
+3. /acme:plan (variante platform — sem prompts, sem LANGSMITH)
    ↓
 4. /acme:tasks (Waves 1P-4P + 6P; T6.2P forge-tests para idempotência)
    ↓
@@ -126,7 +126,7 @@ Se qualquer um falhar, `/acme:promote --to=canonical` é bloqueado.
 | Outcome | classified_outcome (LLM) | operational_action (UI/API) | execution_event (job log) |
 | C3 audita | tokens vs preço | infra+suporte vs receita | infra+suporte+monitoramento vs receita |
 | C4 lifecycle | SHADOW→ASSISTED→AUTONOMOUS | DRAFT→PILOT→CANONICAL | DRAFT→PILOT→CANONICAL (idempotência-focused) |
-| C6 telemetria | Langfuse trace | structured logs + audit | audit log com retenção 7 anos |
+| C6 telemetria | LANGSMITH trace | structured logs + audit | audit log com retenção 7 anos |
 | Critério promoção | Eval LLM ≥ 90% | Acceptance report assinado | 14d runs + idempotência + audit completo |
 | Hook crítico | `langfuse-trace-check` | `audit-trail-check` (futuro) | `idempotency-check` (futuro) |
 

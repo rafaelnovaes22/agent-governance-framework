@@ -1,8 +1,8 @@
 # Acme Forge — Contrato com Reviewer Externo (DeepAgents / GPT-5.5)
 
-> **Status**: ⏳ Especificação inicial (Forge-0). Implementação técnica em Forge-3. Atualizado em Forge-9 (delivery-type agnostic).
-> **Versão**: 0.2.0
-> **Data**: 2026-05-08
+> **Status**: ⏳ Especificação inicial (Forge-0). Implementação técnica em Forge-3. Atualizado em Forge-9 (delivery-type agnostic) e Forge-21 (analytics_provider WireLog).
+> **Versão**: 0.3.0
+> **Data**: 2026-05-26
 
 ---
 
@@ -43,16 +43,19 @@ O reviewer **deve** receber acesso a:
 - **Garantia**: atualizado automaticamente via hook `manifest-sync` (Forge-4)
 - **Conteúdo**: para cada artefato — `path`, `type`, `version`, `sha256`, `description`, `owner`, `linked_principles[]`
 
-### 3.2. Project config (NOVO em v0.2.0 — Forge-9)
+### 3.2. Project config (NOVO em v0.2.0 — Forge-9; atualizado em v0.3.0 — Forge-21)
 - **Arquivo**: `docs/forge/project.json` (no consumidor)
 - **Template**: [`templates/project.template.json`](../../templates/project.template.json)
 - **Conteúdo crítico**:
   - `project.type` ∈ {`agentic_saas`, `platform`, `automation`, `hybrid`}
   - `project.ai_enabled` (boolean)
   - `economics.model` ∈ {`cost_per_outcome`, `platform_margin`, `hybrid`}
-  - `telemetry.{llm_trace_provider | audit_log_provider | structured_logging_provider | metrics_provider | error_tracking_provider}`
+  - `telemetry.llm_trace_provider` — traces LLM (LangSmith/helicone/phoenix/custom/null)
+  - `telemetry.analytics_provider` — eventos de negócio/outcomes (wirelog/posthog/segment/custom/null) **[NOVO Forge-21]**
+  - `telemetry.{audit_log_provider | structured_logging_provider | metrics_provider | error_tracking_provider}`
   - `modules[]` com overrides per-module (essencial em `hybrid`)
 - **Quando ausente**: reviewer aplica defaults retroativos (`agentic_saas` + `ai_enabled=true`) e registra em `audit_metadata.limitations_encountered`
+- **Nota sobre analytics_provider**: `null` é valor válido — não bloqueia nenhum projeto. Quando `wirelog`, reviewer aplica checks `C6.analytics.*` conforme `validation-rules.json` v0.4.0.
 
 ### 3.3. Constitution
 - **Arquivo**: `.claude/CONSTITUTION.md` (versão ≥ 0.3.0 para usar a matriz por `project_type`)
@@ -77,12 +80,23 @@ O reviewer **deve** receber acesso a:
 - **Amostragem**: 5–10% aleatório por categoria (regra D6)
 
 ### 3.7. Traces / Audit logs
-- **Quando `ai_enabled=true`**: API do `llm_trace_provider` (`langfuse` / `helicone` / `phoenix` / custom) com chave read-only
+- **Quando `ai_enabled=true`**: API do `llm_trace_provider` (`langsmith` / `helicone` / `phoenix` / custom) com chave read-only
 - **Quando `ai_enabled=false`**: API do `audit_log_provider` com permissão read-only
 - Reviewer correlaciona outcome/ação com trace/audit entry para validar custo, latência, decisão
 
 ### 3.8. Documentação Forge
 - Tudo em `docs/forge/`
+
+### 3.9. Analytics provider — eventos de negócio (NOVO em v0.3.0 — Forge-21)
+- **Quando**: `project.telemetry.analytics_provider == 'wirelog'` (opcional; null desabilita)
+- **Acesso necessário**: API WireLog read-only para queries de eventos dos últimos 30 dias
+- **O que o reviewer cruza**:
+  - `outcomes_delivered_db` ↔ eventos `forge_outcome_delivered` no WireLog: desvio ≤ 1% PASS / ≤ 5% WARN / > 5% FAIL
+  - `outcomes_billed_db` ↔ eventos `forge_outcome_billed`: mesma regra
+  - Verificação de ausência de PII crua em sample de 20 eventos
+  - Eventos `forge_gate_failed` contêm `gate_id`, `artifact_id`, `lifecycle_stage`
+- **Separação**: WireLog **não substitui** LangSmith — os dois providers são cruzados no relatório
+- **Schema de referência**: [`templates/telemetry/wirelog-event-schema.template.md`](../../templates/telemetry/wirelog-event-schema.template.md)
 
 ---
 
@@ -217,7 +231,7 @@ Para o reviewer funcionar de forma confiável, o Forge **garante**:
    - manifest.json
    - constitution
    - últimos 30d de outcomes (DB query read-only)
-   - traces Langfuse correspondentes
+   - traces LangSmith correspondentes
    - eval reports
 3. Reviewer gera plano de auditoria (Deep Agent planning step)
 4. Reviewer roda os checks (4.1, 4.2, 4.3) em ordem

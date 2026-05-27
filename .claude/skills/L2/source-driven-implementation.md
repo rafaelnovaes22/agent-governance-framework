@@ -1,12 +1,12 @@
 ---
 name: source-driven-implementation
-description: Fundamenta cada decisão de integração em documentação oficial antes de implementar. Use quando escrever código que chame SDKs externos (Anthropic, Langfuse, ClickUp, Prisma, etc.) em projetos consumidores, quando implementar adaptadores C7 em src/llm/adapters/, ou quando revisar integrações que podem usar padrões depreciados. Adaptado de source-driven-development (agent-skills).
+description: Fundamenta cada decisão de integração em documentação oficial antes de implementar. Use quando escrever código que chame SDKs externos (Anthropic, LANGSMITH, ClickUp, Prisma, etc.) em projetos consumidores, quando implementar adaptadores C7 em src/llm/adapters/, ou quando revisar integrações que podem usar padrões depreciados. Adaptado de source-driven-development (agent-skills).
 tier: 2
 vocabulary_aliases: [L2, source-driven, api-verification, docs-first]
 linked_principles: [C6, C7]
 version: 1.0.0
 activation:
-  keywords: [SDK, API, integração, adapter, Anthropic, Langfuse, ClickUp, Prisma, docs]
+  keywords: [SDK, API, integração, adapter, Anthropic, LANGSMITH, ClickUp, Prisma, docs]
   explicit_invocation: "@source-driven-implementation"
 ---
 
@@ -21,7 +21,7 @@ No contexto Forge, isso é especialmente crítico em `src/llm/adapters/` (C7): u
 ## Quando Usar
 
 - Implementando ou revisando `src/llm/adapters/` (C7 — toda chamada LLM passa aqui)
-- Usando Langfuse para instrumentação `observe()` (C6)
+- Usando LANGSMITH para instrumentação `observe()` (C6)
 - Integrando ClickUp, Prisma, ou qualquer SDK de terceiro
 - Qualquer momento em que estiver prestes a escrever código de SDK de memória
 
@@ -50,7 +50,7 @@ cat package.json | python3 -c "
 import sys,json
 d=json.load(sys.stdin)
 deps = {**d.get('dependencies',{}), **d.get('devDependencies',{})}
-forge_keys = ['@anthropic-ai/sdk','langfuse','@langfuse/langchain','prisma','@prisma/client']
+forge_keys = ['@anthropic-ai/sdk','LANGSMITH','@LANGSMITH/langchain','prisma','@prisma/client']
 for k in forge_keys:
     if k in deps: print(f'{k}: {deps[k]}')
 "
@@ -61,7 +61,7 @@ Declare explicitamente:
 ```
 STACK DETECTADA:
 - @anthropic-ai/sdk: ^0.39.0
-- langfuse: ^3.22.0
+- LANGSMITH: ^3.22.0
 - prisma: ^6.5.0
 → Buscando documentação oficial para os padrões relevantes.
 ```
@@ -76,7 +76,7 @@ Busque a página específica para a feature que está implementando. Não a home
 
 | Prioridade | Fonte | Exemplos Forge |
 |------------|-------|----------------|
-| 1 | Documentação oficial | docs.anthropic.com, langfuse.com/docs, prisma.io/docs |
+| 1 | Documentação oficial | docs.anthropic.com, LANGSMITH.com/docs, prisma.io/docs |
 | 2 | Changelog / migration guide | SDK release notes, breaking changes |
 | 3 | Padrões web | MDN para fetch/WebSocket |
 | 4 | Repositório oficial | GitHub do SDK (issues + exemplos) |
@@ -92,8 +92,8 @@ Busque a página específica para a feature que está implementando. Não a home
 RUIM:  Buscar a homepage do Anthropic SDK
 BOM:   Buscar docs.anthropic.com/claude/reference/messages — seção tool_use
 
-RUIM:  Buscar "langfuse observe example"
-BOM:   Buscar langfuse.com/docs/sdk/typescript/decorators — seção @observe
+RUIM:  Buscar "LANGSMITH observe example"
+BOM:   Buscar LANGSMITH.com/docs/sdk/typescript/decorators — seção @observe
 ```
 
 ### Step 3: Implementar Seguindo Padrões Documentados
@@ -134,10 +134,10 @@ const stream = anthropic.messages.stream({ ... });
 
 **Em conversação:**
 ```
-Estou usando `observe()` do Langfuse como wrapper em vez de decorators
+Estou usando `observe()` do LANGSMITH como wrapper em vez de decorators
 porque o projeto usa CommonJS e decorators exigem configuração de transpiler.
 
-Source: langfuse.com/docs/sdk/typescript/decorators#requirements
+Source: LANGSMITH.com/docs/sdk/typescript/decorators#requirements
 "TypeScript decorators require experimentalDecorators: true in tsconfig.json"
 ```
 
@@ -157,7 +157,7 @@ Verifique antes de usar em produção.
 | SDK / Serviço | URL Base | Seções Críticas |
 |---------------|----------|-----------------|
 | Anthropic SDK | docs.anthropic.com | `/claude/reference/messages`, `/tool-use`, `/streaming` |
-| Langfuse | langfuse.com/docs/sdk/typescript | `/decorators`, `/tracing`, `/prompt-management` |
+| LANGSMITH | LANGSMITH.com/docs/sdk/typescript | `/decorators`, `/tracing`, `/prompt-management` |
 | Claude Code | docs.anthropic.com/claude-code | `/reference/`, `/hooks/` |
 | Prisma | prisma.io/docs | `/reference/api-reference/prisma-client-reference` |
 | ClickUp API | clickup.com/api | endpoints específicos do projeto |
@@ -166,7 +166,7 @@ Verifique antes de usar em produção.
 
 **C7 (portabilidade de modelo):** Sempre que implementar um adapter em `src/llm/adapters/`, verificar que a assinatura segue o padrão documentado atual — não uma versão antiga memorizada.
 
-**C6 (observabilidade):** Verificar na documentação do Langfuse a assinatura correta de `observe()` para a versão instalada. Uma assinatura errada faz o trace ser criado mas sem os campos obrigatórios.
+**C6 (observabilidade):** Verificar na documentação do LANGSMITH a assinatura correta de `observe()` para a versão instalada. Uma assinatura errada faz o trace ser criado mas sem os campos obrigatórios.
 
 **C8 (anti-hardcode):** Se a documentação mostra `model: 'claude-opus-4-7'` hardcoded num exemplo, o Forge exige parametrizar. Cite a doc mas adapte para C8.
 

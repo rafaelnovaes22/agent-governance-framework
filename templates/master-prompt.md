@@ -62,7 +62,7 @@ Identifique os 2 campos críticos:
 
 ### Matriz de Tipos
 
-| project_type | ai_enabled | Exemplo Real | Lifecycle | C3 audita | C4 valida | C6 Langfuse |
+| project_type | ai_enabled | Exemplo Real | Lifecycle | C3 audita | C4 valida | C6 LANGSMITH |
 |--------------|:----------:|--------------|-----------|-----------|-----------|-------------|
 | **agentic**  | true       | Acme Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens/inferência | Eval-suite obrigatória | OBRIGATÓRIO |
 | **platform** | false      | SchoolPlatform (legacy replace) | draft→staging→pilot→canonical | Infra/operação | Acceptance gate (PILOT) | Opcional |
@@ -98,8 +98,8 @@ Toda spec precisa de "outcome contratual" com 3 exemplos positivos + 3 negativos
 UNIVERSAL. Toda decisão arquitetural em `docs/forge/decisions.md` numerada (F1, F2, ...).
 
 ### C6 — Observability
-- `ai_enabled=true`: Langfuse obrigatório com traces de prompt/output/cost
-- `ai_enabled=false`: Logs estruturados + métricas de negócio; Langfuse opcional
+- `ai_enabled=true`: LANGSMITH obrigatório com traces de prompt/output/cost
+- `ai_enabled=false`: Logs estruturados + métricas de negócio; LANGSMITH opcional
 
 ### C7 — Portability
 UNIVERSAL. Isolamento da camada LLM (agentic) ou framework (platform).
@@ -308,7 +308,7 @@ Se um hook bloquear: NÃO bypass. Resolva a causa raiz e tente novamente.
 - ❌ Promover SHADOW→AUTONOMOUS sem passar por ASSISTED
 - ❌ Acoplar SDK proprietário no domain layer (C7)
 - ❌ Cobrar de cliente sem unit-economics validado (C3)
-- ❌ Marcar `ai_enabled=true` sem configurar Langfuse (C6)
+- ❌ Marcar `ai_enabled=true` sem configurar LANGSMITH (C6)
 - ❌ Criar `any` em TypeScript (any-type-guard bloqueia)
 - ❌ Committar secrets (.env, tokens, chaves) — secret-scan bloqueia
 - ❌ Fazer merge sem code-reviewer-cross em projeto agentic
@@ -320,7 +320,7 @@ Se um hook bloquear: NÃO bypass. Resolva a causa raiz e tente novamente.
 - ✅ Use templates de `templates/` em vez de criar do zero
 - ✅ Rode `/acme:audit-monthly` no mês corrente antes de cobrança
 - ✅ Atualize manifest após mudanças estruturais
-- ✅ Use Langfuse traces se ai_enabled=true
+- ✅ Use LANGSMITH traces se ai_enabled=true
 - ✅ Mantenha out-of-scope.md atualizado
 
 ---

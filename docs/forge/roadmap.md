@@ -1,7 +1,7 @@
 # Acme Forge — Roadmap
 
-> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0) ✅ Forge-12 Fase 1 usabilidade adaptativa (v0.11.0) ✅ Forge-12 Fase 2 PLAYGROUND + COMMON_ERRORS + friendly-errors hook (v0.12.0) ✅ Forge-13 Sprint 1 consumer-mode hardening (v0.13.0) ✅ Forge-13 Sprint 2 consumer-mode automation (v0.14.0) ✅ **Forge-14 Surface Fase 3 + bonus (v0.15.0)** — todo framework canônico completo. ✅ **Forge-19 integração Hermes (v0.20.0)** — operação remota via Telegram/Railway/Codex + GH Actions headless. ✅ **Forge-20 self-harness loop (v0.21.0)** — agent soul+memory+skills por consumer, learning-curator guardian, Hermes learning orchestrator, loop fechado sessão→snapshot→PR→próxima sessão. ⏳ Forge-15 (real-world validation com Aicfo/SchoolPlatform — aguarda decisão de adoção)
-> **Última atualização**: 2026-05-18
+> **Status**: ✅ Forge-0 ✅ Forge-1 ✅ Forge-2 ✅ Forge-3 ✅ Forge-4 ✅ Forge-5 infraestrutura ✅ Forge-6 AIOS infraestrutura ✅ Forge-7 AIOS agentes portáveis (v0.6.0) ✅ Forge-8 CI/CD esteira completa (v0.7.0) ✅ Forge-9 delivery-type agnostic (v0.8.0) ✅ Forge-10 AIOS TDD-first (v0.9.0) ✅ Forge-11 master prompt universal (v0.10.0) ✅ Forge-12 Fase 1 usabilidade adaptativa (v0.11.0) ✅ Forge-12 Fase 2 PLAYGROUND + COMMON_ERRORS + friendly-errors hook (v0.12.0) ✅ Forge-13 Sprint 1 consumer-mode hardening (v0.13.0) ✅ Forge-13 Sprint 2 consumer-mode automation (v0.14.0) ✅ **Forge-14 Surface Fase 3 + bonus (v0.15.0)** — todo framework canônico completo. ✅ **Forge-19 integração Hermes (v0.20.0)** — operação remota via Telegram/Railway/Codex + GH Actions headless. ✅ **Forge-20 self-harness loop (v0.21.0)** — agent soul+memory+skills por consumer, learning-curator guardian, Hermes learning orchestrator, loop fechado sessão→snapshot→PR→próxima sessão. ✅ **Forge-21 WireLog analytics_provider (v0.22.0)** — schema de 14 eventos canônicos, adapters TS+Python portáveis, C6 bifurcado em llm_trace_provider + analytics_provider, reviewer atualizado, playground 05. ⏳ Forge-15 (real-world validation com Aicfo/SchoolPlatform — aguarda decisão de adoção)
+> **Última atualização**: 2026-05-26
 > **Total estimado**: 20–27 dias úteis (paralelo às ondas Acme)
 > **Princípio**: cada onda Forge tem critério de pronto verificável e atualiza `manifest.json`
 
@@ -93,7 +93,7 @@
 - ✅ Skills L2 (Tier 3) entregues com cadeia completa (prompt-builder + eval-case-author + shadow-mode-runner) — **entregue**
 - ✅ Manifest atualizado com 9 skills genéricas — **entregue**
 - ⏳ `diagnostic-runner` em sessão simulada produz relatório Fase 0 estruturado (validar quando Forge-2 entregar `/acme:diagnose`)
-- ⏳ L0 com helper pattern reduz tokens de prompts L2 em ≥70% (medido via Langfuse pós Forge-3)
+- ⏳ L0 com helper pattern reduz tokens de prompts L2 em ≥70% (medido via LangSmith pós Forge-3)
 - ⏳ 4 skills Acme-específicas em `examples/acme/skills/` (F1.6 — pendente, escopo opcional para esta onda)
 
 ---
@@ -121,7 +121,7 @@
 - [x] **F2.4** Cada command com (validado nas 11):
   - [x] Verification gate explícito (não-negociável)
   - [x] Output structured (YAML)
-  - [x] Trace Langfuse mesmo para uso manual (exceto `pre-merge-check` que é read-only)
+  - [x] Trace LangSmith mesmo para uso manual (exceto `pre-merge-check` que é read-only)
   - [x] Tabela anti-rationalization
   - [x] Saída de erro estruturada com enum
 
@@ -183,7 +183,7 @@
   - [x] `secret-scan` (detecta API keys / connection strings)
   - [x] `any-type-guard` (bloqueia `any` em `src/skus/**` e `src/agents/**`)
 - [x] **F4.2** Hooks PostToolUse — **3/3 concluídas em 2026-05-01**:
-  - [x] `langfuse-trace-check` (lint regex em chamadas LLM sem trace)
+  - [x] `LangSmith-trace-check` (lint regex em chamadas LLM sem trace)
   - [x] `unit-economics-recalc` (detecta mudança de prompts e dispara recalc C3)
   - [x] `manifest-sync` (informa quando artefatos Forge mudam sem update de manifest)
 - [x] **F4.3** Hooks Stop — **2/2 concluídas em 2026-05-01**:
@@ -251,7 +251,7 @@
   - [x] `/acme:aios-init` — scaffolda `aios/agents/{module}/` com validation gate (4 checks pré-criação)
   - [x] `/acme:aios-run` — wrapper para orchestrator.py com gates humanos C4 obrigatórios
   - [x] `/acme:aios-status` — tabela read-only de status dos módulos + BLOCKER detection
-- [x] **F6.5** `docs/forge/aios-telemetry-pattern.md` — padrão Langfuse oficial (campos obrigatórios, mock, integração com hook langfuse-trace-check)
+- [x] **F6.5** `docs/forge/aios-telemetry-pattern.md` — padrão LangSmith oficial (campos obrigatórios, mock, integração com hook LangSmith-trace-check)
 - [x] **F6.6** `templates/platform-sku-spec.template.md` — `aios_tier` + `aios_context_boundaries` no frontmatter (após `owners:`)
 
 ### Critério de pronto
@@ -260,7 +260,7 @@
 - ✅ `/acme:tasks` emite Wave 2-AIOS quando `aios_tier` presente — **entregue**
 - ✅ `/acme:implement` suporta `--via aios` com detecção automática — **entregue**
 - ✅ 3 novos commands AIOS criados com padrão completo (verification gate, anti-rationalization, output structured) — **entregue**
-- ✅ `aios-telemetry-pattern.md` com padrão Langfuse + mock + mapeamento Constitution — **entregue**
+- ✅ `aios-telemetry-pattern.md` com padrão LangSmith + mock + mapeamento Constitution — **entregue**
 - ✅ Spec template com `aios_tier` no frontmatter — **entregue**
 - ✅ `manifest.json` v0.5.0 atualizado com novos artefatos — **entregue**
 - ✅ `decisions.md` com F23 (mapeamento AIOS ↔ Constitution) — **entregue**
@@ -291,7 +291,7 @@
 ### Critério de pronto
 
 - ✅ 6 agentes em `templates/aios/agents/` com `entry.py.template` + `config.json.template`
-- ✅ Cada `entry.py.template` tem bloco Langfuse + `_MockTrace` (C6)
+- ✅ Cada `entry.py.template` tem bloco LangSmith + `_MockTrace` (C6)
 - ✅ Cada `entry.py.template` declara LEIA APENAS / NÃO LEIA (C5)
 - ✅ Nenhum SYSTEM_PROMPT cita "EDIX", nome de cliente ou framework cravado (C7/C8)
 - ✅ `schema_agent` lê `aios/config.yaml → stack.database` ou propõe stacks (modo `PROPOR_STACK`)
@@ -310,7 +310,7 @@
 
 - [x] **F8.1** Templates de CI/CD em `templates/cicd/` — **4/4 entregues em 2026-05-07**:
   - [x] `github-actions-validate.template.yml` — workflow de validação (forge-doctor + skill-scan + pre-merge G1-G5) em todo PR
-  - [x] `github-actions-eval.template.yml` — eval automático quando `prompts/` muda; falha PR se pass_rate < threshold; trace Langfuse obrigatório (C6)
+  - [x] `github-actions-eval.template.yml` — eval automático quando `prompts/` muda; falha PR se pass_rate < threshold; trace LangSmith obrigatório (C6)
   - [x] `github-actions-audit.template.yml` — cron mensal (1ª seg. 06:00 UTC); commit automático de relatório; cria Issue se SLA breach
   - [x] `cicd-checklist.template.md` — checklist platform-agnostic com 27 itens (18 🔴 obrigatórios, 9 🟡 recomendados)
 - [x] **F8.2** Gate 6 no `/acme:promote` — **entregue em 2026-05-07**:
@@ -339,7 +339,7 @@
 
 **Objetivo**: o Forge passa a suportar projetos que **não são** centrados em agentes de IA — `platform` (SaaS/operacional), `automation` (jobs/RPA), `hybrid` (plataforma com módulos agênticos) — sem quebrar projetos `agentic_saas` existentes.
 
-> **Contexto**: Forge-0 a Forge-8 forjaram toda a governança a partir do caso Acme SaaS². Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem Langfuse, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. Forge-9 generaliza a interpretação dos 8 princípios sem mudar suas IDs, evitando fork do framework.
+> **Contexto**: Forge-0 a Forge-8 forjaram toda a governança a partir do caso Acme SaaS². Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem LangSmith, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. Forge-9 generaliza a interpretação dos 8 princípios sem mudar suas IDs, evitando fork do framework.
 
 ### Tasks
 
@@ -369,14 +369,14 @@
 
 ### Tasks pendentes (Forge-9.x)
 
-- [x] **F9.11** Hooks condicionais por `ai_enabled`: `langfuse-trace-check` (skip platform), `unit-economics-recalc` (ramo platform delivery-economics), `eval-suite-fresh` (skip platform), `5-gates-summary` G3 (verifica pilot-state.md em platform) — **entregue 2026-05-08**
+- [x] **F9.11** Hooks condicionais por `ai_enabled`: `LangSmith-trace-check` (skip platform), `unit-economics-recalc` (ramo platform delivery-economics), `eval-suite-fresh` (skip platform), `5-gates-summary` G3 (verifica pilot-state.md em platform) — **entregue 2026-05-08**
 - [x] **F9.12** DeepAgent skills atualizadas: `forge-auditor` (step 3.5 + rubric bifurcado C1-C8), `baseline-cost-builder` (path duplo), `artifact-prompt-builder/eval-case-author/shadow-mode-runner` (`applies_when: ai_enabled=true`) — **entregue 2026-05-08**
 - [ ] **F9.13** Primeira auditoria mensal real de projeto `platform` (`school-platform`) — teste de stress da v0.8.x
 - [x] **F9.14** `/acme:plan` v0.2.0 (seções 2P/4P/6P platform) e `/acme:tasks` v0.2.0 (Waves 1P-4P + 6P, T6.2P forge-tests) — **entregue 2026-05-08**
 
 ### Critério de pronto
 
-- ✅ Projeto `platform` consegue ser representado sem exigir prompts/Langfuse/inferência — **entregue**
+- ✅ Projeto `platform` consegue ser representado sem exigir prompts/LangSmith/inferência — **entregue**
 - ✅ Reviewer não marca FAIL por ausência de LLM quando `ai_enabled=false` — **entregue (instrução explícita anti-FAIL falso no prompt)**
 - ✅ Constitution mantém C1-C8 com interpretação por tipo — **entregue**
 - ✅ `school-platform` pode consumir o framework sem conflito conceitual — **entregue**

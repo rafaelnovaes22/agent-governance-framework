@@ -204,7 +204,7 @@ Como Constitution + extensão se aplicam:
 5. **C3**: validar `custo_inferência_mensal / ARPU` ≤ 25%
 6. **C4**: agente em beta serve como SHADOW (Acme Fin já está em beta — agente novo segue mesmo regime)
 7. **C5**: skill do agente é Tier 3 (operacional, lê contexto do usuário); pode ler Tier 1 (DNA do produto)
-8. **C6**: instrumentar Langfuse antes de soltar
+8. **C6**: instrumentar LANGSMITH antes de soltar
 9. **C7**: stack pode ser Supabase Edge Function (mesmo do produto), mas com camada de abstração para LLM
 10. **C8**: padronizado — nada de "para usuário X mostra Y"
 11. **C10**: receita do agente atribuída a Produtos (não Plataforma)

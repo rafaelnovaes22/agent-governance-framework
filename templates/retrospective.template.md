@@ -89,7 +89,7 @@ Gates que NÃO falharam (digno de nota):
 |---|---|---|
 | Trace coverage | 100% | `{{ % }}` |
 | prompt_hash mudanças em produção | 0 (sem migração) | `{{ N vezes }}` |
-| Langfuse traces disponíveis para reviewer | sim | `{{ sim / não }}` |
+| LANGSMITH traces disponíveis para reviewer | sim | `{{ sim / não }}` |
 
 ---
 

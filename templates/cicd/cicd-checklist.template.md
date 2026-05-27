@@ -58,7 +58,7 @@ linked_principles: [C1, C4, C6, C7]
 - [ ] 🔴 Eval roda e calcula `pass_rate` por `outcome_category`
 - [ ] 🔴 PR falha se `pass_rate < c4_thresholds.agreement_rate_min` em qualquer categoria
 - [ ] 🔴 Relatório de eval persistido em `evals/{artifact_id}/runs/` como artefato de CI
-- [ ] 🔴 Todo run de eval tem trace Langfuse (C6) — `LANGFUSE_PUBLIC_KEY` configurado
+- [ ] 🔴 Todo run de eval tem trace LangSmith (C6) — `LANGSMITH_TRACING=true` e `LANGSMITH_API_KEY` configurados
 - [ ] 🟡 Comentário automático no PR com resumo do resultado de eval
 
 ## 5. Auditoria mensal automatizada (obrigatório para AUTONOMOUS)
@@ -67,6 +67,7 @@ linked_principles: [C1, C4, C6, C7]
 - [ ] 🔴 Relatório salvo em `docs/forge/audits/{YYYY-MM}.md` e commitado automaticamente
 - [ ] 🔴 Issue criada automaticamente se SLA breach detectado
 - [ ] 🟡 Notificação para canal de Slack/Teams quando auditoria falha
+- [ ] 🟡 Smoke test WireLog: job de auditoria verifica query `forge_reviewer_audit_completed` no WireLog após execução (se `analytics_provider=wirelog`)
 
 ## 6. Branch protection (obrigatório para AUTONOMOUS)
 
@@ -80,10 +81,14 @@ linked_principles: [C1, C4, C6, C7]
 ## 7. Secrets e credenciais (obrigatório para AUTONOMOUS)
 
 - [ ] 🔴 `ANTHROPIC_API_KEY` (ou equivalente) em GitHub Secrets — nunca em código
-- [ ] 🔴 `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` em GitHub Secrets
+- [ ] 🔴 `LANGSMITH_API_KEY` em GitHub Secrets (`LANGSMITH_PROJECT` recomendado por ambiente)
 - [ ] 🔴 `DEEPAGENTS_API_KEY` para reviewer DeepAgent
 - [ ] 🔴 `GH_TOKEN` com permissões de write para commit de auditoria + criar issues
+- [ ] 🟡 `WIRELOG_SECRET_KEY` (ou `WIRELOG_API_KEY`) em GitHub Secrets — se `analytics_provider=wirelog` declarado no project.json
+- [ ] 🟡 `WIRELOG_HOST` — opcional; só se usar instância self-hosted do WireLog
 - [ ] 🟡 Rotação de secrets configurada (90 dias)
+
+> **WireLog**: recomendado quando `analytics_provider=wirelog`. Não é obrigatório para CI/CD funcionar — adapter é no-op quando key ausente. Configurar para habilitar smoke test de analytics em CI (verificação de que `forge_eval_completed` é emitido após job de eval).
 
 ## 8. Rastreabilidade de deploys (obrigatório para AUTONOMOUS)
 

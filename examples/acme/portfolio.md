@@ -51,7 +51,7 @@ Princípio C1 (Diagnose-before-design) é **operacionalizado** por esta categori
 |---|---|
 | **ICP** | PME R$ 2M+ pós-Diagnóstico, com volume mensal ≥ 50–100 outcomes/processo |
 | **Cliente loga?** | ❌ Não — entrega async (WhatsApp, email, webhook); ClickUp é interno Acme |
-| **Stack** | Node + LangGraph (ou state machine custom) + Postgres/Prisma + BullMQ + Langfuse |
+| **Stack** | Node + LangGraph (ou state machine custom) + Postgres/Prisma + BullMQ + LANGSMITH |
 | **Outcome** | Lead qualificado, ticket resolvido, etc. — cobrado por unidade entregue |
 | **Pricing** | Setup R$ 8–25k + plataforma R$ 1,5–4k/mês + variável por outcome + Wave R$ 8–25k cada |
 | **Time-to-value** | 30–60 dias até SHADOW; 60–90 dias até AUTONOMOUS |

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Hook: langfuse-trace-check
-# Warns when LLM calls in src/agents/** lack Langfuse trace instrumentation (C6).
+# Hook: langfuse-trace-check (legacy name; LangSmith-aware)
+# Warns when LLM calls in src/agents/** lack LLM trace instrumentation (C6).
 # Skipped automatically when project.ai_enabled=false (platform/automation projects).
 
 _get_ai_enabled() {
@@ -40,11 +40,11 @@ if [[ "$FILE_PATH" =~ src/(agents|skus)/.+\.(ts|js)$ ]]; then
 
   if [ "$HAS_LLM" -gt "0" ]; then
     # Check for trace instrumentation
-    HAS_TRACE=$(echo "$CONTENT" | grep -cE 'observe\(|langfuse\.|\.trace\(|traceId|span\.' 2>/dev/null || echo "0")
+    HAS_TRACE=$(echo "$CONTENT" | grep -cE 'observe\(|langsmith\.|ls\.trace\(|traceable\(|\.trace\(|traceId|span\.' 2>/dev/null || echo "0")
 
     if [ "$HAS_TRACE" -eq "0" ]; then
-      echo "WARN [langfuse-trace-check]: '$FILE_PATH' contém chamadas LLM sem trace Langfuse (viola C6)." >&2
-      echo "Adicione observe() ou langfuse.trace() para 100% de cobertura de traces (C6)." >&2
+      echo "WARN [langfuse-trace-check]: '$FILE_PATH' contém chamadas LLM sem trace LangSmith/LLM (viola C6)." >&2
+      echo "Adicione observe(), ls.trace() ou @traceable para 100% de cobertura de traces (C6)." >&2
       exit 1
     fi
   fi

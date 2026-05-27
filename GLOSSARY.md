@@ -43,14 +43,17 @@ Override emergencial de hooks/checks via `ACME_FORGE_BYPASS=incident`. Toda invo
 
 ## C
 
+### analytics_provider
+Campo em `project.telemetry.analytics_provider` (introduzido em Forge-21). Define o provedor de eventos de negócio/outcomes. Valores: `wirelog | posthog | segment | custom | null`. WireLog é o padrão recomendado. Distinto do `llm_trace_provider` (LangSmith — traces LLM) e do `audit_log_provider` (mutações críticas). Opcional por padrão; WARN em AUTONOMOUS se não declarado.
+
 ### C1–C8
-Os 8 princípios da Constitution v0.2.0:
-- C1 Diagnose-before-design
+Os 8 princípios da Constitution v0.3.0:
+- C1 Diagnose-before-build
 - C2 Outcome-first, never tech-first
-- C3 Cost ≤ 25% of price
-- C4 SHADOW antes de cobrar
+- C3 Economic viability (≤ 25%)
+- C4 SHADOW antes de cobrar (agentic) / Pilot-before-canonical (platform)
 - C5 Three-tier context
-- C6 Telemetry-by-default
+- C6 Telemetry-by-default (bifurcado em v0.22.0: llm_trace_provider + analytics_provider)
 - C7 Portability over lock-in
 - C8 Anti-customização heroica
 
@@ -177,7 +180,7 @@ Vocabulário Sincra para Three-tier context (princípio C5):
 - L1 = Tier 2 = Tático (cliente/projeto/baseline)
 - L2 = Tier 3 = Operacional (outcome/run/eval)
 
-### Langfuse
+### LangSmith
 Provedor de observability LLM (open-source, self-hostable). Default do Forge para princípio C6, mas substituível por Helicone, Phoenix, ou custom.
 
 ### LangGraph
@@ -298,7 +301,7 @@ Stage de descontinuação. Migração de usuários, encerramento de contratos, r
 ## T
 
 ### Telemetria
-Observação de chamadas LLM em runtime: input, output, custo, latência. Princípio C6. Provedor default: Langfuse.
+Observação de chamadas LLM em runtime: input, output, custo, latência. Princípio C6. Provedor default: LangSmith.
 
 ### TenantContext
 Modelo de DB representando Tier 1 (L0) da Sincra para um tenant: companyDna, icp, ofertas, glossario, toneOfVoice. Cacheado via helper pattern.
@@ -310,7 +313,7 @@ Hierarquia de contexto em 3 níveis (Estratégico/Tático/Operacional). Princíp
 Vocabulário do Forge para Three-tier (equivalente a L0/L1/L2 da Sincra). Ver C5 da Constitution.
 
 ### Trace
-Registro de uma execução LLM em provedor de telemetria (Langfuse). Inclui input, output, custo, latência, metadata.
+Registro de uma execução LLM em provedor de telemetria (LangSmith). Inclui input, output, custo, latência, metadata.
 
 ### Two-track economics
 Princípio (extensão Acme, C10) que separa estrutura de custo da Plataforma (CAC alto, ticket alto) da estrutura de Produtos (CAC baixo, ticket baixo, escala por volume).
@@ -328,6 +331,9 @@ Análise de custo unitário vs preço unitário. Documento canônico em `unit-ec
 
 ### Wave (Acme Plataforma)
 Engagement comercial discreto dentro de uma Subscription. Cada Wave entrega 1+ agente com pricing R$ 8–25k. Subscription Essential = 1 Wave; Subscription Full = N Waves.
+
+### WireLog
+`analytics_provider` canônico do Acme Forge (introduzido em Forge-21 / v0.22.0). Rastreia **eventos de negócio/outcomes** — funis de lifecycle (created → delivered → billed), gates de promoção, erros de agente, evals e auditorias. Distinto do LangSmith (`llm_trace_provider` — traces LLM): os dois coexistem e se complementam. Nunca envia PII crua (guard automático no adapter). Schema de 14 eventos canônicos em `templates/telemetry/wirelog-event-schema.template.md`. Adapters portáveis em `templates/observability/`.
 
 ---
 

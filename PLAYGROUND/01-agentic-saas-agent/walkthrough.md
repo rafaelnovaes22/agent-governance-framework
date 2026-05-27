@@ -117,7 +117,7 @@ created_at: 2026-05-13
 
 ## 4. Telemetry (C6)
 
-- Langfuse trace em cada execução
+- LANGSMITH trace em cada execução
 - Métricas: tempo, custo, score eval, brand compliance
 - Dashboard custom para SLA tracking
 
@@ -315,7 +315,7 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
   2. Unit economics aprovado ✅
   3. Eval-suite com ≥ 80% pass rate ✅
   4. Coverage Tier B ≥ 85% ✅
-  5. Telemetria Langfuse ativa ✅
+  5. Telemetria LANGSMITH ativa ✅
 - Cria entrada em `lifecycle-stage.md` registrando transição
 - A partir de agora, o agente roda em produção **MAS SEM COBRAR**
 
@@ -351,7 +351,7 @@ Você criou um agente IA com:
 - ✅ Margem 67% comprovada (C3)
 - ✅ 20+ eval-cases passando (C4)
 - ✅ ADR documentando decisões (C5)
-- ✅ Telemetria Langfuse ativa (C6)
+- ✅ Telemetria LANGSMITH ativa (C6)
 - ✅ Camada LLM portável (C7)
 - ✅ Multi-tenant respeitado (C8)
 

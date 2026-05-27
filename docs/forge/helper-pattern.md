@@ -20,7 +20,7 @@ Se cada skill Tier 2/3 lê o markdown bruto do DNA, mesma informação entra no 
 
 **Helper pattern** resolve isso: skill Tier 1 lê uma vez, parseia, expõe versão compacta cacheada. Consumidores downstream pedem o cache, não o arquivo.
 
-**Meta documentada**: ≥ 70% de redução de tokens em prompts Tier 2/3 que dependem de Tier 1, medido via Langfuse após Forge-3.
+**Meta documentada**: ≥ 70% de redução de tokens em prompts Tier 2/3 que dependem de Tier 1, medido via LangSmith após Forge-3.
 
 ---
 
@@ -151,7 +151,7 @@ O reviewer DeepAgent (Forge-3+) valida mensalmente:
 
 1. Toda skill `L0/` declara `helper_pattern: bmad` e `cache_strategy: ephemeral-strong`
 2. Nenhuma skill `L1/L2` declara `helper_pattern: bmad`
-3. Output das skills L0 em traces Langfuse < 1.000 tokens (média)
+3. Output das skills L0 em traces LangSmith < 1.000 tokens (média)
 4. Skills L2 que dependem de DNA/ICP/offerings têm `requires_helper:` declarado
 5. Redução de tokens em prompts L2 vs baseline (sem helper) ≥ 70%
 

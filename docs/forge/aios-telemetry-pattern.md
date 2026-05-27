@@ -7,7 +7,7 @@
 
 ## Obrigação
 
-Toda chamada `send_request()` em agente AIOS de produção deve ter trace Langfuse correspondente.
+Toda chamada `send_request()` em agente AIOS de produção deve ter trace LangSmith correspondente.
 **Sem trace: chamada não conta como outcome auditável (C6).**
 
 O `trace_id` deve ser propagado no retorno de `run()` para que o orquestrador possa correlacionar
@@ -20,44 +20,36 @@ steps de pipeline com traces individuais.
 ```python
 # Em cada entry.py de agente AIOS
 import os
-from langfuse import Langfuse
+import langsmith as ls
 
-langfuse = Langfuse(
-    public_key=os.environ.get("LANGFUSE_PUBLIC_KEY"),
-    secret_key=os.environ.get("LANGFUSE_SECRET_KEY"),
-    host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
+LANGSMITH_ENABLED = (
+    os.environ.get("LANGSMITH_TRACING", "").lower() in {"true", "1", "yes"}
+    and bool(os.environ.get("LANGSMITH_API_KEY"))
 )
 
 def run(self, task_input: dict) -> dict:
-    trace = langfuse.trace(
+    with ls.trace(
         name=f"{self.agent_name}-{task_input.get('module', 'unknown')}",
+        run_type="llm",
+        inputs={"messages": self.messages},
         metadata={
             "agent": self.agent_name,
             "module": task_input.get("module"),
             "tier": task_input.get("tier", "B"),
             "aios_version": "0.2.2",
         }
-    )
-
-    generation = trace.generation(
-        name="send_request",
-        model="claude-sonnet-4-6",
-        input=self.messages,
-    )
-
-    response = self.send_request(
-        agent_name=self.agent_name,
-        messages=self.messages,
-        base_url="http://localhost:8000",
-        model="claude-sonnet-4-6"
-    )
-
-    generation.end(output=response)
-    trace.update(status_message="completed")
+    ) as trace:
+        response = self.send_request(
+            agent_name=self.agent_name,
+            messages=self.messages,
+            base_url="http://localhost:8000",
+            model="claude-sonnet-4-6"
+        )
+        trace.end(outputs={"response": response})
 
     return {
         "module": task_input.get("module"),
-        "trace_id": trace.id,
+        "trace_id": str(trace.id),
         "status": "generated",
         "chars": len(response),
     }
@@ -80,36 +72,36 @@ def run(self, task_input: dict) -> dict:
 
 ## Verificação pelo hook `langfuse-trace-check`
 
-O hook em `hooks/post-tool-use/langfuse-trace-check.sh` já detecta chamadas LLM sem trace em `src/agents/**`.
+O hook legado em `hooks/post-tool-use/langfuse-trace-check.sh` deve ser tratado como `llm-trace-check`: ele detecta chamadas LLM sem trace em `src/agents/**`.
 Para agentes AIOS, o hook deve também verificar que `trace_id` está presente no retorno do `run()`:
 
 ```bash
-# Extensão do hook para AIOS (adicionar ao langfuse-trace-check.sh no projeto consumidor)
-if grep -r "send_request" aios/agents/ | grep -v "trace.generation"; then
-  echo "[WARN] send_request sem generation trace em agente AIOS"
+# Extensão do hook para AIOS (adicionar ao llm-trace-check/langfuse-trace-check no projeto consumidor)
+if grep -r "send_request" aios/agents/ | grep -v "ls.trace\|traceable"; then
+  echo "[WARN] send_request sem trace LangSmith em agente AIOS"
 fi
 ```
 
 ---
 
-## Fallback sem Langfuse (desenvolvimento local)
+## Fallback sem LangSmith (desenvolvimento local)
 
-Durante desenvolvimento local (sem `LANGFUSE_PUBLIC_KEY`), use o mock abaixo.
+Durante desenvolvimento local (sem `LANGSMITH_API_KEY` ou com `LANGSMITH_TRACING=false`), use o mock abaixo.
 **Nunca commitar código que remove o trace em produção** — use o mock como fallback, não substituto.
 
 ```python
 class _MockTrace:
-    """Fallback local sem Langfuse — nunca usar em produção."""
+    """Fallback local sem LangSmith — nunca usar em produção."""
     id = "local-dev-no-trace"
     def generation(self, **kwargs): return self
     def end(self, **kwargs): pass
     def update(self, **kwargs): pass
 
-langfuse_available = bool(os.environ.get("LANGFUSE_PUBLIC_KEY"))
-trace = langfuse.trace(
+langsmith_available = bool(os.environ.get("LANGSMITH_API_KEY"))
+trace = telemetry.trace(
     name=f"{self.agent_name}-{task_input.get('module', 'unknown')}",
     metadata={...}
-) if langfuse_available else _MockTrace()
+) if langsmith_available else _MockTrace()
 ```
 
 O boilerplate gerado por `/acme:aios-init` já inclui este mock — não é necessário adicionar manualmente.
@@ -121,9 +113,9 @@ O boilerplate gerado por `/acme:aios-init` já inclui este mock — não é nece
 O comando `/acme:aios-run` exibe automaticamente no console:
 
 ```
-[AIOS-RUN] Trace Langfuse: AVISO — LANGFUSE_PUBLIC_KEY não configurada
+[AIOS-RUN] Trace LangSmith: AVISO — LANGSMITH_API_KEY/LANGSMITH_TRACING não configurados
            Chamadas desta execução não serão auditáveis (C6).
-           Configurar em .env: LANGFUSE_PUBLIC_KEY=pk-...
+           Configurar em .env: LANGSMITH_TRACING=true e LANGSMITH_API_KEY=...
 ```
 
 Este aviso é **não-bloqueante** em desenvolvimento mas **deve ser resolvido antes de SHADOW**.
@@ -143,8 +135,8 @@ Antes de promover de SHADOW para ASSISTED, o gate de telemetria (C6) verifica:
 
 | Princípio | Como este padrão aplica |
 |---|---|
-| C6 (Telemetry-by-default) | `send_request()` → `trace.generation()` → `generation.end()` em todo agente |
-| C7 (Portability) | SYSTEM_PROMPTs funcionam standalone; trace via Langfuse é opcional em dev (mock) |
+| C6 (Telemetry-by-default) | `send_request()` envolto por LangSmith (`ls.trace`/`traceable`) em todo agente |
+| C7 (Portability) | SYSTEM_PROMPTs funcionam standalone; trace via LangSmith é opcional em dev (mock) |
 | C8 (Anti-heroic) | `tenantId` em `task_input`, nunca em `trace.name` ou SYSTEM_PROMPT hardcoded |
 
 ---
@@ -154,3 +146,4 @@ Antes de promover de SHADOW para ASSISTED, o gate de telemetria (C6) verifica:
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1.0 | 2026-05-06 | Versão inicial — Forge-6 padrão de telemetria AIOS |
+| 0.2.0 | 2026-05-26 | Provedor default atualizado de LANGSMITH para LangSmith |

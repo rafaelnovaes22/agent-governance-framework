@@ -124,7 +124,7 @@ has_ui: true
 
 ## 4. Telemetry (C6 reinterpretado)
 
-- ❌ Langfuse: NÃO (sem LLM)
+- ❌ LANGSMITH: NÃO (sem LLM)
 - ✅ Logs estruturados (Pino → Sentry)
 - ✅ Audit trail (PostgreSQL `audit_trail` table)
 - ✅ SLOs: P95 latency, error rate, ERP sync success rate
@@ -333,11 +333,11 @@ Você criou um módulo de plataforma com:
 
 ## 🧠 Insights deste exemplo
 
-1. **Plataforma também usa Forge** — sem IA, sem eval LLM, sem Langfuse, mas com MESMO rigor
+1. **Plataforma também usa Forge** — sem IA, sem eval LLM, sem LANGSMITH, mas com MESMO rigor
 2. **C3 muda de "tokens" para "infra+suporte"** — mas o limite de 25% permanece
 3. **Acceptance gate substitui eval** — humano assina aceite formal vs LLM-as-judge
 4. **Lifecycle muda nomenclatura** — draft/staging/pilot/canonical (não SHADOW/AUTONOMOUS)
-5. **Audit trail é o "trace" do platform** — equivalente operacional do Langfuse
+5. **Audit trail é o "trace" do platform** — equivalente operacional do LANGSMITH
 6. **Constitution não muda — interpretação muda** — F26 (Forge-9) formalizou isso
 
 ---

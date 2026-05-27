@@ -198,7 +198,7 @@ hooks/pre-tool-use/novo-hook.sh  # ou .ps1 para Windows-only
 ### PostToolUse (3)
 | Hook | Verifica |
 |------|----------|
-| `langfuse-trace-check` | Trace gerado se `ai_enabled=true` |
+| `llm-trace-check` (`langfuse-trace-check` legado) | Trace LangSmith gerado se `ai_enabled=true` |
 | `unit-economics-recalc` | Recalcula C3 após edits |
 | `manifest-sync` | Sincroniza manifest após edits |
 
@@ -221,7 +221,7 @@ hooks/pre-tool-use/novo-hook.sh  # ou .ps1 para Windows-only
 | **C3** | Unit economics | Custo ≤ 25% do preço (tokens em agentic; infra em platform) |
 | **C4** | Verifiable evaluation | Eval-suite (agentic) ou acceptance gate (platform) |
 | **C5** | ADR | Toda decisão arquitetural em `docs/forge/decisions.md` |
-| **C6** | Observability | Langfuse (`ai_enabled=true`) ou logs estruturados |
+| **C6** | Observability | LangSmith (`ai_enabled=true`) ou logs estruturados |
 | **C7** | Portability | Isolamento da camada LLM/framework |
 | **C8** | Tenant context | Multi-tenant respeitado se declarado |
 

@@ -4,7 +4,7 @@ Spec Agent — converte descrição de módulo em spec executável.
 Gerado a partir de templates/aios/agents/spec_agent/entry.py.template (Forge v0.6.0+).
 
 C5 (three-tier): isolamento de contexto declarado em LEIA APENAS / NÃO LEIA.
-C6 (telemetry):  send_request envolto em langfuse.trace() → generation.end().
+C6 (telemetry):  send_request envolto em telemetry.trace() → generation.end().
 C7 (portability): este SYSTEM_PROMPT funciona standalone em Claude Code (sem kernel AIOS).
 C8 (anti-heroic): tenantId em task_input, nunca hardcoded; project_name lido de config.
 
@@ -22,23 +22,60 @@ from cerebrum import BaseAgent
 
 # --- Telemetria C6 -----------------------------------------------------------
 try:
-    from langfuse import Langfuse
-    _LF_AVAILABLE = bool(os.environ.get("LANGFUSE_PUBLIC_KEY"))
-    if _LF_AVAILABLE:
-        langfuse = Langfuse(
-            public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
-            secret_key=os.environ.get("LANGFUSE_SECRET_KEY", ""),
-            host=os.environ.get("LANGFUSE_HOST", "https://cloud.langfuse.com"),
-        )
-    else:
-        langfuse = None
+    import langsmith as ls
+    _LS_AVAILABLE = (
+        os.environ.get("LANGSMITH_TRACING", "").lower() in {"true", "1", "yes"}
+        and bool(os.environ.get("LANGSMITH_API_KEY"))
+    )
 except Exception:
-    _LF_AVAILABLE = False
-    langfuse = None
+    ls = None
+    _LS_AVAILABLE = False
+
+
+class _LangSmithGeneration:
+    def __init__(self, name: str, model: str, input_messages):
+        self._ctx = ls.trace(
+            name=name,
+            run_type="llm",
+            inputs={"messages": input_messages},
+            metadata={"model": model},
+        )
+        self._run = self._ctx.__enter__()
+
+    def end(self, output=None, **kwargs):
+        outputs = {"output": output} if output is not None else kwargs
+        self._run.end(outputs=outputs)
+        self._ctx.__exit__(None, None, None)
+
+
+class _LangSmithTrace:
+    def __init__(self, name: str, metadata: dict):
+        self._ctx = ls.trace(name=name, run_type="chain", inputs={}, metadata=metadata)
+        self._run = self._ctx.__enter__()
+        self.id = str(self._run.id)
+
+    def generation(self, **kwargs):
+        return _LangSmithGeneration(
+            name=kwargs.get("name", "send_request"),
+            model=kwargs.get("model", "unknown"),
+            input_messages=kwargs.get("input"),
+        )
+
+    def update(self, status_message="completed", **kwargs):
+        self._run.end(outputs={"status": status_message, **kwargs})
+        self._ctx.__exit__(None, None, None)
+
+
+class _LangSmithClient:
+    def trace(self, *, name: str, metadata: dict):
+        return _LangSmithTrace(name=name, metadata=metadata)
+
+
+telemetry = _LangSmithClient() if _LS_AVAILABLE else None
 
 
 class _MockTrace:
-    """Fallback dev local sem Langfuse — proibido em produção."""
+    """Fallback dev local sem LangSmith — proibido em produção."""
     id = "local-dev-no-trace"
     def generation(self, **_): return self
     def end(self, **_): pass
@@ -120,7 +157,7 @@ class SpecAgent(BaseAgent):
             return {"error": "campo 'module' é obrigatório"}
 
         # --- Telemetria C6 (abre trace) -----------------------------------
-        trace = langfuse.trace(
+        trace = telemetry.trace(
             name=f"{self.agent_name}-{module_name}",
             metadata={
                 "agent": self.agent_name,
@@ -130,7 +167,7 @@ class SpecAgent(BaseAgent):
                 "tenant_id": task_input.get("tenant_id"),
                 "aios_version": "0.2.2",
             },
-        ) if _LF_AVAILABLE else _MockTrace()
+        ) if _LS_AVAILABLE else _MockTrace()
 
         context = self._load_context(module_name)
         self.messages.append({
