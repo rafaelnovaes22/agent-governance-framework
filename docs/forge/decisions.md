@@ -1,7 +1,43 @@
-# Acme Forge — Decisões F1–F56
+# Acme Forge — Decisões F1–F57
 
-> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.22.0 (Forge-21)
-> **Versão atual**: 0.22.0
+> **Status**: ✅ Defaults aprovados em 2026-04-30 (v0.1.0) e refinados em ondas subsequentes até v0.22.1 (Forge-22)
+> **Versão atual**: 0.22.1
+
+---
+
+## F57 (NOVO 2026-05-27) — Forge-22: PILOT mode para `agentic_saas` + Synthetic pre-validation como gate C4
+
+**Decisão**: ✅ **Introduzir modo `PILOT` na tabela C4 de `agentic_saas` e reconhecer formalmente `Synthetic pre-validation` (Rota B) como caminho alternativo ao SHADOW mínimo de 14 dias para entrar em PILOT. Constitution bumped para v0.4.0.**
+
+**Motivação**: O modelo original de C4 para `agentic_saas` exigia que o agente rodasse em SHADOW (output oculto) por pelo menos 14 dias antes de qualquer entrega a clientes reais. Esse modelo pressupõe que o operador tem clientes dispostos a esperar e que dados de produção reais são a única forma válida de validação. Na prática, existem dois cenários não cobertos:
+
+1. **Dados sintéticos de alta qualidade**: quando o operador pode gerar cenários realistas suficientes para validar qualidade antes da exposição a clientes reais, o SHADOW de produção vira burocracia sem valor de aprendizado adicional.
+2. **Entrega "visível" em escopo restrito**: o operador quer que clientes vejam e usem o output imediatamente, mas com população controlada (≤50 clientes, monitoramento manual, CEO envolvido). Isso não é SHADOW nem ASSISTED — é um estado intermediário com característica de piloto real.
+
+**Contexto específico (Aicfo)**: 10/10 análises validadas em staging com dados reais de tenants de teste. Fase de "SHADOW oculto" foi substituída por validação sintética + runs em ambiente de staging com dados reais. Operador quer ativar entrega para ≤50 clientes piloto a partir de 2026-05-28.
+
+**Decisões de design:**
+
+1. **PILOT ≠ SHADOW**: em PILOT, o cliente vê e usa o output normalmente. A restrição é de população (≤N) e de aprovação CEO, não de visibilidade.
+2. **PILOT ≠ ASSISTED**: em PILOT, não há aprovação humana por outcome individual — o output vai direto. A diferença é que o escopo é controlado e o CEO monitora ativamente.
+3. **Rota B (synthetic pre-validation) substitui o requisito de 14 dias de SHADOW**: quando o operador documenta formalmente ≥ 3 perfis sintéticos × ≥ 10 análises/perfil, com KPIs acima dos thresholds pré-contratados e aprovação CEO explícita, o gate calendário desaparece.
+4. **N máximo configurável**: default 50 clientes em PILOT; pode ser ajustado via `docs/forge/project.json → pilot.max_clients`.
+5. **Promoção para ASSISTED** (de PILOT): ≥ 30 dias em PILOT + N análises entregues + qualidade ≥ threshold + CEO aprova.
+6. **Backwards compatible**: projetos que já estão em SHADOW continuam válidos — SHADOW não foi removido, apenas complementado.
+
+**Alternativas consideradas e descartadas:**
+
+| Alternativa | Descartada porque |
+|---|---|
+| Manter SHADOW e forçar 14 dias com dados sintéticos | Dados sintéticos não contam como "SHADOW de produção" semanticamente; força gamificação do requisito |
+| Criar "SHADOW-SYNTHETIC" como estado separado | Proliferação de estados sem benefício; complica o lifecycle sem agregar |
+| Deixar CEO escolher qualquer número de clientes sem limite | Sem teto declarado, PILOT vira produção plena sem governança |
+| Exigir eval suite completo antes de PILOT | Excessivo para Rota B que já tem evidência de runs reais de staging |
+
+**Componentes entregues (v0.22.1 / Constitution v0.4.0):**
+- `CONSTITUTION.md` v0.4.0 — tabela C4 para `agentic_saas` com PILOT + rotas A e B
+- F57 em `decisions.md` (este documento)
+- ADR-013 em projetos consumidores que ativam PILOT
 
 ---
 
