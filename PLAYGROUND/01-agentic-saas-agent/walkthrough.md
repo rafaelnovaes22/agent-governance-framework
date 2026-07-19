@@ -2,7 +2,7 @@
 
 > **Tempo de leitura:** ~25 min | **Pré-requisito:** ter lido [`README.md`](./README.md)
 
-Este walkthrough mostra como o pipeline Forge é aplicado **na prática** para criar um agente IA. Cada passo tem o comando real, o que esperar, e os artefatos gerados.
+Este walkthrough mostra como o pipeline Foundry é aplicado **na prática** para criar um agente IA. Cada passo tem o comando real, o que esperar, e os artefatos gerados.
 
 ---
 
@@ -11,16 +11,16 @@ Este walkthrough mostra como o pipeline Forge é aplicado **na prática** para c
 ### Comando
 
 ```bash
-/acme:diagnose carrossel-agent --outcome="gerar carrossel publicável em 8 min"
+/novais-digital:diagnose carrossel-agent --outcome="gerar carrossel publicável em 8 min"
 ```
 
 ### O que acontece
 
 - `po-guardian` é invocado para validar se o outcome é contratualmente claro
 - Sistema verifica `project.json` e detecta `project_type=agentic_saas + ai_enabled=true`
-- Aplica matriz de interpretação de C1-C8 (Forge-9/F26)
+- Aplica matriz de interpretação de C1-C8 (Foundry-9/F26)
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/diagnostic.md`
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/diagnostic.md`
 
 ```markdown
 ---
@@ -57,7 +57,7 @@ po_guardian_approval: ✅
 ### Comando
 
 ```bash
-/acme:spec carrossel-agent --type=platform-sku
+/novais-digital:spec carrossel-agent --type=platform-sku
 ```
 
 ### O que acontece
@@ -66,7 +66,7 @@ po_guardian_approval: ✅
 - `@unit-economist` é invocado para auditar economia ANTES de qualquer código
 - Spec é validada estruturalmente (frontmatter + seções obrigatórias)
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/spec.md`
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/spec.md`
 
 ```markdown
 ---
@@ -86,7 +86,7 @@ created_at: 2026-05-13
 **Promessa:** Entregar 1 carrossel pronto-para-publicar em ≤ 8 min.
 
 **Critério de aceite verificável:**
-- [x] 5-7 slides JPG 1080×1080 com brand Acme aplicado
+- [x] 5-7 slides JPG 1080×1080 com brand Novais Digital aplicado
 - [x] Caption ≤ 2200 caracteres no tom solicitado
 - [x] Caption tem CTA explícito
 - [x] Tempo total ≤ 480s entre request e arquivo entregue
@@ -135,7 +135,7 @@ created_at: 2026-05-13
 ### Comando
 
 ```bash
-/acme:plan carrossel-agent
+/novais-digital:plan carrossel-agent
 ```
 
 ### O que acontece
@@ -144,7 +144,7 @@ created_at: 2026-05-13
 - Plan é estruturado em fases (foundation → core → eval → ship)
 - Decisões arquiteturais geram ADRs
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/plan.md` + `decisions.md`
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/plan.md` + `decisions.md`
 
 ```markdown
 # Plan: Carrossel Agent
@@ -198,10 +198,10 @@ created_at: 2026-05-13
 ### Comando
 
 ```bash
-/acme:tasks carrossel-agent
+/novais-digital:tasks carrossel-agent
 ```
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/tasks.md`
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/tasks.md`
 
 ```markdown
 ## Wave 1 — Foundation
@@ -215,13 +215,13 @@ created_at: 2026-05-13
 - [ ] T2.3 — Brand validator (vision)
 - [ ] T2.4 — Carrossel assembler
 
-## Wave 3 — Eval (TDD-first — Forge-10)
+## Wave 3 — Eval (TDD-first — Foundry-10)
 - [ ] T3.1 — Test agent mode=red (gera 20 eval-cases ANTES do código)
 - [ ] T3.2 — Operador roda testes e confirma RED
 - [ ] T3.3 — Test agent mode=verify (após build)
 
 ## Wave 4 — SLA + Promotion
-- [ ] T4.1 — SLA threshold (`/acme:sla-threshold`)
+- [ ] T4.1 — SLA threshold (`/novais-digital:sla-threshold`)
 - [ ] T4.2 — Coverage gate Tier B
 - [ ] T4.3 — Promote para shadow
 ```
@@ -233,12 +233,12 @@ created_at: 2026-05-13
 ### Comando
 
 ```bash
-/acme:implement carrossel-agent
+/novais-digital:implement carrossel-agent
 # ou via AIOS:
-/acme:aios-run carrossel-agent
+/novais-digital:aios-run carrossel-agent
 ```
 
-### O que acontece (pipeline AIOS TDD-first do Forge-10)
+### O que acontece (pipeline AIOS TDD-first do Foundry-10)
 
 ```
 spec → schema → test(red) → build(back+front) → test(verify) → review
@@ -259,10 +259,10 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 ### Comando
 
 ```bash
-/acme:eval carrossel-agent
+/novais-digital:eval carrossel-agent
 ```
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/eval-cases.md` (20+ casos)
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/eval-cases.md` (20+ casos)
 
 ```markdown
 ## Eval Case #1 — Tom the CEO básico
@@ -272,7 +272,7 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 **Expected outcome:**
 - Tom: direto, sem rodeios, com dado/número
 - Estrutura: hook + problema + solução + prova social + CTA
-- Brand: cores Acme aplicadas
+- Brand: cores Novais Digital aplicadas
 - Tempo: ≤ 8 min
 
 **LLM-as-judge prompt:**
@@ -287,7 +287,7 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 **Input:** "5 slides sobre dados na indústria"
 
 **Expected outcome:**
-- Cores: paleta Acme (#0A1628, #2563EB, #5EEAD4)
+- Cores: paleta Novais Digital (#0A1628, #2563EB, #5EEAD4)
 - Tipografia: Inter Bold
 - Layout: pill buttons + V-cut dividers
 
@@ -305,7 +305,7 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 ### Comando
 
 ```bash
-/acme:promote carrossel-agent --to=shadow
+/novais-digital:promote carrossel-agent --to=shadow
 ```
 
 ### O que acontece
@@ -319,7 +319,7 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 - Cria entrada em `lifecycle-stage.md` registrando transição
 - A partir de agora, o agente roda em produção **MAS SEM COBRAR**
 
-### Artefato gerado: `docs/forge/sku/carrossel-agent/lifecycle-stage.md`
+### Artefato gerado: `docs/foundry/sku/carrossel-agent/lifecycle-stage.md`
 
 ```markdown
 | Stage | Date | Approved by | Notes |
@@ -334,10 +334,10 @@ spec → schema → test(red) → build(back+front) → test(verify) → review
 
 ```bash
 # Após 7-14 dias com 100+ execuções coletadas
-/acme:promote carrossel-agent --to=assisted
+/novais-digital:promote carrossel-agent --to=assisted
 
 # Após 14 dias de humano aprovando manualmente cada output
-/acme:promote carrossel-agent --to=autonomous
+/novais-digital:promote carrossel-agent --to=autonomous
 ```
 
 A partir de **AUTONOMOUS**, o agente cobra automaticamente cada execução bem-sucedida.

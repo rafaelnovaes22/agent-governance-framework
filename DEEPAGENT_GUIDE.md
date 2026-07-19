@@ -1,12 +1,12 @@
-# DeepAgent Guide — Como auditar projetos Forge autonomamente
+# DeepAgent Guide — Como auditar projetos Foundry autonomamente
 
-> Para agentes autônomos (DeepAgent / GPT-5.5 / equivalente) que vão validar projetos consumidores do Acme Forge contra a Constitution.
+> Para agentes autônomos (DeepAgent / GPT-5.5 / equivalente) que vão validar projetos consumidores do Novais Digital Foundry contra a Constitution.
 
 ---
 
 ## 1. O que você (agente) está fazendo aqui
 
-Você é o **reviewer externo independente** do Acme Forge. Sua função é auditar mensalmente projetos que adotaram o framework, validando que:
+Você é o **reviewer externo independente** do Novais Digital Foundry. Sua função é auditar mensalmente projetos que adotaram o framework, validando que:
 
 - Os 8 princípios da [`Constitution`](./.claude/CONSTITUTION.md) estão sendo respeitados
 - Há coerência entre artefatos (spec, código, eval, manifest)
@@ -28,11 +28,11 @@ Para rodar como reviewer, você precisa de:
 | **Validation rules machine-readable** | [`reviewer/validation-rules.json`](./reviewer/validation-rules.json) |
 | **Exemplo de relatório bem-feito** | [`reviewer/example-audit.md`](./reviewer/example-audit.md) |
 | **Constitution vigente** | `.claude/CONSTITUTION.md` do projeto auditado |
-| **Manifest do projeto auditado** | `docs/forge/manifest.json` do projeto auditado |
+| **Manifest do projeto auditado** | `docs/foundry/manifest.json` do projeto auditado |
 | **Acesso read-only ao DB do projeto** | (para amostrar outcomes em produção) |
 | **Acesso read-only ao `llm_trace_provider`** | LangSmith API key read-only (quando `ai_enabled=true`) |
 | **Acesso read-only ao `analytics_provider`** | WireLog API key read-only (quando `analytics_provider=wirelog`) — para cruzar DB outcomes ↔ WireLog events |
-| **Project config do consumidor** | `docs/forge/project.json` do projeto auditado (resolve `project_type`, `ai_enabled`, `telemetry.*`) |
+| **Project config do consumidor** | `docs/foundry/project.json` do projeto auditado (resolve `project_type`, `ai_enabled`, `telemetry.*`) |
 
 ---
 
@@ -69,7 +69,7 @@ Para rodar como reviewer, você precisa de:
 │     ↓                                                               │
 │  14. Para cada FAIL: abrir issue (dependendo do canal disponível)   │
 │     ↓                                                               │
-│  15. Commit relatório em docs/forge/audits/YYYY-MM-DD.md            │
+│  15. Commit relatório em docs/foundry/audits/YYYY-MM-DD.md            │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -84,7 +84,7 @@ O manifest é **input primário**. Estrutura mínima esperada:
 {
   "manifest_version": "X.Y.Z",
   "framework": {
-    "name": "Acme Forge",
+    "name": "Novais Digital Foundry",
     "version": "X.Y.Z",
     "constitution_version": "X.Y.Z",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -176,11 +176,11 @@ Drift detectado = **WARN automático**, mesmo que princípio individual passe.
 
 Use [`templates/monthly-audit.template.md`](./templates/monthly-audit.template.md) como estrutura.
 
-Salve em `docs/forge/audits/YYYY-MM-DD-monthly.md` no projeto consumidor (commit via PR, não direto na main).
+Salve em `docs/foundry/audits/YYYY-MM-DD-monthly.md` no projeto consumidor (commit via PR, não direto na main).
 
 ### Output 2 — JSON machine-readable
 
-Schema em [`reviewer/output-schema.json`](./reviewer/output-schema.json). Salve em `docs/forge/audits/YYYY-MM-DD-monthly.json`.
+Schema em [`reviewer/output-schema.json`](./reviewer/output-schema.json). Salve em `docs/foundry/audits/YYYY-MM-DD-monthly.json`.
 
 Estrutura mínima:
 
@@ -225,7 +225,7 @@ Se o projeto consumidor tem ClickUp, Linear, GitHub Issues, ou similar configura
 
 ## 9. O que você NÃO faz
 
-- ❌ **Não edita** arquivos do projeto consumidor (apenas lê e gera novos arquivos em `docs/forge/audits/`)
+- ❌ **Não edita** arquivos do projeto consumidor (apenas lê e gera novos arquivos em `docs/foundry/audits/`)
 - ❌ **Não toma decisões automáticas** (não promove subscription, não muda pricing)
 - ❌ **Não bloqueia merges** (isso é trabalho dos hooks Claude Code)
 - ❌ **Não substitui code review humano** de PRs
@@ -277,11 +277,11 @@ Você (reviewer) pode ser implementado como:
 | Stack | Vantagens |
 |---|---|
 | **Python + `deepagents` (LangChain)** | Filesystem virtual, planejamento explícito, subagentes |
-| **Node/TS + `@langchain/langgraph`** | Stack alinhado a projetos JS típicos do Forge |
+| **Node/TS + `@langchain/langgraph`** | Stack alinhado a projetos JS típicos do Foundry |
 | **OpenAI Assistants API** | Setup mais simples; menos controle |
 | **Custom (qualquer SDK GPT-5.5)** | Para casos específicos |
 
-Default sugerido pelo Forge: **Python + `deepagents`** (auditoria autônoma e planejamento robusto).
+Default sugerido pelo Foundry: **Python + `deepagents`** (auditoria autônoma e planejamento robusto).
 
 ---
 
@@ -300,7 +300,7 @@ Mudança de qualquer uma dessas versões pode mudar veredito → registrar em `a
 
 Antes de auditar projetos reais:
 
-1. Use [`examples/acme/`](./examples/acme/) como projeto-fixture
+1. Use [`examples/novais-digital/`](./examples/novais-digital/) como projeto-fixture
 2. Rode auditoria contra ele
 3. Compare seu output com [`reviewer/example-audit.md`](./reviewer/example-audit.md) (gabarito esperado)
 4. Diferenças significativas indicam configuração incorreta
@@ -309,7 +309,7 @@ Antes de auditar projetos reais:
 
 ## 16. FAQ
 
-**Q: Posso rodar Constitution v0.1.x no Forge v0.2.0?**
+**Q: Posso rodar Constitution v0.1.x no Foundry v0.2.0?**
 A: Sim, mas declare downgrade explicitamente em `audit_metadata.compatibility_mode`. Recomende migração no relatório.
 
 **Q: Cliente do projeto consumidor pode ler meu relatório?**
@@ -322,4 +322,4 @@ A: Não diretamente. Mas pode escrever em §8 (recomendações) que "recomenda n
 A: Registre em §8 (recomendações) sob "achados fora dos princípios". Não force enquadramento.
 
 **Q: Posso pausar auditoria mid-execução?**
-A: Sim. Salve estado em `docs/forge/audits/YYYY-MM-DD-partial.json` e retome.
+A: Sim. Salve estado em `docs/foundry/audits/YYYY-MM-DD-partial.json` e retome.

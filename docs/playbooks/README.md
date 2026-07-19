@@ -1,13 +1,13 @@
-# Playbooks Verticais — Acme Forge
+# Playbooks Verticais — Novais Digital Foundry
 
-> **Gerados via** `/acme:playbook-extract` após o primeiro SKU de um vertical atingir `AUTONOMOUS`.
+> **Gerados via** `/novais-digital:playbook-extract` após o primeiro SKU de um vertical atingir `AUTONOMOUS`.
 > **Template**: `templates/playbook.template.md`
 
 ---
 
 ## O que é um playbook
 
-Um playbook vertical documenta os **blocos reutilizáveis** extraídos de um ou mais SKUs em produção, permitindo que o próximo cliente do mesmo vertical seja implementado com **≤ 30% do esforço do primeiro** (meta Forge-5).
+Um playbook vertical documenta os **blocos reutilizáveis** extraídos de um ou mais SKUs em produção, permitindo que o próximo cliente do mesmo vertical seja implementado com **≤ 30% do esforço do primeiro** (meta Foundry-5).
 
 Um playbook **não é** um tutorial genérico. É uma referência direta com paths, métricas reais e lições do projeto de origem.
 
@@ -18,7 +18,7 @@ Um playbook **não é** um tutorial genérico. É uma referência direta com pat
 ```
 docs/playbooks/
   {vertical}/
-    playbook.md         ← gerado por /acme:playbook-extract
+    playbook.md         ← gerado por /novais-digital:playbook-extract
     blocks/             ← links simbólicos ou cópias de artefatos de alta confiança
       tier1/
       tier2/

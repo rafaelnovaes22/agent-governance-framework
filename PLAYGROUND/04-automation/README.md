@@ -1,6 +1,6 @@
 # PLAYGROUND/04-automation — Job RPA determinístico (sync ERP → Warehouse)
 
-> Exemplo didático do Forge para `project_type: automation`, `ai_enabled: false`.
+> Exemplo didático do Foundry para `project_type: automation`, `ai_enabled: false`.
 > Inspirado em casos reais de integração operacional (CAPSYSTEM/SchoolPlatform operacional, sem IA).
 
 ---
@@ -94,26 +94,26 @@ Retention 7 anos (LGPD/CVM se houver dados regulados). Nunca registra payload co
 - Zero divergência entre ERP e warehouse no fim de cada janela (verificação automática semanal)
 - Audit log 100% completo (nenhum run sem entrada correspondente)
 
-Se qualquer um falhar, `/acme:promote --to=canonical` é bloqueado.
+Se qualquer um falhar, `/novais-digital:promote --to=canonical` é bloqueado.
 
 ---
 
 ## Pipeline canônico para este exemplo
 
 ```
-1. /acme:diagnose --project_type=automation --ai_enabled=false
+1. /novais-digital:diagnose --project_type=automation --ai_enabled=false
    ↓
-2. /acme:spec --type=automation-job
+2. /novais-digital:spec --type=automation-job
    ↓ (gera docs/specs/erp-to-warehouse-sync.md com payload_schema + log_location)
-3. /acme:plan (variante platform — sem prompts, sem LANGSMITH)
+3. /novais-digital:plan (variante platform — sem prompts, sem LANGSMITH)
    ↓
-4. /acme:tasks (Waves 1P-4P + 6P; T6.2P forge-tests para idempotência)
+4. /novais-digital:tasks (Waves 1P-4P + 6P; T6.2P foundry-tests para idempotência)
    ↓
-5. /acme:implement (scaffolding worker + audit log + retry)
+5. /novais-digital:implement (scaffolding worker + audit log + retry)
    ↓
 6. PILOT por 14 dias (gates humanos diários + verificação automática)
    ↓
-7. /acme:promote --to=canonical
+7. /novais-digital:promote --to=canonical
 ```
 
 ---
@@ -140,7 +140,7 @@ Veja [`walkthrough.md`](./walkthrough.md) para o pipeline completo passo-a-passo
 
 ## Bibliografia interna
 
-- F26 (Forge-9) — delivery-type agnostic
+- F26 (Foundry-9) — delivery-type agnostic
 - `templates/project.template.json` — schema declarativo
 - `templates/platform-module-spec.template.md` — adaptável a `automation-job` via `type_compatibility_matrix`
-- `docs/forge/manifest.json → framework.supported_project_types[automation]`
+- `docs/foundry/manifest.json → framework.supported_project_types[automation]`

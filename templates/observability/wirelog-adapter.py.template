@@ -1,5 +1,5 @@
 """
-WireLog adapter portável para projetos Acme Forge (Python).
+WireLog adapter portável para projetos Novais Digital Foundry (Python).
 
 Instalar em: src/observability/wirelog_adapter.py (ou src/infra/wirelog_adapter.py)
 Nunca importar diretamente em módulos de negócio — viola C7.
@@ -95,7 +95,7 @@ def _send(path: str, body: Dict[str, Any]) -> None:
 # ─── API pública ──────────────────────────────────────────────────────────────
 
 
-def track_forge_event(event: Dict[str, Any]) -> None:
+def track_foundry_event(event: Dict[str, Any]) -> None:
     """
     Envia um evento de negócio ao WireLog.
     Campos proibidos (PII) são removidos automaticamente.
@@ -107,14 +107,14 @@ def track_forge_event(event: Dict[str, Any]) -> None:
     enriched = {
         **event,
         "timestamp": event.get("timestamp") or datetime.now(timezone.utc).isoformat(),
-        "forge_version": event.get("forge_version") or os.getenv("FORGE_VERSION", "unknown"),
+        "foundry_version": event.get("foundry_version") or os.getenv("FOUNDRY_VERSION", "unknown"),
     }
 
     safe = _strip_forbidden(enriched)
     _send("/api/v1/events", safe)
 
 
-def identify_forge_actor(actor_id_hash: str, properties: Optional[Dict[str, Any]] = None) -> None:
+def identify_foundry_actor(actor_id_hash: str, properties: Optional[Dict[str, Any]] = None) -> None:
     """
     Identifica um ator (operador/agente) sem PII.
     Use actor_id_hash = hash_id(user_id_real).
@@ -127,7 +127,7 @@ def identify_forge_actor(actor_id_hash: str, properties: Optional[Dict[str, Any]
     _send("/api/v1/identify", safe)
 
 
-def flush_forge_analytics() -> None:
+def flush_foundry_analytics() -> None:
     """
     Flush da fila interna — útil em ambientes serverless.
     No-op para HTTP direto; se usar SDK com batching, chame flush() aqui.
@@ -148,10 +148,10 @@ def track_outcome_delivered(
     latency_ms: Optional[int] = None,
     lifecycle_stage: Optional[str] = None,
 ) -> None:
-    """Emite forge_outcome_delivered — helper para evitar strings literais espalhadas."""
-    track_forge_event(
+    """Emite foundry_outcome_delivered — helper para evitar strings literais espalhadas."""
+    track_foundry_event(
         {
-            "event_type": "forge_outcome_delivered",
+            "event_type": "foundry_outcome_delivered",
             "project_id": project_id,
             "artifact_id": artifact_id,
             "tenant_id_hash": tenant_id_hash,
@@ -173,10 +173,10 @@ def track_gate_failed(
     error_code: Optional[str] = None,
     lifecycle_stage: Optional[str] = None,
 ) -> None:
-    """Emite forge_gate_failed."""
-    track_forge_event(
+    """Emite foundry_gate_failed."""
+    track_foundry_event(
         {
-            "event_type": "forge_gate_failed",
+            "event_type": "foundry_gate_failed",
             "project_id": project_id,
             "artifact_id": artifact_id,
             "gate_id": gate_id,
@@ -197,10 +197,10 @@ def track_eval_completed(
     trace_id: Optional[str] = None,
     latency_ms: Optional[int] = None,
 ) -> None:
-    """Emite forge_eval_completed."""
-    track_forge_event(
+    """Emite foundry_eval_completed."""
+    track_foundry_event(
         {
-            "event_type": "forge_eval_completed",
+            "event_type": "foundry_eval_completed",
             "project_id": project_id,
             "artifact_id": artifact_id,
             "pass_rate": pass_rate,

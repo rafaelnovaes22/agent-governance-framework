@@ -27,7 +27,7 @@
 
 `hybrid` = `platform` (core) + `agentic_saas` (em módulos específicos)
 
-Forge-9 (F26) formalizou: **a interpretação dos princípios C1-C8 é por módulo, não por projeto inteiro**.
+Foundry-9 (F26) formalizou: **a interpretação dos princípios C1-C8 é por módulo, não por projeto inteiro**.
 
 | Aspecto | Core platform | Módulo IA |
 |---------|:-------------:|:---------:|
@@ -45,7 +45,7 @@ Forge-9 (F26) formalizou: **a interpretação dos princípios C1-C8 é por módu
 
 ```
 aicfo-style-hybrid/
-├── docs/forge/
+├── docs/foundry/
 │   ├── project.json                       (project_type=hybrid)
 │   ├── modules/
 │   │   ├── core-billing/                  (platform module — sem IA)
@@ -74,7 +74,7 @@ aicfo-style-hybrid/
 - Mesmo fluxo do Exemplo 01 (SHADOW → ASSISTED → AUTONOMOUS)
 - Com LANGSMITH + eval-suite + unit-economics em tokens
 
-**Como o Forge sabe qual fluxo aplicar?**
+**Como o Foundry sabe qual fluxo aplicar?**
 
 Lê `module.ai_enabled` no `project.json` E `module.type`:
 - `type=platform_module + ai_enabled=false` → lifecycle platform
@@ -152,7 +152,7 @@ Cliente: "Quero ver análise narrativa dos meus números financeiros do mês"
 ## 🧠 Conceitos-chave deste exemplo
 
 ✅ **Hybrid é a regra, não exceção** — quase toda plataforma vai querer features IA em algum momento
-✅ **Forge sabe lidar com mistura** — interpretação por módulo (F26 Forge-9)
+✅ **Foundry sabe lidar com mistura** — interpretação por módulo (F26 Foundry-9)
 ✅ **ADR é obrigatório** quando adiciona módulo IA — força reflexão sobre custo de manutenção dual
 ✅ **Reuso de adapters** — core já tem Stripe/auth/multi-tenant; módulo IA reusa
 ✅ **Promotion isolada** — módulo IA promove SHADOW→AUTONOMOUS sem afetar core canonical
@@ -168,7 +168,7 @@ Como o pipeline para core é idêntico ao Exemplo 02, e o pipeline para módulo 
 
 ```bash
 # 1. ADR obrigatório
-/acme:diagnose ai-financial-analysis --project_type=agentic_sku --in_hybrid=true
+/novais-digital:diagnose ai-financial-analysis --project_type=agentic_sku --in_hybrid=true
 # Gera ADR template e exige aprovação humana antes de continuar
 
 # 2. Atualizar project.json
@@ -180,12 +180,12 @@ Como o pipeline para core é idêntico ao Exemplo 02, e o pipeline para módulo 
 
 ### Etapa B — Pipeline normal do módulo IA
 
-Igual ao Exemplo 01, mas dentro de `docs/forge/modules/ai-financial-analysis/` (não `docs/forge/sku/`).
+Igual ao Exemplo 01, mas dentro de `docs/foundry/modules/ai-financial-analysis/` (não `docs/foundry/sku/`).
 
 ### Etapa C — Reviewer mensal lê ambos
 
 ```bash
-/acme:audit-monthly
+/novais-digital:audit-monthly
 ```
 
 DeepAgent gera relatório separado:
@@ -199,7 +199,7 @@ DeepAgent gera relatório separado:
 
 | Risco | Mitigação |
 |-------|-----------|
-| Time não distingue "platform module" de "agentic SKU" | Master prompt (Forge-11) detecta automaticamente |
+| Time não distingue "platform module" de "agentic SKU" | Master prompt (Foundry-11) detecta automaticamente |
 | Custo IA escala mais que receita | Unit-economist vigia per-tenant token usage |
 | Eval-suite negligenciada (porque "é só 1 módulo") | Coverage gate Tier B do módulo IA bloqueia merge se eval < 85% pass |
 | Core regressed por mudança no módulo IA | Hooks isolam — `langfuse-trace-check` não dispara em core files |

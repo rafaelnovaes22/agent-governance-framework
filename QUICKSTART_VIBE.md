@@ -7,9 +7,9 @@
 
 ## 1. 🪄 Como funciona (em uma frase)
 
-> **Você descreve o que quer → A IA executa → O Forge garante que ficou certo.**
+> **Você descreve o que quer → A IA executa → O Foundry garante que ficou certo.**
 
-Você fala com o Claude Code normalmente, do jeito que falaria com uma pessoa. Por trás, o Forge invisivelmente:
+Você fala com o Claude Code normalmente, do jeito que falaria com uma pessoa. Por trás, o Foundry invisivelmente:
 - Verifica se sua ideia faz sentido (alguém vai pagar?)
 - Calcula o custo antes de fazer
 - Cria os testes
@@ -30,7 +30,7 @@ Você nunca precisa saber esses detalhes. Só precisa **confiar** que estão aco
 **O que vai acontecer:**
 
 ```
-🎨 Forge: "Beleza! Antes de fazer, deixa eu confirmar com você:
+🎨 Foundry: "Beleza! Antes de fazer, deixa eu confirmar com você:
          
          📋 Vou criar:
          • 5 slides de carrossel
@@ -39,7 +39,7 @@ Você nunca precisa saber esses detalhes. Só precisa **confiar** que estão aco
          
          💰 Custo estimado: R$ 2,40
          ⏱️ Tempo estimado: 8 minutos
-         🎯 Brand Acme aplicado automaticamente
+         🎯 Brand Novais Digital aplicado automaticamente
          
          Posso seguir?"
 
@@ -47,7 +47,7 @@ Você: "sim"
 
 [barra de progresso visual]
 
-🎨 Forge: "✅ Pronto! Olha o resultado:
+🎨 Foundry: "✅ Pronto! Olha o resultado:
          [preview das 5 imagens + legenda]
          
          Quer aprovar, ajustar algo específico ou refazer do zero?"
@@ -61,7 +61,7 @@ Você: "sim"
 **O que vai acontecer:**
 
 ```
-🎨 Forge: "Ótimo! Antes de construir, preciso entender 3 coisas:
+🎨 Foundry: "Ótimo! Antes de construir, preciso entender 3 coisas:
          
          1. Quem é o cliente ideal para responder? (ex: industrial, varejo)
          2. Qual o tom de voz? (formal, amigável, técnico)
@@ -72,7 +72,7 @@ Você: "sim"
 Você: "industrial, amigável mas profissional, passa pra humano quando 
        perguntarem preço ou quando o cliente reclamar"
 
-🎨 Forge: "Anotado. Vou construir nas próximas 2 semanas com testes.
+🎨 Foundry: "Anotado. Vou construir nas próximas 2 semanas com testes.
          Você vai poder ver o agente respondendo de teste antes de soltar
          pra valer.
          
@@ -87,7 +87,7 @@ Você: "industrial, amigável mas profissional, passa pra humano quando
 **O que vai acontecer:**
 
 ```
-🎨 Forge: "Vou investigar... 🔍
+🎨 Foundry: "Vou investigar... 🔍
          
          Achei! Aconteceu o seguinte:
          
@@ -110,7 +110,7 @@ Você vai ouvir esses termos. Tradução:
 
 | Termo técnico | O que significa de verdade |
 |--------------|--------------------------|
-| **Forge** | As regras invisíveis que evitam que você quebre coisas |
+| **Foundry** | As regras invisíveis que evitam que você quebre coisas |
 | **Constitution** | As 8 regras-mãe que NUNCA são quebradas (tipo "não cobre sem saber se dá margem") |
 | **Agente** | Um trabalhador digital que faz uma tarefa específica (designer, copywriter, etc) |
 | **Guardian** | Um inspetor que verifica se cada agente fez certo |
@@ -222,7 +222,7 @@ Digite:
 Digite:
 > "Me ajuda a desfazer a última ação"
 
-> ⚠️ Importante: o Forge **não deixa** o agente deletar coisas importantes sozinho. Mesmo que você peça "apaga tudo", ele vai confirmar 2x antes.
+> ⚠️ Importante: o Foundry **não deixa** o agente deletar coisas importantes sozinho. Mesmo que você peça "apaga tudo", ele vai confirmar 2x antes.
 
 ### "Não sei se posso confiar no que ele fez"
 
@@ -255,7 +255,7 @@ Digite:
 ## 8. 🚀 Próximos passos
 
 ### Agora mesmo (5 min):
-1. Abra o Claude Code no projeto que você usa (Acme Social, Aicfo ou SchoolPlatform)
+1. Abra o Claude Code no projeto que você usa (Novais Digital Social, Aicfo ou SchoolPlatform)
 2. Digite: *"Olá, estou no modo vibe. Me mostra o que posso pedir."*
 3. O agente vai listar as 5 coisas mais comuns
 
@@ -272,7 +272,7 @@ Digite:
 
 ## 💡 Lembre-se
 
-> **O Forge foi feito para que você não precise saber como ele funciona.**
+> **O Foundry foi feito para que você não precise saber como ele funciona.**
 
 Se algum momento você sentir que precisa "estudar" pra usar — algo está errado. **Avisa.**
 

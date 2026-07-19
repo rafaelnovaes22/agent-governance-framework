@@ -1,4 +1,4 @@
-# 🚨 Erros Comuns no Forge — Top 10 + Soluções
+# 🚨 Erros Comuns no Foundry — Top 10 + Soluções
 
 > Os 10 erros mais frequentes ao usar o agent-governance-framework, com **causa-raiz**, **diagnóstico**, **solução copy-paste** e **como prevenir**. Otimizado para scanning.
 
@@ -11,11 +11,11 @@
 3. **Aplique a solução** (copia-cola)
 4. **Implemente a prevenção** para não repetir
 
-Se seu erro **não está aqui**: rode `bash scripts/forge doctor` para diagnóstico completo + abra issue no repo.
+Se seu erro **não está aqui**: rode `bash scripts/foundry doctor` para diagnóstico completo + abra issue no repo.
 
 ---
 
-## 1️⃣ `forge-doctor` falha em **C2 (path missing)`
+## 1️⃣ `foundry-doctor` falha em **C2 (path missing)`
 
 ### Mensagem típica
 ```
@@ -29,7 +29,7 @@ Você adicionou entrada em `manifest.json` mas o arquivo físico **não existe**
 ### Diagnóstico
 ```bash
 # Veja TODOS os paths declarados no manifest
-node -e "const m=require('./docs/forge/manifest.json'); JSON.stringify(m,null,2).split('\n').filter(l=>l.includes('\"path\"')).forEach(l=>console.log(l))"
+node -e "const m=require('./docs/foundry/manifest.json'); JSON.stringify(m,null,2).split('\n').filter(l=>l.includes('\"path\"')).forEach(l=>console.log(l))"
 
 # Para cada path, verifique se existe
 ls -la <path>
@@ -39,7 +39,7 @@ ls -la <path>
 **Caso A — arquivo foi deletado intencionalmente:**
 ```bash
 # Remova a entrada do manifest
-# Edite docs/forge/manifest.json e delete o bloco { "id": "...", "path": "<path>", ... }
+# Edite docs/foundry/manifest.json e delete o bloco { "id": "...", "path": "<path>", ... }
 ```
 
 **Caso B — arquivo deveria existir:**
@@ -51,17 +51,17 @@ git restore <path>
 
 ### Prevenção
 - Sempre que mover/renomear arquivo, **atualize manifest na mesma commit**
-- Rode `bash scripts/forge doctor` **antes de commit** (não depois)
+- Rode `bash scripts/foundry doctor` **antes de commit** (não depois)
 
 ---
 
-## 2️⃣ `forge-doctor` falha em **C3 (version mismatch)`
+## 2️⃣ `foundry-doctor` falha em **C3 (version mismatch)`
 
 ### Mensagem típica
 ```
 ─── C3  Coerência de versão
   ❌  manifest.framework.version=0.11.0
-  ❌  settings._forge_version=0.10.0  (divergente!)
+  ❌  settings._foundry_version=0.10.0  (divergente!)
   ❌  README badge=0.10.0  (divergente!)
 ```
 
@@ -70,18 +70,18 @@ Você fez bump de versão em **um arquivo** mas esqueceu de atualizar nos outros
 
 ### Diagnóstico
 ```bash
-grep -nE "0\.[0-9]+\.[0-9]+" docs/forge/manifest.json .claude/settings.json README.md CHANGELOG.md | head -20
+grep -nE "0\.[0-9]+\.[0-9]+" docs/foundry/manifest.json .claude/settings.json README.md CHANGELOG.md | head -20
 ```
 
 ### Solução
 **Atualize todos os 4 lugares para a mesma versão:**
 
 ```bash
-# 1. docs/forge/manifest.json
+# 1. docs/foundry/manifest.json
 # Mude: "manifest_version" + "framework.version" (2 ocorrências)
 
 # 2. .claude/settings.json
-# Mude: "_forge_version"
+# Mude: "_foundry_version"
 
 # 3. README.md
 # Mude badge: [![Version](https://img.shields.io/badge/version-X.Y.Z-blue)](./CHANGELOG.md)
@@ -91,12 +91,12 @@ grep -nE "0\.[0-9]+\.[0-9]+" docs/forge/manifest.json .claude/settings.json READ
 ```
 
 ### Prevenção
-- Use script `bash scripts/forge version` para verificar sincronização
+- Use script `bash scripts/foundry version` para verificar sincronização
 - Considere automatizar com Husky hook ou pre-commit
 
 ---
 
-## 3️⃣ `forge-doctor` warning **C6 (artefato órfão)`
+## 3️⃣ `foundry-doctor` warning **C6 (artefato órfão)`
 
 ### Mensagem típica
 ```
@@ -108,7 +108,7 @@ grep -nE "0\.[0-9]+\.[0-9]+" docs/forge/manifest.json .claude/settings.json READ
 Você criou arquivo em pasta versionada (`templates/`, `.claude/skills/`, etc.) mas não adicionou entrada em `manifest.json`.
 
 ### Diagnóstico
-O próprio output do forge-doctor já indica qual arquivo.
+O próprio output do foundry-doctor já indica qual arquivo.
 
 ### Solução
 ```bash
@@ -133,7 +133,7 @@ sha256sum templates/novo-template.md | cut -c1-16
 
 ### Prevenção
 - Sempre adicione entrada no manifest **na mesma commit** que cria o arquivo
-- Rode `bash scripts/forge doctor` antes de push
+- Rode `bash scripts/foundry doctor` antes de push
 
 ---
 
@@ -151,7 +151,7 @@ Você está criando ou editando uma spec **sem outcome contratual claro** (viola
 ### Diagnóstico
 Verifique se a spec tem a seção:
 ```bash
-grep -A 10 "## Outcome contratual" docs/forge/sku/<id>/spec.md
+grep -A 10 "## Outcome contratual" docs/foundry/sku/<id>/spec.md
 ```
 
 Deve ter:
@@ -184,7 +184,7 @@ Adicione na spec:
 ```
 ❌ Hook adr-approval-gate rejected the edit:
 This change appears to modify architecture (new module/abstraction).
-Create an ADR first in docs/forge/decisions.md (Fxx).
+Create an ADR first in docs/foundry/decisions.md (Fxx).
 ```
 
 ### Causa-raiz
@@ -200,7 +200,7 @@ A mudança envolve algum destes?
 Se sim → precisa ADR.
 
 ### Solução
-1. Crie ADR no fim de `docs/forge/decisions.md` (próximo número Fxx)
+1. Crie ADR no fim de `docs/foundry/decisions.md` (próximo número Fxx)
 2. Use template:
 
 ```markdown
@@ -369,7 +369,7 @@ Você editou o arquivo mas esqueceu de **atualizar o hash** no manifest. Comum q
 sha256sum <path> | cut -c1-16
 
 # Hash declarado no manifest
-grep -A 5 '"<path>"' docs/forge/manifest.json | grep sha256
+grep -A 5 '"<path>"' docs/foundry/manifest.json | grep sha256
 ```
 
 ### Solução
@@ -388,7 +388,7 @@ echo "Novo hash: $NEW_HASH"
 
 ---
 
-## 🔟 TDD red phase missing (Forge-10)
+## 🔟 TDD red phase missing (Foundry-10)
 
 ### Mensagem típica
 ```
@@ -400,14 +400,14 @@ Module 'carrossel-agent' was modified in this PR, but:
 ```
 
 ### Causa-raiz
-Você modificou código em `src/modules/<nome>/` MAS **não criou testes em `tests/<nome>/unit/` primeiro** — viola pipeline TDD-first do Forge-10.
+Você modificou código em `src/modules/<nome>/` MAS **não criou testes em `tests/<nome>/unit/` primeiro** — viola pipeline TDD-first do Foundry-10.
 
 ### Solução
 
 **1. Rode test_agent em mode=red ANTES de editar código:**
 
 ```bash
-/acme:aios-run carrossel-agent --step=test --mode=red
+/novais-digital:aios-run carrossel-agent --step=test --mode=red
 ```
 
 Isso gera arquivos físicos em:
@@ -432,7 +432,7 @@ echo "RED phase confirmed at $(date)" > tests/carrossel-agent/_red-evidence.txt
 **4. AGORA implemente o código** que faz os testes passarem.
 
 ### Prevenção
-- Use sempre o pipeline `/acme:aios-run` (não pule etapas)
+- Use sempre o pipeline `/novais-digital:aios-run` (não pule etapas)
 - Pense em "qual teste deveria existir?" antes de "qual código preciso escrever?"
 
 ---
@@ -441,39 +441,39 @@ echo "RED phase confirmed at $(date)" > tests/carrossel-agent/_red-evidence.txt
 
 ### Passo 1 — Diagnóstico completo
 ```bash
-bash scripts/forge doctor
+bash scripts/foundry doctor
 ```
 
 ### Passo 2 — Procure no glossário
 [`GLOSSARY.md`](./GLOSSARY.md) — termos técnicos com explicação
 
 ### Passo 3 — Procure no roadmap
-[`docs/forge/roadmap.md`](./docs/forge/roadmap.md) — pode ser pendência conhecida
+[`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md) — pode ser pendência conhecida
 
 ### Passo 4 — Abra issue
 ```
-https://github.com/acme-startup/agent-governance-framework/issues/new
+https://github.com/novais-digital/agent-governance-framework/issues/new
 ```
 
 Inclua:
-- Output completo do `forge-doctor`
+- Output completo do `foundry-doctor`
 - Comando que disparou o erro
 - Conteúdo do `manifest.json` (sem secrets!)
-- Versão do Forge (`bash scripts/forge version`)
+- Versão do Foundry (`bash scripts/foundry version`)
 
 ---
 
-## 💡 Padrão Geral de Erros do Forge
+## 💡 Padrão Geral de Erros do Foundry
 
 A maioria dos erros segue 1 dos 3 padrões:
 
 1. **Estrutura quebrada** (manifest desatualizado, hash divergente, path missing)
-   → Solução: `bash scripts/forge doctor` indica + ajuste manual
+   → Solução: `bash scripts/foundry doctor` indica + ajuste manual
 
 2. **Governança violada** (outcome vago, C3 acima de 25%, ADR ausente)
    → Solução: voltar 1 passo, fazer direito antes de seguir
 
 3. **Pipeline TDD violado** (código antes de teste, eval-suite vazia)
-   → Solução: usar `/acme:aios-run` em vez de pular etapas
+   → Solução: usar `/novais-digital:aios-run` em vez de pular etapas
 
-**Quando em dúvida:** o Forge é **rigoroso por design**. Não há atalho — só caminho.
+**Quando em dúvida:** o Foundry é **rigoroso por design**. Não há atalho — só caminho.

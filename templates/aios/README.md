@@ -1,13 +1,13 @@
 # Templates AIOS — Agentes Portáveis (TDD-first)
 
-> **Forge-7 + Forge-10 (v0.9.0)** — biblioteca canônica de templates dos 6 agentes AIOS Server (`agiresearch/AIOS` v0.2.2+) para projetos consumidores.
+> **Foundry-7 + Foundry-10 (v0.9.0)** — biblioteca canônica de templates dos 6 agentes AIOS Server (`agiresearch/AIOS` v0.2.2+) para projetos consumidores.
 > Vinculado a: C4 (TDD enforcement), C5 (three-tier), C6 (telemetry), C7 (portability), C8 (anti-heroic).
 
 ---
 
 ## O que é isto
 
-Conjunto de **boilerplates físicos** dos 6 agentes especializados que compõem o pipeline AIOS de um projeto consumidor da Forge:
+Conjunto de **boilerplates físicos** dos 6 agentes especializados que compõem o pipeline AIOS de um projeto consumidor da Foundry:
 
 | Agente | Especialidade por módulo? | Responsabilidade |
 |---|---|---|
@@ -24,12 +24,12 @@ Conjunto de **boilerplates físicos** dos 6 agentes especializados que compõem 
 
 ## Como usar (no projeto consumidor)
 
-### Caminho 1 — via `/acme:aios-init` (recomendado)
+### Caminho 1 — via `/novais-digital:aios-init` (recomendado)
 
 ```bash
-# Forge instalada no projeto consumidor (./forge/ ou .claude/)
+# Foundry instalada no projeto consumidor (./foundry/ ou .claude/)
 # Agentes são copiados automaticamente quando você roda:
-/acme:aios-init --module {meu_modulo} --tier {A|B|C}
+/novais-digital:aios-init --module {meu_modulo} --tier {A|B|C}
 ```
 
 O comando:
@@ -42,7 +42,7 @@ O comando:
 
 ```bash
 # A partir do diretório do projeto consumidor
-cp -r ${FORGE_ROOT}/templates/aios/. ./aios/
+cp -r ${FOUNDRY_ROOT}/templates/aios/. ./aios/
 
 # Renomear .template → arquivo final
 find ./aios -name "*.template" -exec sh -c 'mv "$1" "${1%.template}"' _ {} \;
@@ -53,7 +53,7 @@ sed -i 's/{PROJECT_NAME}/meu-projeto/g' aios/agents/*/entry.py aios/orchestrator
 
 ---
 
-## Pipeline TDD-first (Forge v0.9.0+)
+## Pipeline TDD-first (Foundry v0.9.0+)
 
 O orchestrator executa os agentes nesta ordem **canônica**:
 
@@ -84,19 +84,19 @@ O `test_agent` em modo `verify`:
 
 ## Placeholders suportados
 
-Todos os arquivos `.template` usam **chaves duplas-chaves** ou `{}` simples conforme convenção da Forge. Lista exaustiva:
+Todos os arquivos `.template` usam **chaves duplas-chaves** ou `{}` simples conforme convenção da Foundry. Lista exaustiva:
 
 | Placeholder | Onde aparece | Default sugerido | Quem preenche |
 |---|---|---|---|
-| `{PROJECT_NAME}` | SYSTEM_PROMPT, orchestrator, config | nome do repo consumidor | `/acme:aios-init` ou humano |
+| `{PROJECT_NAME}` | SYSTEM_PROMPT, orchestrator, config | nome do repo consumidor | `/novais-digital:aios-init` ou humano |
 | `{STACK_BACKEND}` | backend_agent SYSTEM_PROMPT | declarar no `aios/config.yaml` → `stack.backend` | humano (ADR/setup) |
 | `{STACK_FRONTEND}` | frontend_agent SYSTEM_PROMPT | declarar em `aios/config.yaml` → `stack.frontend` | humano |
 | `{STACK_DB}` | schema_agent SYSTEM_PROMPT | declarar em `aios/config.yaml` → `stack.database` | humano |
 | `{STACK_TESTS_UNIT}` | test_agent (RED) | `aios/config.yaml` → `stack.tests_unit` (ex: Vitest, Jest, pytest) | humano |
 | `{STACK_TESTS_INTEGRATION}` | test_agent (RED) | `aios/config.yaml` → `stack.tests_integration` | humano |
 | `{STACK_TESTS_E2E}` | test_agent (RED) | `aios/config.yaml` → `stack.tests_e2e` (ex: Playwright, Cypress, "—") | humano |
-| `{TIER}` | config.json de cada agente, SYSTEM_PROMPT do spec | `B` (default) | `/acme:aios-init` |
-| `{MODULE}` | `aios/agents/{module}_*` (path) e prompts | nome do módulo solicitado | `/acme:aios-init` |
+| `{TIER}` | config.json de cada agente, SYSTEM_PROMPT do spec | `B` (default) | `/novais-digital:aios-init` |
+| `{MODULE}` | `aios/agents/{module}_*` (path) e prompts | nome do módulo solicitado | `/novais-digital:aios-init` |
 | `{TENANT_FIELD_NAME}` | schema_agent SYSTEM_PROMPT | `tenantId` (default) | humano (se diferente) |
 
 **Nada é hardcoded por cliente** — exigência C8.
@@ -146,15 +146,15 @@ templates/aios/
 
 ## Padrão de telemetria
 
-Cada `entry.py.template` contém o bloco padrão LangSmith documentado em [`docs/forge/aios-telemetry-pattern.md`](../../docs/forge/aios-telemetry-pattern.md).
+Cada `entry.py.template` contém o bloco padrão LangSmith documentado em [`docs/foundry/aios-telemetry-pattern.md`](../../docs/foundry/aios-telemetry-pattern.md).
 
-O `_MockTrace` é fallback aceitável **apenas em desenvolvimento local** (sem `LANGSMITH_API_KEY` ou com `LANGSMITH_TRACING=false` no ambiente). Antes de promover para SHADOW, configurar LangSmith de verdade — caso contrário `/acme:promote` rejeita o gate de telemetria.
+O `_MockTrace` é fallback aceitável **apenas em desenvolvimento local** (sem `LANGSMITH_API_KEY` ou com `LANGSMITH_TRACING=false` no ambiente). Antes de promover para SHADOW, configurar LangSmith de verdade — caso contrário `/novais-digital:promote` rejeita o gate de telemetria.
 
 ---
 
 ## Diferenças vs. implementação de referência (SchoolPlatform/EDIX)
 
-| Aspecto | SchoolPlatform | Templates Forge |
+| Aspecto | SchoolPlatform | Templates Foundry |
 |---|---|---|
 | SYSTEM_PROMPT | "Você é o X do projeto EDIX" | "Você é o X do projeto **{PROJECT_NAME}**" |
 | Caminhos de contexto | `funcionalidades-edix.md` cravado | `docs/specs/{module}.md` (única fonte) |
@@ -171,10 +171,10 @@ Os templates AIOS são consumidos pelos workflows em `templates/cicd/`:
 
 | Workflow | Lê do AIOS | Função |
 |---|---|---|
-| `forge-test.yml` | `aios/config.yaml` → `modules[]`, `test_commands`, `coverage_targets` | Roda unit/integration/e2e em matrix por módulo; coverage gate |
-| `forge-validate.yml` (G6) | `tests/{module}/unit/` presente para módulos modificados em `src/` | Bloqueia PR onde código novo não tem teste RED |
-| `forge-eval.yml` | `prompts/` modificados | Eval LLM (independente do TDD; complementar) |
-| `forge-audit.yml` | mensal | Auditoria DeepAgent (independente) |
+| `foundry-test.yml` | `aios/config.yaml` → `modules[]`, `test_commands`, `coverage_targets` | Roda unit/integration/e2e em matrix por módulo; coverage gate |
+| `foundry-validate.yml` (G6) | `tests/{module}/unit/` presente para módulos modificados em `src/` | Bloqueia PR onde código novo não tem teste RED |
+| `foundry-eval.yml` | `prompts/` modificados | Eval LLM (independente do TDD; complementar) |
+| `foundry-audit.yml` | mensal | Auditoria DeepAgent (independente) |
 
 ---
 
@@ -182,5 +182,5 @@ Os templates AIOS são consumidos pelos workflows em `templates/cicd/`:
 
 | Versão | Data | Mudança |
 |---|---|---|
-| 0.1.0 | 2026-05-07 | Versão inicial — Forge-7 (extração para templates portáveis a partir do SchoolPlatform) |
-| 0.2.0 | 2026-05-12 | Forge-10 — pipeline TDD-first; `test_agent` ganha modos `red`/`verify`; materializa arquivos físicos em `tests/{module}/`; orchestrator reordenado; review_agent enforce gate TDD; `coverage_targets` + `test_commands` no config.yaml |
+| 0.1.0 | 2026-05-07 | Versão inicial — Foundry-7 (extração para templates portáveis a partir do SchoolPlatform) |
+| 0.2.0 | 2026-05-12 | Foundry-10 — pipeline TDD-first; `test_agent` ganha modos `red`/`verify`; materializa arquivos físicos em `tests/{module}/`; orchestrator reordenado; review_agent enforce gate TDD; `coverage_targets` + `test_commands` no config.yaml |

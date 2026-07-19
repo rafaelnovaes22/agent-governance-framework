@@ -1,7 +1,7 @@
-# acme-governanca-ia — Guia para Claude Code
+# novais-digital-governanca-ia — Guia para Claude Code
 
-> Backend multi-tenant de governança de projetos via IA. Plataforma **Acme SaaS²**.
-> Operado pelo framework **Acme Forge** ([`docs/forge/README.md`](docs/forge/README.md)).
+> Backend multi-tenant de governança de projetos via IA. Plataforma **Novais Digital SaaS²**.
+> Operado pelo framework **Novais Digital Foundry** ([`docs/foundry/README.md`](docs/foundry/README.md)).
 
 ---
 
@@ -26,7 +26,7 @@ Se uma instrução do usuário entrar em conflito com a Constitution, **levante 
 
 ## Contexto do projeto
 
-### O que é a Acme
+### O que é a Novais Digital
 
 Consultoria de IA aplicada que pivotou para **plataforma Service-as-a-Software (SaaS²)**: vende **outcomes cobráveis** entregues por agentes de IA, não horas/seats.
 
@@ -34,24 +34,24 @@ Consultoria de IA aplicada que pivotou para **plataforma Service-as-a-Software (
 - **Modelo**: setup fee + plataforma fixa mensal + variável por outcome com SLA contratual
 - **Modos por subscription**: SHADOW → ASSISTED → AUTONOMOUS (com gates de promoção)
 - **Stack core**: Node/TS, LangGraph, LangSmith, PostgreSQL/Prisma, BullMQ/Redis, Fastify, Anthropic SDK
-- **Cliente nunca loga** — admin é via API + ClickUp interno da Acme
+- **Cliente nunca loga** — admin é via API + ClickUp interno da Novais Digital
 
 ### Documentos canônicos da metodologia
 
 Leia conforme contexto da tarefa:
 
-- [`docs/metodologia.md`](docs/metodologia.md) — Metodologia Acme clássica (4 fases por engajamento)
-- [`docs/metodologia_acme.md`](docs/metodologia_acme.md) — **Metodologia Acme SaaS² (referência primária)**
+- [`docs/metodologia.md`](docs/metodologia.md) — Metodologia Novais Digital clássica (4 fases por engajamento)
+- [`docs/metodologia_novais.md`](docs/metodologia_novais.md) — **Metodologia Novais Digital SaaS² (referência primária)**
 - [`docs/metodologia_sincra.md`](docs/metodologia_sincra.md) — Camadas L0/L1/L2, entidades, artefatos, handoffs
 
-### Documentos do Forge
+### Documentos do Foundry
 
-- [`docs/forge/README.md`](docs/forge/README.md) — Overview e ponteiros
-- [`docs/forge/decisions.md`](docs/forge/decisions.md) — Decisões F1-F8
-- [`docs/forge/roadmap.md`](docs/forge/roadmap.md) — 5 ondas Forge
-- [`docs/forge/reviewer-contract.md`](docs/forge/reviewer-contract.md) — Contrato com DeepAgents/GPT-5.5
-- [`docs/forge/manifest.json`](docs/forge/manifest.json) — Inventory machine-readable
-- [`docs/forge/out-of-scope.md`](docs/forge/out-of-scope.md) — O que NÃO entra no Forge
+- [`docs/foundry/README.md`](docs/foundry/README.md) — Overview e ponteiros
+- [`docs/foundry/decisions.md`](docs/foundry/decisions.md) — Decisões F1-F8
+- [`docs/foundry/roadmap.md`](docs/foundry/roadmap.md) — 5 ondas Foundry
+- [`docs/foundry/reviewer-contract.md`](docs/foundry/reviewer-contract.md) — Contrato com DeepAgents/GPT-5.5
+- [`docs/foundry/manifest.json`](docs/foundry/manifest.json) — Inventory machine-readable
+- [`docs/foundry/out-of-scope.md`](docs/foundry/out-of-scope.md) — O que NÃO entra no Foundry
 
 ### Decisões arquiteturais
 
@@ -77,7 +77,7 @@ Leia conforme contexto da tarefa:
 - **Runtime**: Node.js ≥20, TypeScript 5.7, ESM
 - **Web**: Fastify 5
 - **Orquestração de agentes**: `@langchain/langgraph` 1.2
-- **LLM**: `@anthropic-ai/sdk` 0.39 (primário); reviewer GPT-5.5 via OpenAI (Forge-3)
+- **LLM**: `@anthropic-ai/sdk` 0.39 (primário); reviewer GPT-5.5 via OpenAI (Foundry-3)
 - **Observability**: `langsmith`
 - **DB**: PostgreSQL via Prisma 6
 - **Filas**: BullMQ 5 + ioredis 5
@@ -110,32 +110,32 @@ src/
 ├── llm/                     # camada de abstração de modelos (C7)
 ├── billing/                 # cálculo de outcomes/invoices
 ├── eval/                    # eval suite runner
-└── legacy-pmo/              # ⚠️ sunset: leitura apenas (até Onda 5 Acme)
+└── legacy-pmo/              # ⚠️ sunset: leitura apenas (até Onda 5 Novais Digital)
 docs/
 ├── adr/                     # Architecture Decision Records
-├── forge/                   # Documentação do framework
+├── foundry/                   # Documentação do framework
 ├── onda-0/                  # Decisões estratégicas Cenário B
 └── ...
-templates/                   # Templates Forge (sku-spec, adr, eval-case, unit-economics)
+templates/                   # Templates Foundry (sku-spec, adr, eval-case, unit-economics)
 evals/{sku-code}/            # Eval suites versionadas por SKU
 .claude/
 ├── CONSTITUTION.md          # Princípios versionados (LER PRIMEIRO)
-├── settings.json            # Forge layer (versionado)
+├── settings.json            # Foundry layer (versionado)
 ├── settings.local.json      # Overrides do dev (gitignored)
-├── commands/acme/         # Slash commands (Forge-2)
-├── agents/                  # Subagents Guardian (Forge-3)
-└── skills/{L0,L1,L2}/       # Skills herdadas Sincra (Forge-1)
+├── commands/novais-digital/         # Slash commands (Foundry-2)
+├── agents/                  # Subagents Guardian (Foundry-3)
+└── skills/{L0,L1,L2}/       # Skills herdadas Sincra (Foundry-1)
 ```
 
 ### Regras de toque
 
 | Path | Regra |
 |---|---|
-| `.claude/CONSTITUTION.md` | Mudança exige ADR + bump de versão (Forge-4 hook bloqueia) |
-| `docs/adr/*.md` | ADR assinada não muda; abrir nova ADR (Forge-4 hook bloqueia) |
+| `.claude/CONSTITUTION.md` | Mudança exige ADR + bump de versão (Foundry-4 hook bloqueia) |
+| `docs/adr/*.md` | ADR assinada não muda; abrir nova ADR (Foundry-4 hook bloqueia) |
 | `docs/onda-0/*.md` (D2 aprovado) | Cláusula contratual de outcome aprovada não muda sem reaprovação CEO |
 | `src/legacy-pmo/**` | Leitura apenas; sem features novas |
-| `src/skus/{sku}/**` | Edição livre; segue templates Forge |
+| `src/skus/{sku}/**` | Edição livre; segue templates Foundry |
 | `src/llm/**` | Camada de abstração — toda dependência de modelo vive aqui (C7) |
 
 ### Telemetria (C6)
@@ -172,7 +172,7 @@ Quebrar a hierarquia (ex: skill L0 lendo Outcome) **viola C5** e bloqueia merge.
 
 ## Convenções de código
 
-- **TypeScript estrito**: nada de `any` em `src/skus/**` ou `src/agents/**` (Forge-4 hook bloqueia)
+- **TypeScript estrito**: nada de `any` em `src/skus/**` ou `src/agents/**` (Foundry-4 hook bloqueia)
 - **Comentários**: só quando o WHY é não-óbvio. Não comentar o que já é claro do nome
 - **ESM**: `import` apenas; sem `require`
 - **Datas em commits/docs**: YYYY-MM-DD absoluto (não "ontem", "semana que vem")
@@ -182,12 +182,12 @@ Quebrar a hierarquia (ex: skill L0 lendo Outcome) **viola C5** e bloqueia merge.
 
 ## Reviewer externo: DeepAgents/GPT-5.5
 
-Este projeto é auditado mensalmente por um **Deep Agent externo** (GPT-5.5) que valida os 8 princípios da Constitution e a coerência entre artefatos. Veja [`docs/forge/reviewer-contract.md`](docs/forge/reviewer-contract.md).
+Este projeto é auditado mensalmente por um **Deep Agent externo** (GPT-5.5) que valida os 8 princípios da Constitution e a coerência entre artefatos. Veja [`docs/foundry/reviewer-contract.md`](docs/foundry/reviewer-contract.md).
 
 Para que o reviewer funcione:
-- Toda mudança no Forge atualiza `docs/forge/manifest.json`
+- Toda mudança no Foundry atualiza `docs/foundry/manifest.json`
 - Toda LLM call tem trace LangSmith
-- Toda promoção de modo (SHADOW → ASSISTED → AUTONOMOUS) é registrada via `/acme:promote`
+- Toda promoção de modo (SHADOW → ASSISTED → AUTONOMOUS) é registrada via `/novais-digital:promote`
 
 ---
 
@@ -200,7 +200,7 @@ A Constitution define hard gates. Mas **sempre confirme** antes de:
 - Editar `docs/onda-0/sku_piloto.md` em sessões D2.1-D2.5 aprovadas
 - Modificar `src/legacy-pmo/**` (em sunset)
 - Promover subscription de modo
-- Executar `npm publish`, `prisma migrate reset`, `git push --force`, `rm -rf` (Forge nega via `settings.json`)
+- Executar `npm publish`, `prisma migrate reset`, `git push --force`, `rm -rf` (Foundry nega via `settings.json`)
 
 Operações reversíveis e locais (edição em `src/skus/`, criação de eval cases, mudanças em prompts) não exigem confirmação prévia — só siga os padrões.
 
@@ -208,7 +208,7 @@ Operações reversíveis e locais (edição em `src/skus/`, criação de eval ca
 
 ## Ondas em andamento
 
-- ✅ **Onda 0 (Acme)**: decisões estratégicas pós-pivot — D1, D2, D5, D6, D7 em preenchimento
-- 🟡 **Forge-0**: fundação do framework em curso
-- 🔴 **Onda 1 (Acme)**: bloqueada por ADR 001 assinatura
-- 🔴 **Forge-1 a Forge-5**: dependentes em sequência
+- ✅ **Onda 0 (Novais Digital)**: decisões estratégicas pós-pivot — D1, D2, D5, D6, D7 em preenchimento
+- 🟡 **Foundry-0**: fundação do framework em curso
+- 🔴 **Onda 1 (Novais Digital)**: bloqueada por ADR 001 assinatura
+- 🔴 **Foundry-1 a Foundry-5**: dependentes em sequência

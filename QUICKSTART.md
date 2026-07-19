@@ -1,6 +1,6 @@
-# Quickstart — Acme Forge em 5 minutos
+# Quickstart — Novais Digital Foundry em 5 minutos
 
-> Para devs que querem começar a usar o Forge em um projeto. Setup mínimo, primeira spec saindo.
+> Para devs que querem começar a usar o Foundry em um projeto. Setup mínimo, primeira spec saindo.
 
 **Pré-requisitos**: Claude Code CLI instalado, projeto-alvo com `git` ativo, Node 20+.
 
@@ -15,17 +15,17 @@ git clone https://github.com/rafaelnovaes22/agent-governance-framework.git ~/age
 # Ir até o projeto-alvo
 cd /caminho/do/seu/projeto
 
-# Copiar artefatos do Forge
-FORGE=~/agent-governance-framework
-mkdir -p .claude templates docs/forge
+# Copiar artefatos do Foundry
+FOUNDRY=~/agent-governance-framework
+mkdir -p .claude templates docs/foundry
 
-cp "$FORGE/.claude/CONSTITUTION.md" .claude/
-cp "$FORGE/.claude/settings.json" .claude/
-cp -r "$FORGE/templates/"* templates/
-cp -r "$FORGE/docs/forge/"* docs/forge/
-cp "$FORGE/CLAUDE.md.template" CLAUDE.md
+cp "$FOUNDRY/.claude/CONSTITUTION.md" .claude/
+cp "$FOUNDRY/.claude/settings.json" .claude/
+cp -r "$FOUNDRY/templates/"* templates/
+cp -r "$FOUNDRY/docs/foundry/"* docs/foundry/
+cp "$FOUNDRY/CLAUDE.md.template" CLAUDE.md
 
-echo "✅ Forge instalado"
+echo "✅ Foundry instalado"
 ```
 
 > ⚠️ **Não toque** em `.claude/settings.local.json` se existir — é override do dev.
@@ -40,7 +40,7 @@ Abra `CLAUDE.md` raiz e ajuste 3 seções:
 2. **Stack**: liste tecnologias do projeto
 3. **Comandos npm úteis** — copie do seu `package.json`
 
-Pode deixar tudo o resto como está. As referências a `.claude/CONSTITUTION.md`, `templates/`, `docs/forge/` continuam válidas.
+Pode deixar tudo o resto como está. As referências a `.claude/CONSTITUTION.md`, `templates/`, `docs/foundry/` continuam válidas.
 
 ---
 
@@ -48,7 +48,7 @@ Pode deixar tudo o resto como está. As referências a `.claude/CONSTITUTION.md`
 
 ```bash
 # Manifest válido?
-node -e "console.log(JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8')).framework.version)"
+node -e "console.log(JSON.parse(require('fs').readFileSync('docs/foundry/manifest.json','utf8')).framework.version)"
 # Deve imprimir: 0.2.0
 
 # Constitution carrega no Claude Code?
@@ -57,7 +57,7 @@ claude --version
 # Claude deve referenciar o princípio "Cost ≤ 25% of price"
 ```
 
-✅ Se ambos funcionam, Forge está operacional.
+✅ Se ambos funcionam, Foundry está operacional.
 
 ---
 
@@ -103,10 +103,10 @@ Claude vai validar a spec contra os 8 princípios e apontar gaps.
 | Quero... | Ler |
 |---|---|
 | Entender a estrutura do framework | [`ARCHITECTURE.md`](./ARCHITECTURE.md) |
-| Ver caso real de uso | [`examples/acme/`](./examples/acme/) |
+| Ver caso real de uso | [`examples/novais-digital/`](./examples/novais-digital/) |
 | Configurar reviewer DeepAgent (auditoria mensal) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) |
 | Aprofundar instalação ou atualizar versão | [`INSTALL.md`](./INSTALL.md) |
-| Vocabulário do Forge | [`GLOSSARY.md`](./GLOSSARY.md) |
+| Vocabulário do Foundry | [`GLOSSARY.md`](./GLOSSARY.md) |
 | Evoluir o framework | [`CONTRIBUTING.md`](./CONTRIBUTING.md) |
 
 ---
@@ -122,17 +122,17 @@ Antes de qualquer coisa: leia [.claude/CONSTITUTION.md]
 
 ### "Manifest tem hashes diferentes dos arquivos locais"
 
-Esperado. Hashes são da origem canônica (LF endings). Em Windows, CRLF muda hash. Em Forge-4, hook `manifest-sync` recalcula com normalização LF.
+Esperado. Hashes são da origem canônica (LF endings). Em Windows, CRLF muda hash. Em Foundry-4, hook `manifest-sync` recalcula com normalização LF.
 
 ### "Não sei qual template usar"
 
 Pergunte ao Claude:
 ```
-Meu projeto vai construir um agente que [descrição]. Qual template do Forge devo usar?
+Meu projeto vai construir um agente que [descrição]. Qual template do Foundry devo usar?
 ```
 
 Claude orienta entre os 4 templates principais com base no caso.
 
 ---
 
-**Tempo total**: ~5 min para instalar + ~2 min para criar primeira spec. Já está usando Forge.
+**Tempo total**: ~5 min para instalar + ~2 min para criar primeira spec. Já está usando Foundry.

@@ -15,7 +15,7 @@ version: "0.1.0"
 
 > Output do reviewer DeepAgent / GPT-5.5.
 > Estrutura segue [`reviewer/output-schema.json`](../reviewer/output-schema.json).
-> Detalhes do contrato em [`docs/forge/reviewer-contract.md`](../docs/forge/reviewer-contract.md).
+> Detalhes do contrato em [`docs/foundry/reviewer-contract.md`](../docs/foundry/reviewer-contract.md).
 
 ---
 
@@ -123,15 +123,15 @@ Manifest de referência: `{{ manifest_version }}` (sha256 `{{ ... }}`)
 - Runs sem trace LangSmith: {{ N }} ({{ ✅ 0 / ⚠️ >0 }})
 
 **C6.2 — Analytics de negócio (WireLog / `analytics_provider`)** *(preencher apenas se analytics_provider=wirelog)*:
-- `forge_outcome_delivered` no WireLog (30d): {{ N }}
+- `foundry_outcome_delivered` no WireLog (30d): {{ N }}
 - Desvio DB ↔ WireLog: {{ +/- X% }} ({{ ✅ ≤ 1% / ⚠️ ≤ 5% / 🔴 > 5% }})
 - Amostra de 20 eventos sem PII crua: {{ ✅ / 🔴 PII detectada }}
-- Eventos `forge_gate_failed` com gate_id + lifecycle_stage: {{ ✅ / ⚠️ incompleto }}
+- Eventos `foundry_gate_failed` com gate_id + lifecycle_stage: {{ ✅ / ⚠️ incompleto }}
 - Queries WireLog (últimos 30d):
   ```
-  funnel forge_outcome_created -> forge_outcome_delivered -> forge_outcome_billed
-  forge_gate_failed | count by event_properties.gate_id
-  forge_agent_error | count by event_properties.error_code
+  funnel foundry_outcome_created -> foundry_outcome_delivered -> foundry_outcome_billed
+  foundry_gate_failed | count by event_properties.gate_id
+  foundry_agent_error | count by event_properties.error_code
   ```
 
 **Issues abertas**: {{ ... }}

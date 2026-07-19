@@ -1,6 +1,6 @@
-# 👋 Olá! Bem-vindo ao Acme Forge
+# 👋 Olá! Bem-vindo ao Novais Digital Foundry
 
-> Antes de qualquer coisa: **escolha o seu caminho**. O Forge funciona de jeitos diferentes para pessoas diferentes.
+> Antes de qualquer coisa: **escolha o seu caminho**. O Foundry funciona de jeitos diferentes para pessoas diferentes.
 
 ---
 
@@ -29,7 +29,7 @@ Você entende git, terminal, JSON, Markdown. Quer saber onde estão as coisas e 
 **Exemplos do que você vai aprender:**
 - Estrutura do repo em 30 segundos
 - Como adicionar skill / command / Guardian / hook
-- Comandos mais usados (`forge doctor`, `/acme:*`)
+- Comandos mais usados (`foundry doctor`, `/novais-digital:*`)
 - Top 5 erros e como resolver
 
 ---
@@ -49,7 +49,7 @@ Esse documento descreve detecção de tipo, interpretação de C1-C8, roteamento
 Use o **wizard interativo**:
 
 ```bash
-bash scripts/forge start
+bash scripts/foundry start
 ```
 
 Ele faz 3 perguntas e te direciona para o lugar certo.
@@ -60,10 +60,10 @@ Ele faz 3 perguntas e te direciona para o lugar certo.
 
 | Quero... | Comando |
 |----------|---------|
-| Verificar se o framework está saudável | `bash scripts/forge doctor` |
-| Ver versão atual | `bash scripts/forge version` |
-| Ver ajuda contextual | `bash scripts/forge help` |
-| Trocar de modo (vibe ↔ dev) | `bash scripts/forge mode vibe` ou `mode dev` |
+| Verificar se o framework está saudável | `bash scripts/foundry doctor` |
+| Ver versão atual | `bash scripts/foundry version` |
+| Ver ajuda contextual | `bash scripts/foundry help` |
+| Trocar de modo (vibe ↔ dev) | `bash scripts/foundry mode vibe` ou `mode dev` |
 
 ---
 
@@ -71,7 +71,7 @@ Ele faz 3 perguntas e te direciona para o lugar certo.
 
 | Situação | Onde olhar |
 |----------|------------|
-| Quer entender o que é o Forge no geral | [`README.md`](./README.md) |
+| Quer entender o que é o Foundry no geral | [`README.md`](./README.md) |
 | Quer instalar em um projeto novo | [`INSTALL.md`](./INSTALL.md) |
 | Tem um termo técnico que não entendeu | [`GLOSSARY.md`](./GLOSSARY.md) |
 | Quer ver o histórico de versões | [`CHANGELOG.md`](./CHANGELOG.md) |
@@ -80,17 +80,17 @@ Ele faz 3 perguntas e te direciona para o lugar certo.
 
 ---
 
-## 💡 Princípio do Forge em uma frase
+## 💡 Princípio do Foundry em uma frase
 
 > **"Construa rápido. Sem quebrar. Sem precisar adivinhar."**
 
-O Forge é o conjunto de regras invisíveis que garante que tudo o que você cria:
+O Foundry é o conjunto de regras invisíveis que garante que tudo o que você cria:
 - ✅ Tem um propósito claro (alguém vai pagar por isso?)
 - ✅ Tem custo previsível (você não vai quebrar o caixa)
 - ✅ Tem teste (não vai quebrar depois)
 - ✅ Está documentado (a próxima pessoa entende)
 
-Você não precisa saber **como** o Forge garante isso. Só precisa saber **que** garante.
+Você não precisa saber **como** o Foundry garante isso. Só precisa saber **que** garante.
 
 ---
 

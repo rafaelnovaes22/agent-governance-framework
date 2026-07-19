@@ -9,16 +9,16 @@ Thumbs.db
 # Claude Code per-developer overrides (NUNCA commitar)
 .claude/settings.local.json
 
-# Forge-12 — preferência de modo por usuário (vibe/dev/agent)
-.forge-mode
+# Foundry-12 — preferência de modo por usuário (vibe/dev/agent)
+.foundry-mode
 
 # Audit outputs (geram localmente; contêm dados de produção)
-docs/forge/audits/
-docs/forge/session-gate-reports/
-docs/forge/bypass-log/
-!docs/forge/bypass-log/.gitkeep
+docs/foundry/audits/
+docs/foundry/session-gate-reports/
+docs/foundry/bypass-log/
+!docs/foundry/bypass-log/.gitkeep
 
-# Node (caso Forge-3 traga build de reviewer Node/TS)
+# Node (caso Foundry-3 traga build de reviewer Node/TS)
 node_modules/
 dist/
 *.log
@@ -26,7 +26,7 @@ dist/
 .env.local
 .env.*.local
 
-# Python (caso Forge-3 use deepagents Python)
+# Python (caso Foundry-3 use deepagents Python)
 __pycache__/
 *.pyc
 .venv/

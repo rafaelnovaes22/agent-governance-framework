@@ -1,5 +1,5 @@
 /**
- * WireLog adapter portável para projetos Acme Forge.
+ * WireLog adapter portável para projetos Novais Digital Foundry.
  *
  * Instalar em: src/observability/wirelog-adapter.ts (ou src/infra/wirelog-adapter.ts)
  * Nunca importar diretamente em src/skus/, src/products/ ou src/modules/ — viola C7.
@@ -17,10 +17,10 @@ import { createHash } from "crypto";
 
 // ─── Tipos públicos ───────────────────────────────────────────────────────────
 
-export type ForgeAnalyticsEvent = {
+export type FoundryAnalyticsEvent = {
   eventType: string;
   projectId: string;
-  forgeVersion?: string;
+  foundryVersion?: string;
   timestamp?: string;
   artifactId?: string;
   projectType?: string;
@@ -131,13 +131,13 @@ async function send(path: string, body: unknown): Promise<void> {
  * Campos proibidos (PII) são removidos automaticamente.
  * No-op se WIRELOG_SECRET_KEY não estiver configurado.
  */
-export async function trackForgeEvent(event: ForgeAnalyticsEvent): Promise<void> {
+export async function trackFoundryEvent(event: FoundryAnalyticsEvent): Promise<void> {
   if (!isConfigured()) return;
 
   const enriched = {
     ...event,
     timestamp: event.timestamp ?? new Date().toISOString(),
-    forgeVersion: event.forgeVersion ?? process.env.FORGE_VERSION ?? "unknown",
+    foundryVersion: event.foundryVersion ?? process.env.FOUNDRY_VERSION ?? "unknown",
   };
 
   const safe = stripForbiddenFields(enriched as Record<string, unknown>);
@@ -149,7 +149,7 @@ export async function trackForgeEvent(event: ForgeAnalyticsEvent): Promise<void>
  * Identifica um ator (operador/agente) sem PII.
  * Use actorIdHash = hashId(userId_real).
  */
-export async function identifyForgeActor(input: {
+export async function identifyFoundryActor(input: {
   actorIdHash: string;
   properties?: Record<string, unknown>;
 }): Promise<void> {
@@ -167,7 +167,7 @@ export async function identifyForgeActor(input: {
  * Força flush da fila interna (útil em ambientes serverless antes do handler retornar).
  * No-op se não houver fila configurada — depende da implementação interna do WireLog SDK.
  */
-export async function flushForgeAnalytics(): Promise<void> {
+export async function flushFoundryAnalytics(): Promise<void> {
   if (!isConfigured()) return;
   // WireLog HTTP direto não tem fila local — flush é no-op neste adapter.
   // Se usar wirelog-node SDK com batching, chame wl.flush() aqui.
@@ -175,7 +175,7 @@ export async function flushForgeAnalytics(): Promise<void> {
 
 // ─── Helpers de conveniência ──────────────────────────────────────────────────
 
-/** Emite forge_outcome_delivered — helper para evitar strings literais espalhadas. */
+/** Emite foundry_outcome_delivered — helper para evitar strings literais espalhadas. */
 export async function trackOutcomeDelivered(params: {
   projectId: string;
   artifactId: string;
@@ -186,10 +186,10 @@ export async function trackOutcomeDelivered(params: {
   latencyMs?: number;
   lifecycleStage?: string;
 }): Promise<void> {
-  await trackForgeEvent({ eventType: "forge_outcome_delivered", ...params });
+  await trackFoundryEvent({ eventType: "foundry_outcome_delivered", ...params });
 }
 
-/** Emite forge_gate_failed. */
+/** Emite foundry_gate_failed. */
 export async function trackGateFailed(params: {
   projectId: string;
   artifactId?: string;
@@ -199,10 +199,10 @@ export async function trackGateFailed(params: {
   errorCode?: string;
   lifecycleStage?: string;
 }): Promise<void> {
-  await trackForgeEvent({ eventType: "forge_gate_failed", status: "fail", ...params });
+  await trackFoundryEvent({ eventType: "foundry_gate_failed", status: "fail", ...params });
 }
 
-/** Emite forge_eval_completed. */
+/** Emite foundry_eval_completed. */
 export async function trackEvalCompleted(params: {
   projectId: string;
   artifactId: string;
@@ -211,5 +211,5 @@ export async function trackEvalCompleted(params: {
   traceId?: string;
   latencyMs?: number;
 }): Promise<void> {
-  await trackForgeEvent({ eventType: "forge_eval_completed", ...params });
+  await trackFoundryEvent({ eventType: "foundry_eval_completed", ...params });
 }

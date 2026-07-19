@@ -2,7 +2,7 @@
 
 > **Tempo de leitura:** ~20 min | **Pré-requisito:** ter lido [`README.md`](./README.md)
 
-Mostra como o Forge se aplica a **plataforma SaaS sem IA**. Constitution C1-C8 mantém os IDs mas a interpretação é local.
+Mostra como o Foundry se aplica a **plataforma SaaS sem IA**. Constitution C1-C8 mantém os IDs mas a interpretação é local.
 
 ---
 
@@ -11,7 +11,7 @@ Mostra como o Forge se aplica a **plataforma SaaS sem IA**. Constitution C1-C8 m
 ### Comando
 
 ```bash
-/acme:diagnose faturamento --project_type=platform
+/novais-digital:diagnose faturamento --project_type=platform
 ```
 
 ### O que acontece (diferente do agentic)
@@ -21,7 +21,7 @@ Mostra como o Forge se aplica a **plataforma SaaS sem IA**. Constitution C1-C8 m
 - Skills LLM-centric (`artifact-prompt-builder`, `eval-case-author`) **não são invocadas**
 - `diagnostic-runner` (Tier 2 skill) usa template platform
 
-### Artefato gerado: `docs/forge/modules/faturamento/diagnostic.md`
+### Artefato gerado: `docs/foundry/modules/faturamento/diagnostic.md`
 
 ```markdown
 ---
@@ -61,7 +61,7 @@ po_guardian_approval: ✅
 ### Comando
 
 ```bash
-/acme:spec faturamento --type=platform-module
+/novais-digital:spec faturamento --type=platform-module
 ```
 
 ### O que muda vs agentic
@@ -70,7 +70,7 @@ po_guardian_approval: ✅
 - `unit-economist` aplica `delivery-economics` (não `unit-economics` em tokens)
 - Outcome não envolve LLM — só métricas operacionais
 
-### Artefato gerado: `docs/forge/modules/faturamento/spec.md` (resumo)
+### Artefato gerado: `docs/foundry/modules/faturamento/spec.md` (resumo)
 
 ```markdown
 ---
@@ -149,7 +149,7 @@ has_ui: true
 ### Comando
 
 ```bash
-/acme:plan faturamento
+/novais-digital:plan faturamento
 ```
 
 ### Artefatos gerados
@@ -159,7 +159,7 @@ has_ui: true
 - Fase 2P — Adapters (SEFAZ, ERPs, regimes tributários)
 - Fase 3P — Endpoints + UI (forms, listagem, retry de falhas)
 - Fase 4P — Acceptance criteria + smoke tests + Playwright E2E
-- Fase 6P — CI/CD (forge-test workflow ativo)
+- Fase 6P — CI/CD (foundry-test workflow ativo)
 
 `decisions.md` com:
 - ADR-001: Fila SQS para retry de SEFAZ instável
@@ -174,7 +174,7 @@ has_ui: true
 ### Comando
 
 ```bash
-/acme:tasks faturamento
+/novais-digital:tasks faturamento
 ```
 
 ### Artefato gerado (resumo)
@@ -202,7 +202,7 @@ has_ui: true
 - [ ] T4P.4 — Playwright E2E (criar nota, calcular, sync, retry)
 
 ## Wave 6P — CI/CD
-- [ ] T6P.1 — Workflow forge-test ativo
+- [ ] T6P.1 — Workflow foundry-test ativo
 - [ ] T6P.2 — Branch protection com check `unit-tests`, `integration-tests`, `e2e-tests`
 - [ ] T6P.3 — Coverage gate Tier C bloqueante
 ```
@@ -214,10 +214,10 @@ has_ui: true
 ### Comando
 
 ```bash
-/acme:aios-run faturamento
+/novais-digital:aios-run faturamento
 ```
 
-### Pipeline (Forge-10)
+### Pipeline (Foundry-10)
 
 Idêntico ao Exemplo 01, mas **sem eval LLM**:
 
@@ -237,7 +237,7 @@ Diferenças:
 ### Comando
 
 ```bash
-/acme:pre-merge-check
+/novais-digital:pre-merge-check
 ```
 
 ### O que valida
@@ -257,7 +257,7 @@ Diferenças:
 ### Comando
 
 ```bash
-/acme:promote faturamento --to=staging
+/novais-digital:promote faturamento --to=staging
 ```
 
 ### Gates platform (4, não 5)
@@ -273,7 +273,7 @@ Diferenças:
 
 ```bash
 # Após 7 dias em staging com smoke tests OK
-/acme:promote faturamento --to=pilot
+/novais-digital:promote faturamento --to=pilot
 ```
 
 ### Acceptance gate (substitui eval LLM)
@@ -313,7 +313,7 @@ Signature hash: sha256:abc123...
 
 ```bash
 # Com acceptance-report assinado:
-/acme:promote faturamento --to=canonical
+/novais-digital:promote faturamento --to=canonical
 ```
 
 ---
@@ -333,12 +333,12 @@ Você criou um módulo de plataforma com:
 
 ## 🧠 Insights deste exemplo
 
-1. **Plataforma também usa Forge** — sem IA, sem eval LLM, sem LANGSMITH, mas com MESMO rigor
+1. **Plataforma também usa Foundry** — sem IA, sem eval LLM, sem LANGSMITH, mas com MESMO rigor
 2. **C3 muda de "tokens" para "infra+suporte"** — mas o limite de 25% permanece
 3. **Acceptance gate substitui eval** — humano assina aceite formal vs LLM-as-judge
 4. **Lifecycle muda nomenclatura** — draft/staging/pilot/canonical (não SHADOW/AUTONOMOUS)
 5. **Audit trail é o "trace" do platform** — equivalente operacional do LANGSMITH
-6. **Constitution não muda — interpretação muda** — F26 (Forge-9) formalizou isso
+6. **Constitution não muda — interpretação muda** — F26 (Foundry-9) formalizou isso
 
 ---
 

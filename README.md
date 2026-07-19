@@ -1,16 +1,16 @@
-# Acme Forge
+# Novais Digital Foundry
 
 > Framework de governança para projetos que entregam **outcome cobrável** — agentes de IA, plataformas SaaS/operacionais, ou automações.
 > Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
 [![Version](https://img.shields.io/badge/version-0.22.0-blue)](./CHANGELOG.md)
-[![Phase](https://img.shields.io/badge/phase-Forge--21-orange)](./docs/forge/roadmap.md)
+[![Phase](https://img.shields.io/badge/phase-Foundry--21-orange)](./docs/foundry/roadmap.md)
 [![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)
 [![Project Types](https://img.shields.io/badge/project__types-agentic__saas%20%7C%20platform%20%7C%20automation%20%7C%20hybrid-success)](./templates/project.template.json)
 
 ---
 
-## O que o Forge resolve
+## O que o Foundry resolve
 
 Construir agentes de IA que **entregam outcome cobrável** (lead qualificado, ticket resolvido, análise gerada, etc.) tem armadilhas que matam projetos silenciosamente:
 
@@ -20,11 +20,11 @@ Construir agentes de IA que **entregam outcome cobrável** (lead qualificado, ti
 - Customização heroica por cliente → não escala, vira agência
 - Sem telemetria → impossível auditar
 
-Forge resolve isso com:
+Foundry resolve isso com:
 
 1. **Constitution versionada** (8 princípios, [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md))
 2. **Templates fundamentais** (spec, ADR, eval-case, unit-economics, lifecycle, audit) — [`templates/`](./templates/)
-3. **Manifest auditável** machine-readable — [`docs/forge/manifest.json`](./docs/forge/manifest.json)
+3. **Manifest auditável** machine-readable — [`docs/foundry/manifest.json`](./docs/foundry/manifest.json)
 4. **Reviewer externo independente** (DeepAgent / GPT-5.5) com contrato formal — [`reviewer/`](./reviewer/)
 5. **9 hooks runtime ativos** com bypass auditado (PreToolUse x4, PostToolUse x3, Stop x2) — [`hooks/`](./hooks/)
 6. **12 slash commands** do pipeline diagnose → promote → audit — [`.claude/commands/`](./.claude/commands/)
@@ -35,24 +35,24 @@ Forge resolve isso com:
 
 ## Audiência: 3 tipos de consumidor
 
-Forge é projetado para 3 tipos de usuário, cada um com seu próprio guia:
+Foundry é projetado para 3 tipos de usuário, cada um com seu próprio guia:
 
 | Consumidor | Entry point | O que faz |
 |---|---|---|
 | 👤 **Dev humano** com Claude Code | [`QUICKSTART.md`](./QUICKSTART.md) → [`INSTALL.md`](./INSTALL.md) | Instala em projeto novo ou existente; usa skills/commands no editor |
 | 🤖 **DeepAgent / GPT-5.5** (reviewer autônomo) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) → [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) | Lê manifest, valida princípios, emite relatório mensal |
-| 🛠️ **Mantenedor do Forge** (evoluir o framework) | [`CONTRIBUTING.md`](./CONTRIBUTING.md) → [`CLAUDE.md`](./CLAUDE.md) | Adiciona skills/commands/templates ao framework |
+| 🛠️ **Mantenedor do Foundry** (evoluir o framework) | [`CONTRIBUTING.md`](./CONTRIBUTING.md) → [`CLAUDE.md`](./CLAUDE.md) | Adiciona skills/commands/templates ao framework |
 
 ---
 
 ## O que NÃO é
 
 - ❌ Não é starter kit genérico Claude Code (existem dezenas)
-- ❌ Não é metodologia de processo (a metodologia vive em quem opera o Forge — ver `examples/acme/`)
+- ❌ Não é metodologia de processo (a metodologia vive em quem opera o Foundry — ver `examples/novais-digital/`)
 - ❌ Não é SDK de agentes (LangGraph, CrewAI, AutoGen cumprem esse papel)
 - ❌ Não é plataforma — é um conjunto de **conventions + automations** sobre Claude Code
 
-Detalhes em [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md).
+Detalhes em [`docs/foundry/out-of-scope.md`](./docs/foundry/out-of-scope.md).
 
 ---
 
@@ -77,16 +77,16 @@ Princípios genéricos. Extensões específicas por domínio vivem em `examples/
 
 | Onda | Status | Entregue |
 |---|---|---|
-| **Forge-0** Fundação | ✅ Concluída | Constitution, settings, manifest, 12 templates, multi-consumer docs, reviewer enablement, examples/acme |
-| **Forge-1** Skills L0/L1/L2 | ✅ Concluída | 9 skills genéricas (3 L0 + 3 L1 + 3 L2) com helper pattern BMAD documentado |
-| **Forge-2** Slash commands | ✅ Concluída | 12 commands do pipeline diagnose → promote → audit → playbook-extract |
-| **Forge-3** Subagents Guardian + Reviewer | ✅ Concluída | 10 agents (8 Guardians + 2 cross-LLM) + infraestrutura DeepAgent reviewer |
-| **Forge-4** Hooks runtime | ✅ Concluída (v0.3.0) | 9 hooks ativos, bypass auditado, skill-security-scan standalone |
-| **Forge-5** Playbooks verticais (infraestrutura) | ✅ Entregue (v0.4.0) | Templates playbook + retrospectiva, /acme:playbook-extract; conteúdo real aguarda AUTONOMOUS |
+| **Foundry-0** Fundação | ✅ Concluída | Constitution, settings, manifest, 12 templates, multi-consumer docs, reviewer enablement, examples/novais-digital |
+| **Foundry-1** Skills L0/L1/L2 | ✅ Concluída | 9 skills genéricas (3 L0 + 3 L1 + 3 L2) com helper pattern BMAD documentado |
+| **Foundry-2** Slash commands | ✅ Concluída | 12 commands do pipeline diagnose → promote → audit → playbook-extract |
+| **Foundry-3** Subagents Guardian + Reviewer | ✅ Concluída | 10 agents (8 Guardians + 2 cross-LLM) + infraestrutura DeepAgent reviewer |
+| **Foundry-4** Hooks runtime | ✅ Concluída (v0.3.0) | 9 hooks ativos, bypass auditado, skill-security-scan standalone |
+| **Foundry-5** Playbooks verticais (infraestrutura) | ✅ Entregue (v0.4.0) | Templates playbook + retrospectiva, /novais-digital:playbook-extract; conteúdo real aguarda AUTONOMOUS |
 
 **Pendências do consumidor:** ADR-002 do reviewer, primeira auditoria mensal de teste, primeiro SKU em AUTONOMOUS para gerar playbook real.
 
-Roadmap completo em [`docs/forge/roadmap.md`](./docs/forge/roadmap.md).
+Roadmap completo em [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md).
 
 ---
 
@@ -99,7 +99,7 @@ agent-governance-framework/
 ├── ARCHITECTURE.md                  ← visão da estrutura e fluxos
 ├── INSTALL.md                       ← instalação manual detalhada
 ├── CONTRIBUTING.md                  ← como evoluir o framework
-├── DEEPAGENT_GUIDE.md               ← como agent autônomo navega o Forge
+├── DEEPAGENT_GUIDE.md               ← como agent autônomo navega o Foundry
 ├── GLOSSARY.md                      ← vocabulário compartilhado
 ├── CLAUDE.md                        ← meta-doc para devs do framework
 ├── CLAUDE.md.template               ← template para projeto consumidor
@@ -107,7 +107,7 @@ agent-governance-framework/
 │
 ├── .claude/
 │   ├── CONSTITUTION.md              ← 8 princípios (genéricos)
-│   ├── settings.json                ← permissões + hooks (Forge layer)
+│   ├── settings.json                ← permissões + hooks (Foundry layer)
 │   ├── skills/                      ← 9 skills genéricas em 3 tiers
 │   │   ├── L0/  (company-dna, icp-loader, offerings-loader)
 │   │   ├── L1/  (baseline-cost-builder, diagnostic-runner, process-mapper)
@@ -117,7 +117,7 @@ agent-governance-framework/
 │   │   ├── promotion-officer.md, eval-engineer.md, tenant-context-curator.md
 │   │   ├── observability-guardian.md, security-privacy-guardian.md
 │   │   └── code-reviewer-claude.md, code-reviewer-cross.md
-│   └── commands/acme/             ← 12 slash commands do pipeline
+│   └── commands/novais-digital/             ← 12 slash commands do pipeline
 │       ├── diagnose.md, spec.md, unit-economics.md, sla-threshold.md
 │       ├── plan.md, tasks.md, implement.md
 │       ├── eval.md, promote.md, audit-monthly.md
@@ -129,7 +129,7 @@ agent-governance-framework/
 │   ├── stop/           (5-gates-summary, eval-suite-fresh)
 │   └── scripts/        (skill-security-scan.sh — standalone CI)
 │
-├── docs/forge/                      ← documentação interna do framework
+├── docs/foundry/                      ← documentação interna do framework
 │   ├── README.md                    ← overview
 │   ├── decisions.md                 ← F1-F21 + extensões
 │   ├── roadmap.md                   ← 5 ondas
@@ -151,7 +151,7 @@ agent-governance-framework/
 │   ├── lifecycle-stage.template.md
 │   ├── monthly-audit.template.md
 │   ├── clickup-blueprint.template.md
-│   ├── playbook.template.md         ← blocos verticais reutilizáveis (Forge-5)
+│   ├── playbook.template.md         ← blocos verticais reutilizáveis (Foundry-5)
 │   └── retrospective.template.md    ← retrospectiva por SKU pós-AUTONOMOUS
 │
 ├── reviewer/                        ← enablement do DeepAgent reviewer
@@ -169,22 +169,22 @@ agent-governance-framework/
 ├── docs/retrospectives/             ← retrospectivas por SKU
 │
 └── examples/                        ← casos de uso reais como referência
-    └── acme/                      ← caso Acme (criadora do Forge)
+    └── novais-digital/                      ← caso Novais Digital (criadora do Foundry)
         ├── README.md
         ├── methodology/
         ├── portfolio.md
         ├── constitution-extension.md
         ├── clickup-blueprint.md
         └── products/
-            ├── acme-fin.md
-            └── acme-educacional.md
+            ├── novais-fin.md
+            └── novais-educacional.md
 ```
 
 ---
 
 ## Como começar
 
-### Sou dev. Quero usar Forge num projeto novo.
+### Sou dev. Quero usar Foundry num projeto novo.
 
 ```bash
 git clone https://github.com/rafaelnovaes22/agent-governance-framework.git
@@ -192,12 +192,12 @@ cd /caminho/do/seu/projeto
 # segue passos em INSTALL.md
 
 # Após instalar, valide a consistência do framework:
-bash scripts/forge-doctor.sh
+bash scripts/foundry-doctor.sh
 ```
 
 Consulta também [`QUICKSTART.md`](./QUICKSTART.md) e [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
-### Sou DeepAgent. Quero auditar um projeto que usa Forge.
+### Sou DeepAgent. Quero auditar um projeto que usa Foundry.
 
 1. Lê [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) e carrega como system prompt
 2. Recebe `manifest.json` do projeto consumidor como input
@@ -205,7 +205,7 @@ Consulta também [`QUICKSTART.md`](./QUICKSTART.md) e [`ARCHITECTURE.md`](./ARCH
 4. Emite relatório seguindo [`reviewer/output-schema.json`](./reviewer/output-schema.json)
 5. Detalhe completo em [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md)
 
-### Sou mantenedor. Quero evoluir o Forge.
+### Sou mantenedor. Quero evoluir o Foundry.
 
 [`CONTRIBUTING.md`](./CONTRIBUTING.md) descreve o processo (issue → branch → PR → versionamento).
 
@@ -216,10 +216,10 @@ Consulta também [`QUICKSTART.md`](./QUICKSTART.md) e [`ARCHITECTURE.md`](./ARCH
 SemVer estrito:
 
 - **MAJOR** — quebra de Constitution (princípio removido/reformulado)
-- **MINOR** — onda Forge concluída (nova capability)
+- **MINOR** — onda Foundry concluída (nova capability)
 - **PATCH** — correção de template/doc/hook sem mudar contrato
 
-Versão atual em [`docs/forge/manifest.json`](./docs/forge/manifest.json) → `framework.version`.
+Versão atual em [`docs/foundry/manifest.json`](./docs/foundry/manifest.json) → `framework.version`.
 
 ---
 
@@ -231,4 +231,4 @@ Versão atual em [`docs/forge/manifest.json`](./docs/forge/manifest.json) → `f
 
 ## Licença
 
-Repositório privado. Propriedade da **Acme / Novais Digital**. Pode ser replicado em projetos terceiros mediante autorização do mantenedor.
+Repositório privado. Propriedade da **Novais Digital / Novais Digital**. Pode ser replicado em projetos terceiros mediante autorização do mantenedor.

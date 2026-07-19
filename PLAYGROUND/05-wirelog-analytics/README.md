@@ -1,8 +1,8 @@
 # Playground 05 — WireLog Analytics
 
-> **Forge-21 (v0.22.0)** — `analytics_provider` WireLog convivendo com `llm_trace_provider` LangSmith
+> **Foundry-21 (v0.22.0)** — `analytics_provider` WireLog convivendo com `llm_trace_provider` LangSmith
 
-Este playground demonstra como configurar e usar WireLog como `analytics_provider` para rastrear eventos de negócio/outcomes em projetos Acme Forge.
+Este playground demonstra como configurar e usar WireLog como `analytics_provider` para rastrear eventos de negócio/outcomes em projetos Novais Digital Foundry.
 
 ## Estrutura
 
@@ -10,7 +10,7 @@ Este playground demonstra como configurar e usar WireLog como `analytics_provide
 PLAYGROUND/05-wirelog-analytics/
 ├── README.md                           ← este arquivo
 ├── walkthrough.md                      ← guia passo-a-passo
-├── docs/forge/project.json             ← configuração: analytics_provider=wirelog
+├── docs/foundry/project.json             ← configuração: analytics_provider=wirelog
 ├── events/
 │   └── sample-wirelog-events.jsonl     ← 10 eventos fake de referência
 └── queries/
@@ -32,7 +32,7 @@ PLAYGROUND/05-wirelog-analytics/
 Leia o [`walkthrough.md`](./walkthrough.md) para entender os eventos e as queries de auditoria.
 
 Para usar em seu projeto:
-1. Declare `analytics_provider: "wirelog"` em `docs/forge/project.json`
+1. Declare `analytics_provider: "wirelog"` em `docs/foundry/project.json`
 2. Copie `templates/observability/wirelog-adapter.ts.template` para `src/observability/wirelog-adapter.ts`
 3. Configure `WIRELOG_SECRET_KEY` no ambiente
 4. Use as funções de conveniência: `trackOutcomeDelivered`, `trackGateFailed`, `trackEvalCompleted`

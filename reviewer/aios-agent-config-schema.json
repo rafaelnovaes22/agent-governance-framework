@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://acme.com.br/forge/aios-agent-config-schema-v1.json",
-  "title": "Acme Forge — AIOS Agent Config Schema",
-  "description": "Schema canônico para templates/aios/agents/*/config.json.template. Forge-14 / F43.",
+  "$id": "https://novais-digital.com.br/foundry/aios-agent-config-schema-v1.json",
+  "title": "Novais Digital Foundry — AIOS Agent Config Schema",
+  "description": "Schema canônico para templates/aios/agents/*/config.json.template. Foundry-14 / F43.",
   "type": "object",
   "required": ["name", "description", "tools", "meta", "build"],
   "additionalProperties": false,
@@ -43,7 +43,7 @@
         "tier": {
           "type": "string",
           "enum": ["shared", "specialized", "{TIER}"],
-          "description": "shared = stack-agnostic compartilhado entre módulos; specialized = especializado por módulo; {TIER} = placeholder no template para resolução em /acme:aios-init"
+          "description": "shared = stack-agnostic compartilhado entre módulos; specialized = especializado por módulo; {TIER} = placeholder no template para resolução em /novais-digital:aios-init"
         },
         "context_isolation": {
           "type": "boolean",
@@ -61,7 +61,7 @@
         },
         "tdd_phase_aware": {
           "type": "boolean",
-          "description": "True apenas para test_agent (Forge-10 / F26-bis). Habilita modos red/verify."
+          "description": "True apenas para test_agent (Foundry-10 / F26-bis). Habilita modos red/verify."
         },
         "modes": {
           "type": "array",

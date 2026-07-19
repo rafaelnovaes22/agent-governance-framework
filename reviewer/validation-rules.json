@@ -1,12 +1,12 @@
 {
-  "$schema": "https://acme.com.br/forge/validation-rules-v1.json",
+  "$schema": "https://novais-digital.com.br/foundry/validation-rules-v1.json",
   "validation_rules_version": "0.4.0",
   "constitution_version": "0.3.0",
 
-  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/forge/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Forge-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados.",
+  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados.",
 
   "project_config_loader": {
-    "primary_path": "docs/forge/project.json",
+    "primary_path": "docs/foundry/project.json",
     "fallback_defaults": {
       "project_type": "agentic_saas",
       "ai_enabled": true,
@@ -256,11 +256,11 @@
         "checks": [
           {
             "id": "C6.analytics.1",
-            "description": "Desvio DB outcomes ↔ forge_outcome_delivered no WireLog ≤ 5% (WARN) e ≤ 1% (PASS)",
+            "description": "Desvio DB outcomes ↔ foundry_outcome_delivered no WireLog ≤ 5% (WARN) e ≤ 1% (PASS)",
             "validation": "count_comparison",
             "applies_when": "project.telemetry.analytics_provider == 'wirelog' AND project.ai_enabled == true",
             "source_a": {"type": "db", "query": "SELECT COUNT(*) FROM outcomes WHERE status='DELIVERED' AND created_at > NOW() - INTERVAL '30 days'"},
-            "source_b": {"type": "analytics_provider_from_project_json", "event_type": "forge_outcome_delivered"},
+            "source_b": {"type": "analytics_provider_from_project_json", "event_type": "foundry_outcome_delivered"},
             "max_deviation_pct_pass": 1.0,
             "max_deviation_pct_warn": 5.0,
             "severity_above_warn": "FAIL"
@@ -276,10 +276,10 @@
           },
           {
             "id": "C6.analytics.3",
-            "description": "Eventos forge_gate_failed incluem gate_id e lifecycle_stage",
+            "description": "Eventos foundry_gate_failed incluem gate_id e lifecycle_stage",
             "validation": "event_field_presence",
             "applies_when": "project.telemetry.analytics_provider == 'wirelog'",
-            "event_type": "forge_gate_failed",
+            "event_type": "foundry_gate_failed",
             "required_fields": ["gate_id", "artifact_id", "lifecycle_stage"],
             "severity": "WARN"
           },

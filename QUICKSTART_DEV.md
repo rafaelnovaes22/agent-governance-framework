@@ -1,7 +1,7 @@
 # 🛠️ QuickStart Dev — Cheatsheet de 1 Página
 **Leitura: 15 minutos** | **Pré-requisito: git, terminal, Markdown, JSON**
 
-> Tudo o que você precisa para contribuir no Forge ou em projetos que consomem o Forge. Otimizado para **scanning**, não para narrativa.
+> Tudo o que você precisa para contribuir no Foundry ou em projetos que consomem o Foundry. Otimizado para **scanning**, não para narrativa.
 
 ---
 
@@ -13,12 +13,12 @@ agent-governance-framework/
 │   ├── CONSTITUTION.md          ← 8 princípios canônicos (NÃO edite)
 │   ├── settings.json            ← Permissões + hooks ativos
 │   ├── agents/                  ← 10 Guardian subagents
-│   ├── commands/acme/         ← 15 slash commands
+│   ├── commands/novais-digital/         ← 15 slash commands
 │   └── skills/                  ← Skills L0/L1/L2
-├── docs/forge/
+├── docs/foundry/
 │   ├── manifest.json            ← Inventário versionado (fonte de verdade)
 │   ├── decisions.md             ← ADRs F1-F27
-│   ├── roadmap.md               ← 11 ondas Forge
+│   ├── roadmap.md               ← 11 ondas Foundry
 │   └── reviewer-contract.md     ← Contrato DeepAgent
 ├── hooks/
 │   ├── pre-tool-use/            ← 4 hooks (bloqueiam edits inválidos)
@@ -29,9 +29,9 @@ agent-governance-framework/
 │   └── aios/                    ← 6 agentes AIOS portáveis
 ├── reviewer/                    ← Enablement DeepAgent (GPT-5.5)
 ├── scripts/
-│   ├── forge                    ← CLI wrapper unificado
-│   └── forge-doctor.sh          ← Validação completa
-└── examples/acme/             ← Caso real (Acme Fin beta)
+│   ├── foundry                    ← CLI wrapper unificado
+│   └── foundry-doctor.sh          ← Validação completa
+└── examples/novais-digital/             ← Caso real (Novais Digital Fin beta)
 ```
 
 ---
@@ -40,19 +40,19 @@ agent-governance-framework/
 
 ```bash
 # Clonar
-git clone https://github.com/acme-startup/agent-governance-framework.git
+git clone https://github.com/novais-digital/agent-governance-framework.git
 cd agent-governance-framework
 
 # Validar instalação
-bash scripts/forge-doctor.sh
+bash scripts/foundry-doctor.sh
 # Esperado: ✅ 25 OK / 0 WARN / 0 FAIL
 
 # Ver versão
-bash scripts/forge version
-# Esperado: Forge v0.10.0 (Forge-11)
+bash scripts/foundry version
+# Esperado: Foundry v0.10.0 (Foundry-11)
 
 # Ajuda contextual
-bash scripts/forge help
+bash scripts/foundry help
 ```
 
 ---
@@ -63,37 +63,37 @@ bash scripts/forge help
 
 ```bash
 # Pipeline principal (use nessa ordem)
-/acme:diagnose <id>              # 1. Diagnostica nova capability
-/acme:spec --type=<tipo>         # 2. Cria spec contratual
-/acme:plan <id>                  # 3. Plano técnico
-/acme:tasks <id>                 # 4. Decomposição em tasks
-/acme:implement <id>             # 5. Execução TDD-first
-/acme:eval <id>                  # 6. Eval suite
-/acme:promote <id> <stage>       # 7. Promover lifecycle
+/novais-digital:diagnose <id>              # 1. Diagnostica nova capability
+/novais-digital:spec --type=<tipo>         # 2. Cria spec contratual
+/novais-digital:plan <id>                  # 3. Plano técnico
+/novais-digital:tasks <id>                 # 4. Decomposição em tasks
+/novais-digital:implement <id>             # 5. Execução TDD-first
+/novais-digital:eval <id>                  # 6. Eval suite
+/novais-digital:promote <id> <stage>       # 7. Promover lifecycle
 
 # Validação
-/acme:pre-merge-check            # Antes de merge
-/acme:sla-threshold              # Definir SLA contratual
-/acme:unit-economics             # Recalcular custo C3
+/novais-digital:pre-merge-check            # Antes de merge
+/novais-digital:sla-threshold              # Definir SLA contratual
+/novais-digital:unit-economics             # Recalcular custo C3
 
 # Auditoria
-/acme:audit-monthly              # Audit DeepAgent
-/acme:playbook-extract           # Extrair padrões
+/novais-digital:audit-monthly              # Audit DeepAgent
+/novais-digital:playbook-extract           # Extrair padrões
 
-# AIOS pipeline (Forge-10 TDD-first)
-/acme:aios-init                  # Setup AIOS no projeto
-/acme:aios-run                   # Pipeline spec→schema→test(red)→build→test(verify)→review
-/acme:aios-status                # Estado atual
+# AIOS pipeline (Foundry-10 TDD-first)
+/novais-digital:aios-init                  # Setup AIOS no projeto
+/novais-digital:aios-run                   # Pipeline spec→schema→test(red)→build→test(verify)→review
+/novais-digital:aios-status                # Estado atual
 ```
 
 ### Scripts bash
 
 ```bash
-bash scripts/forge-doctor.sh       # Validação completa (25 checks)
-bash scripts/forge start           # Wizard interativo
-bash scripts/forge doctor          # Alias para forge-doctor.sh
-bash scripts/forge mode <vibe|dev> # Definir modo de operação
-bash scripts/forge version         # Versão atual
+bash scripts/foundry-doctor.sh       # Validação completa (25 checks)
+bash scripts/foundry start           # Wizard interativo
+bash scripts/foundry doctor          # Alias para foundry-doctor.sh
+bash scripts/foundry mode <vibe|dev> # Definir modo de operação
+bash scripts/foundry version         # Versão atual
 ```
 
 ---
@@ -107,16 +107,16 @@ bash scripts/forge version         # Versão atual
 .claude/skills/L1/nova-skill.md
 
 # 2. Adicionar entrada em manifest.json
-docs/forge/manifest.json → artifacts.skills.L1[]
+docs/foundry/manifest.json → artifacts.skills.L1[]
 
 # 3. Bump PATCH + CHANGELOG
 ```
 
-### Novo slash command (`.claude/commands/acme/`)
+### Novo slash command (`.claude/commands/novais-digital/`)
 
 ```bash
 # 1. Criar arquivo com frontmatter (description, allowed-tools)
-.claude/commands/acme/novo-verbo.md
+.claude/commands/novais-digital/novo-verbo.md
 
 # 2. Verification gate explícito + output structured
 
@@ -172,11 +172,11 @@ hooks/pre-tool-use/novo-hook.sh  # ou .ps1 para Windows-only
 |----------|--------|:----:|
 | `po-guardian` | Toda spec nova (valida outcome C2 + ICP) | 🔴 ATIVO |
 | `unit-economist` | Spec com cobrança (audita C3) | 🔴 ATIVO |
-| `artifact-architect` | Em `/acme:plan` (valida abstração) | 🟡 CONSULTOR |
-| `eval-engineer` | Em `/acme:eval` (eval-cases) | 🟡 CONSULTOR |
-| `promotion-officer` | Em `/acme:promote` (gate final) | 🔴 ATIVO |
+| `artifact-architect` | Em `/novais-digital:plan` (valida abstração) | 🟡 CONSULTOR |
+| `eval-engineer` | Em `/novais-digital:eval` (eval-cases) | 🟡 CONSULTOR |
+| `promotion-officer` | Em `/novais-digital:promote` (gate final) | 🔴 ATIVO |
 | `observability-guardian` | Pre-merge se ai_enabled=true | ⚪ PASSIVO |
-| `security-privacy-guardian` | Em `/acme:pre-merge-check` | ⚪ PASSIVO |
+| `security-privacy-guardian` | Em `/novais-digital:pre-merge-check` | ⚪ PASSIVO |
 | `code-reviewer-claude` | PRs Claude-generated | ⚪ PASSIVO |
 | `code-reviewer-cross` | PRs antes de merge | ⚪ PASSIVO |
 | `tenant-context-curator` | Multi-tenant declarado | ⚪ PASSIVO |
@@ -216,11 +216,11 @@ hooks/pre-tool-use/novo-hook.sh  # ou .ps1 para Windows-only
 
 | ID | Princípio | Como aplica |
 |----|-----------|-------------|
-| **C1** | Diagnose-before-build | `/acme:diagnose` antes de qualquer capability |
+| **C1** | Diagnose-before-build | `/novais-digital:diagnose` antes de qualquer capability |
 | **C2** | Outcome contratual | Toda spec: 3 exemplos positivos + 3 negativos |
 | **C3** | Unit economics | Custo ≤ 25% do preço (tokens em agentic; infra em platform) |
 | **C4** | Verifiable evaluation | Eval-suite (agentic) ou acceptance gate (platform) |
-| **C5** | ADR | Toda decisão arquitetural em `docs/forge/decisions.md` |
+| **C5** | ADR | Toda decisão arquitetural em `docs/foundry/decisions.md` |
 | **C6** | Observability | LangSmith (`ai_enabled=true`) ou logs estruturados |
 | **C7** | Portability | Isolamento da camada LLM/framework |
 | **C8** | Tenant context | Multi-tenant respeitado se declarado |
@@ -233,18 +233,18 @@ hooks/pre-tool-use/novo-hook.sh  # ou .ps1 para Windows-only
 
 ```
 MAJOR  →  quebra Constitution (raríssimo)
-MINOR  →  onda Forge concluída (nova capability)
+MINOR  →  onda Foundry concluída (nova capability)
 PATCH  →  correção sem mudar contrato
 ```
 
 **Fontes que precisam ficar coerentes:**
-- `docs/forge/manifest.json` → `framework.version` + `manifest_version`
-- `.claude/settings.json` → `_forge_version`
+- `docs/foundry/manifest.json` → `framework.version` + `manifest_version`
+- `.claude/settings.json` → `_foundry_version`
 - `README.md` → badge `version-X.Y.Z`
 - `CHANGELOG.md` → última entrada `[X.Y.Z]`
-- `docs/forge/decisions.md` → header
+- `docs/foundry/decisions.md` → header
 
-**Forge-doctor valida coerência em 4 fontes (check C3).**
+**Foundry-doctor valida coerência em 4 fontes (check C3).**
 
 ---
 
@@ -252,16 +252,16 @@ PATCH  →  correção sem mudar contrato
 
 | # | Erro | Causa | Solução |
 |---|------|-------|---------|
-| 1 | `forge-doctor` falha em C2 (path missing) | Arquivo referenciado em manifest mas não existe | Criar arquivo OU remover entrada do manifest |
-| 2 | `forge-doctor` falha em C3 (version mismatch) | Versão divergente entre 4 fontes | Sincronizar: manifest, settings, README, CHANGELOG |
-| 3 | `forge-doctor` warning C6 (artefato órfão) | Arquivo existe mas não está no manifest | Adicionar entrada com `sha256`, `path`, `type` |
+| 1 | `foundry-doctor` falha em C2 (path missing) | Arquivo referenciado em manifest mas não existe | Criar arquivo OU remover entrada do manifest |
+| 2 | `foundry-doctor` falha em C3 (version mismatch) | Versão divergente entre 4 fontes | Sincronizar: manifest, settings, README, CHANGELOG |
+| 3 | `foundry-doctor` warning C6 (artefato órfão) | Arquivo existe mas não está no manifest | Adicionar entrada com `sha256`, `path`, `type` |
 | 4 | `outcome-clause-guard` bloqueia spec | Spec sem outcome contratual definido | Adicionar bloco "## Outcome" com 3 exemplos +/- |
-| 5 | `adr-approval-gate` bloqueia edit | Mudança arquitetural sem ADR | Criar ADR em `docs/forge/decisions.md` (Fxx) |
+| 5 | `adr-approval-gate` bloqueia edit | Mudança arquitetural sem ADR | Criar ADR em `docs/foundry/decisions.md` (Fxx) |
 | 6 | `secret-scan` bloqueia commit | Detectou padrão de secret | Mover para `.env` (gitignored) + revisar regex |
 | 7 | `po-guardian` rejeita spec | Outcome vago ou ICP fit incorreto | Reescrever outcome em 1 frase verificável |
 | 8 | `unit-economist` falha C3 | Custo > 25% do preço | Reduzir custo OU aumentar preço OU justificar com ADR |
 | 9 | Hash sha256 incorreto no manifest | CRLF vs LF | `sha256sum arquivo \| cut -c1-16` (LF preferido) |
-| 10 | TDD red phase missing | Módulo modificado sem testes em `tests/{module}/unit/` | Criar testes RED antes do build (`/acme:aios-run`) |
+| 10 | TDD red phase missing | Módulo modificado sem testes em `tests/{module}/unit/` | Criar testes RED antes do build (`/novais-digital:aios-run`) |
 
 ---
 
@@ -276,11 +276,11 @@ agent-governance-framework/                    projeto-consumidor/
 │   └── settings.json            │   ├── settings.json
 │                                │   └── settings.local.json (gitignored)
 ├── templates/                   ├── templates/      (cópia canônica)
-├── docs/forge/                  ├── docs/forge/     (cópia canônica)
+├── docs/foundry/                  ├── docs/foundry/     (cópia canônica)
 └── CLAUDE.md.template           └── CLAUDE.md       (adaptado)
 ```
 
-**Sync entre forge e consumidor:** `cp -r` ou symlink.
+**Sync entre foundry e consumidor:** `cp -r` ou symlink.
 
 ---
 
@@ -288,23 +288,23 @@ agent-governance-framework/                    projeto-consumidor/
 
 ```bash
 # Antes de mudar
-bash scripts/forge-doctor.sh                  # baseline limpo
+bash scripts/foundry-doctor.sh                  # baseline limpo
 
 # Fazer mudança (skill / command / hook / template)
 # ...
 
 # Validar
-bash scripts/forge-doctor.sh                  # deve continuar 25 OK
+bash scripts/foundry-doctor.sh                  # deve continuar 25 OK
 
 # Validar JSON específico
-node -e "JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8'))"
+node -e "JSON.parse(require('fs').readFileSync('docs/foundry/manifest.json','utf8'))"
 
 # Recalcular hash
 sha256sum templates/novo.md | cut -c1-16
 
 # Commit
 git add <arquivos específicos>                # NUNCA git add .
-git commit -m "feat(forge-N): descrição — Fxx vY.Z.W"
+git commit -m "feat(foundry-N): descrição — Fxx vY.Z.W"
 
 # Push
 git push origin master
@@ -320,8 +320,8 @@ git push origin master
 | [`HELLO.md`](./HELLO.md) | Landing adaptativo (você está aqui via essa porta) |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Decisões arquiteturais |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Workflow de PR |
-| [`docs/forge/decisions.md`](./docs/forge/decisions.md) | ADRs F1-F27 |
-| [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) | Próximas ondas |
+| [`docs/foundry/decisions.md`](./docs/foundry/decisions.md) | ADRs F1-F27 |
+| [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md) | Próximas ondas |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Histórico de versões |
 | [`GLOSSARY.md`](./GLOSSARY.md) | Termos técnicos |
 | [`templates/master-prompt.md`](./templates/master-prompt.md) | Orquestrador universal (referência operacional completa) |
@@ -332,7 +332,7 @@ git push origin master
 
 ```bash
 # Checklist mecânico
-[ ] bash scripts/forge-doctor.sh → 0 FAIL, ideal 0 WARN
+[ ] bash scripts/foundry-doctor.sh → 0 FAIL, ideal 0 WARN
 [ ] git diff --stat → mudanças contidas
 [ ] manifest.json válido: node -e "JSON.parse(...)"
 [ ] CHANGELOG.md tem entrada da versão
@@ -354,6 +354,6 @@ git push origin master
 
 ---
 
-**Está perdido? Rode:** `bash scripts/forge start` (wizard interativo)
+**Está perdido? Rode:** `bash scripts/foundry start` (wizard interativo)
 **Confuso com termo?** [`GLOSSARY.md`](./GLOSSARY.md)
 **Falando com agente IA neste repo?** referencie [`templates/master-prompt.md`](./templates/master-prompt.md)

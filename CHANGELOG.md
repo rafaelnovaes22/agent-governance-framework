@@ -1,10 +1,10 @@
-# Changelog — Acme Forge
+# Changelog — Novais Digital Foundry
 
 Todas as mudanças notáveis neste framework são documentadas aqui.
 
 Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [SemVer](https://semver.org/):
 - **MAJOR** — quebra de Constitution (princípio removido/reformulado)
-- **MINOR** — onda Forge concluída (nova capability)
+- **MINOR** — onda Foundry concluída (nova capability)
 - **PATCH** — correção de template/doc/hook sem mudar contrato
 
 ---
@@ -13,14 +13,14 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ### Fixed (patch — drift residual de Langfuse)
 
-Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e WireLog como `analytics_provider`, mas três menções residuais a Langfuse permaneceram em `.claude/CONSTITUTION.md`. Esta patch sana o drift documental sem alterar contrato.
+Foundry-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e WireLog como `analytics_provider`, mas três menções residuais a Langfuse permaneceram em `.claude/CONSTITUTION.md`. Esta patch sana o drift documental sem alterar contrato.
 
 **`.claude/CONSTITUTION.md`**:
 - Linha 115 (audit C3): "tracing 30d (Langfuse/equivalente)" → "tracing 30d (LangSmith/equivalente)"
 - Linha 220 (provider table C6): lista de provedores agora inclui `langsmith` antes de `langfuse / helicone / phoenix / custom` (LangSmith é o canônico, alternativas permanecem por C7)
 - Linha 230 (lint regex C6): exemplo de instrumentação atualizado de `langfuse.observe()` para `traceable()` do LangSmith
 
-**Sem impacto em contratos**: a Constituição já era provider-agnostic ("Forge não opina sobre o provedor"). Esta patch apenas alinha os exemplos ao provedor canônico declarado em F56.
+**Sem impacto em contratos**: a Constituição já era provider-agnostic ("Foundry não opina sobre o provedor"). Esta patch apenas alinha os exemplos ao provedor canônico declarado em F56.
 
 **Próximo passo (consumidores)**: projetos que herdaram cópia da CONSTITUTION antes desta patch (notadamente Aicfo v0.21.0) devem sincronizar.
 
@@ -28,11 +28,11 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 ## [0.22.0] — 2026-05-26
 
-### Added (Forge-21 — WireLog analytics_provider)
+### Added (Foundry-21 — WireLog analytics_provider)
 
 **WireLog entra como `analytics_provider` canônico — C6 bifurcado em `llm_trace_provider` (LangSmith) + `analytics_provider` (WireLog).**
 
-**Decisão F56 (docs/forge/decisions.md)**:
+**Decisão F56 (docs/foundry/decisions.md)**:
 - WireLog é o `analytics_provider` para eventos de negócio/outcomes
 - LangSmith permanece como `llm_trace_provider` para traces LLM
 - Os dois coexistem e se complementam — WireLog nunca substitui LangSmith
@@ -45,7 +45,7 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Regra de desvio DB↔WireLog: ≤ 1% PASS / ≤ 5% WARN / > 5% FAIL
 
 **Novo `templates/observability/wirelog-adapter.ts.template`**:
-- Adapter TypeScript portável com interface pública: `trackForgeEvent`, `identifyForgeActor`, `flushForgeAnalytics`
+- Adapter TypeScript portável com interface pública: `trackFoundryEvent`, `identifyFoundryActor`, `flushFoundryAnalytics`
 - Helpers de conveniência: `trackOutcomeDelivered`, `trackGateFailed`, `trackEvalCompleted`
 - PII guard automático: `stripForbiddenFields` remove campos proibidos antes do envio
 - No-op silencioso quando `WIRELOG_SECRET_KEY` não configurado — nunca quebra a aplicação
@@ -64,9 +64,9 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Nova seção `C6_analytics` com 5 checks: desvio DB↔WireLog, ausência de PII, campos obrigatórios em gate_failed, adapter presente (C7), WARN em AUTONOMOUS sem analytics_provider
 
 **Atualizado `reviewer/prompt.template.md` (v0.6.0)**:
-- Nova seção `v0.6.0 (Forge-21)` com checks C6.analytics.*, separação de responsabilidades, queries WireLog e lista de what NOT to check
+- Nova seção `v0.6.0 (Foundry-21)` com checks C6.analytics.*, separação de responsabilidades, queries WireLog e lista de what NOT to check
 
-**Atualizado `docs/forge/reviewer-contract.md` (v0.3.0)**:
+**Atualizado `docs/foundry/reviewer-contract.md` (v0.3.0)**:
 - Nova seção 3.9 para analytics_provider como input do reviewer
 - Cruzamento DB outcomes ↔ WireLog events documentado
 
@@ -94,15 +94,15 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - `GLOSSARY.md`: termos `analytics_provider` e `WireLog` adicionados; C1-C8 atualizado para v0.3.0
 - `GLOSSARY_PLAIN.md`: `WireLog` em linguagem simples para CEO
 - `DEEPAGENT_GUIDE.md`: analytics_provider adicionado como pré-requisito
-- `docs/forge/roadmap.md`: Forge-21 marcado como ✅
+- `docs/foundry/roadmap.md`: Foundry-21 marcado como ✅
 
 ---
 
 ## [0.21.0] — 2026-05-18
 
-### Added (Forge-20 — Self-Harness Loop)
+### Added (Foundry-20 — Self-Harness Loop)
 
-**Self-harness loop fechado: o Forge e cada agente consumer aprendem de sessão para sessão via Hermes/Codex learning orchestrator.**
+**Self-harness loop fechado: o Foundry e cada agente consumer aprendem de sessão para sessão via Hermes/Codex learning orchestrator.**
 
 **Arquitetura:** SessionStart carrega soul+memory → execução → Stop hook gera snapshot → Hermes/Codex sintetiza → PR com novos fatos → próxima sessão carrega memória atualizada.
 
@@ -113,7 +113,7 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - C8 guard: marca `is_internal: true` se nenhum diagnostic.md identificado
 - Produz `docs/learnings/{YYYY-MM}/{session-id}.md` com YAML frontmatter rastreável (C6)
 
-**Atualizado `hooks/session-start/forge-context.sh` (v0.2.0):**
+**Atualizado `hooks/session-start/foundry-context.sh` (v0.2.0):**
 - Carrega `agent-soul.md` e `agent-memory.md` de `docs/clients/{id}/` se existirem
 - Injeta identidade e fatos aprendidos no contexto da sessão antes de qualquer prompt
 - Completa o loop: o que o Hermes aprende e commita de volta via PR chega na próxima sessão
@@ -130,14 +130,14 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Prompt Codex estruturado para decidir "should I persist?" com critérios de qualidade
 
 **Novo `templates/hermes/hermes-plugin/agent-governance-framework-memory/plugin.yaml`:**
-- Plugin Hermes com 4 tools: `forge_recall_memory`, `forge_store_learning`, `forge_get_soul`, `forge_propose_pr`
-- Hook `post_forge_run` triggered automaticamente após webhook com exit_code=0
+- Plugin Hermes com 4 tools: `foundry_recall_memory`, `foundry_store_learning`, `foundry_get_soul`, `foundry_propose_pr`
+- Hook `post_foundry_run` triggered automaticamente após webhook com exit_code=0
 - PII guard integrado: bloqueia CPF/CNPJ/email/tokens antes de qualquer escrita
 
 **Novo `.claude/agents/learning-curator.md`:**
 - Guardian que revisa snapshots e decide quais fatos persistir em `agent-memory.md`
 - Critérios: acionável, específico, verificável, novo, seguro, rastreável (C6)
-- Invocado automaticamente pelo forge-router após implement/promote/audit
+- Invocado automaticamente pelo foundry-router após implement/promote/audit
 - NUNCA modifica `.claude/skills/` canônicas; escreve apenas em `docs/clients/{id}/`
 
 **Nova `.claude/skills/L1/self-harness.md`:**
@@ -146,35 +146,35 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Checklist de compliance C1-C5-C6-C7-C8 e tabela por guardian (o que cada um aprende)
 - Seção de depuração (agent não lembra / snapshots gerados mas fatos não persistidos)
 
-**Atualizado `.github/workflows/forge-headless.yml`:**
+**Atualizado `.github/workflows/foundry-headless.yml`:**
 - Novo step "Extrair learning snapshot" após execução: localiza snapshot gerado pelo Stop hook
-- Webhook callback agora inclui: `event: forge_run_completed`, `learning_snapshot_path`, `learning_snapshot_content`, `is_internal`
+- Webhook callback agora inclui: `event: foundry_run_completed`, `learning_snapshot_path`, `learning_snapshot_content`, `is_internal`
 - HMAC signature calculada com `openssl dgst` antes do POST para Hermes Railway
 
-**Decisão F55 em `docs/forge/decisions.md`** — Forge-20: self-harness loop, compliance C1-C8, alternatives considered.
+**Decisão F55 em `docs/foundry/decisions.md`** — Foundry-20: self-harness loop, compliance C1-C8, alternatives considered.
 
 ---
 
 ## [0.20.0] — 2026-05-18
 
-### Added (Forge-19 — Hermes Agent integration)
+### Added (Foundry-19 — Hermes Agent integration)
 
-**Integração Hermes Agent (Nous Research) + Acme Forge: operação remota via Telegram sem dependência da máquina local.**
+**Integração Hermes Agent (Nous Research) + Novais Digital Foundry: operação remota via Telegram sem dependência da máquina local.**
 
 **Arquitetura:** Hermes (Railway, Codex/OpenAI como cérebro) → `gh workflow run` → GitHub Actions runner (Claude Code headless) → artifact JSON + callback → Telegram.
 
-**Novo `.github/workflows/forge-headless.yml` (F27):**
+**Novo `.github/workflows/foundry-headless.yml` (F27):**
 
 - Workflow `workflow_dispatch` + `workflow_call` com inputs `command/consumers/args/caller_id/caller_intent`.
 - Matrix strategy: expande CSV de consumers em N jobs paralelos com `fail-fast: false` (cada consumer é isolado).
-- Allowlist de segurança: comandos write (`/acme:implement`, `/acme:promote`) bloqueados para `caller_id` fora de `HERMES_PRIVILEGED_CHAT_IDS`.
+- Allowlist de segurança: comandos write (`/novais-digital:implement`, `/novais-digital:promote`) bloqueados para `caller_id` fora de `HERMES_PRIVILEGED_CHAT_IDS`.
 - Audit trail por run: artifact JSON com timestamp, caller_id, consumer, command, exit_code (C6).
 - Callback opcional para Hermes Railway via `HERMES_WEBHOOK_URL` (HMAC assinado).
-- Exit codes semânticos: 0 ok, 2 allowlist bloqueou, 4 consumer não é projeto Forge.
+- Exit codes semânticos: 0 ok, 2 allowlist bloqueou, 4 consumer não é projeto Foundry.
 
-**Novo `templates/hermes/forge.skill.md` (F27):**
+**Novo `templates/hermes/foundry.skill.md` (F27):**
 
-- Skill agentskills.io para o Hermes/Codex: catálogo dos 9 intents do `forge-router` espelhado, mapping intent → `gh workflow run`, lista de consumers disponíveis, política de allowlist, formato de resposta no Telegram.
+- Skill agentskills.io para o Hermes/Codex: catálogo dos 9 intents do `foundry-router` espelhado, mapping intent → `gh workflow run`, lista de consumers disponíveis, política de allowlist, formato de resposta no Telegram.
 - Linked principles: C1, C6.
 
 **Novo `templates/hermes/status-fast.md` (F27):**
@@ -185,34 +185,34 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 **Novo `templates/hermes/railway/env.example` (F27):**
 
 - Template de variáveis de ambiente para configurar no Railway dashboard do serviço Hermes.
-- Cobre: `GH_TOKEN`, `FORGE_REPO`, `HERMES_WEBHOOK_URL/SECRET`, `HERMES_PRIVILEGED_CHAT_IDS`, paralelismo, polling interval.
+- Cobre: `GH_TOKEN`, `FOUNDRY_REPO`, `HERMES_WEBHOOK_URL/SECRET`, `HERMES_PRIVILEGED_CHAT_IDS`, paralelismo, polling interval.
 
-**Novo `docs/forge/hermes-integration.md` (F27):**
+**Novo `docs/foundry/hermes-integration.md` (F27):**
 
 - Manual canônico: pré-requisitos, instalação passo a passo (secrets GH + Railway env + skill install), catálogo de comandos via Telegram, adição de consumers, limites de segurança, troubleshooting, evolução planejada.
 
-**Atualizado `docs/forge/manifest.json`:**
+**Atualizado `docs/foundry/manifest.json`:**
 
 - Novo bloco `integrations.hermes` com todos os 5 artefatos, SHAs e `linked_principles`.
-- Bump `manifest_version`, `framework.version`, `framework.last_updated`, `framework.phase` para Forge-19.
+- Bump `manifest_version`, `framework.version`, `framework.last_updated`, `framework.phase` para Foundry-19.
 
 ---
 
 ## [0.19.0] — 2026-05-14
 
-### Added (Forge-18 — Skills de migração e segurança LLM)
+### Added (Foundry-18 — Skills de migração e segurança LLM)
 
 **Dois skills que fecham gaps de risco específicos do ecossistema LLM: migrações de SDK sem regressão e hardening contra ameaças que web security clássica não cobre.**
 
 **Nova skill `.claude/skills/L1/sdk-migration.md` v1.0.0 (F53):**
 
-- Gerencia migrações de Anthropic SDK, Langfuse, Prisma e atualizações do Forge framework em consumer projects.
+- Gerencia migrações de Anthropic SDK, Langfuse, Prisma e atualizações do Foundry framework em consumer projects.
 - Decisão de migração: 5 perguntas (valor único? escopo? substituto pronto? custo migration vs manutenção? risco de regressão?).
-- 3 tipos de migração: Tipo A (SDK externo — C7 torna barato, toca máx. 2–3 arquivos), Tipo B (modelo LLM depreciado — re-eval obrigatória, grep por hardcode detecta violações C8), Tipo C (Forge framework PATCH/MINOR/MAJOR — cada nível com processo específico).
+- 3 tipos de migração: Tipo A (SDK externo — C7 torna barato, toca máx. 2–3 arquivos), Tipo B (modelo LLM depreciado — re-eval obrigatória, grep por hardcode detecta violações C8), Tipo C (Foundry framework PATCH/MINOR/MAJOR — cada nível com processo específico).
 - Padrões: Strangler (SHADOW como strangler routing natural), Adapter (o `src/llm/adapters/` IS o Adapter Pattern), Feature Flag via TenantContext (nunca `if model === X` no código de negócio — C8).
-- Código zumbi Forge: skills/commands sem consumer ativo há 3+ meses → deprecar com prazo ou atribuir dono.
+- Código zumbi Foundry: skills/commands sem consumer ativo há 3+ meses → deprecar com prazo ou atribuir dono.
 - Advisory vs Compulsório: default advisory, compulsório quando há vulnerabilidade, deadline de remoção ou breaking change com data.
-- Regra do Churn: mantenedor do Forge que bumpa breaking change é responsável pelo migration guide + forge-sync.sh + suporte N-1.
+- Regra do Churn: mantenedor do Foundry que bumpa breaking change é responsável pelo migration guide + foundry-sync.sh + suporte N-1.
 - Re-eval obrigatória: mudança de modelo ou formato de prompt → re-eval. Mudança de cliente HTTP interno → não.
 
 **Nova skill `.claude/skills/L2/llm-security-hardening.md` v1.0.0 (F53):**
@@ -231,38 +231,38 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 ## [0.18.0] — 2026-05-14
 
-### Added (Forge-17 — Skills SDLC fase 2 adaptadas de agent-skills)
+### Added (Foundry-17 — Skills SDLC fase 2 adaptadas de agent-skills)
 
-**Três skills que completam a camada SDLC do Forge, segunda rodada da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). Cobrem as lacunas de: integração SDK sem risco de padrões depreciados, disciplina de execução dentro das ondas do pipeline, e curadoria de contexto além da injeção automática do SessionStart.**
+**Três skills que completam a camada SDLC do Foundry, segunda rodada da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). Cobrem as lacunas de: integração SDK sem risco de padrões depreciados, disciplina de execução dentro das ondas do pipeline, e curadoria de contexto além da injeção automática do SessionStart.**
 
 **Nova skill `.claude/skills/L2/source-driven-implementation.md` v1.0.0 (F52):**
 
-- Adapta source-driven-development para o ecossistema Forge: Anthropic SDK, Langfuse, Prisma, ClickUp.
+- Adapta source-driven-development para o ecossistema Foundry: Anthropic SDK, Langfuse, Prisma, ClickUp.
 - Processo em 4 steps: detectar versão em `package.json` com script Python, buscar documentação oficial (hierarquia: docs.anthropic.com > langfuse.com/docs > prisma.io/docs), implementar seguindo padrões documentados, citar fontes com URLs completas.
 - "STACK DETECTADA" declaration format para anunciar versões detectadas antes de implementar.
 - "CONFLITO DETECTADO" pattern para surfaçar divergência entre doc e código existente ao usuário (nunca resolver silenciosamente).
 - "NÃO-VERIFICADO" tag para padrões não cobertos por documentação oficial.
 - Integração com C7 (adapters/ sempre verificando doc da versão instalada), C6 (assinatura correta de `observe()` por versão), C8 (documentação mostra model hardcoded — parametrizar).
-- Tabela de fontes primárias para o ecossistema Forge com seções críticas de cada SDK.
+- Tabela de fontes primárias para o ecossistema Foundry com seções críticas de cada SDK.
 - Racionalizações comuns + red flags para garantir adoção.
 
 **Nova skill `.claude/skills/L2/wave-implementation.md` v1.0.0 (F52):**
 
-- Disciplina de execução dentro das ondas do pipeline `/acme:tasks` — adapta incremental-implementation para o contexto Forge.
-- Ciclo: Implementar → forge-doctor → Commit → Próxima fatia.
-- 3 estratégias de fatiamento: vertical (padrão), TDD-red first (Forge-10 obrigatório para agentic), risk-first (para integrações externas).
+- Disciplina de execução dentro das ondas do pipeline `/novais-digital:tasks` — adapta incremental-implementation para o contexto Foundry.
+- Ciclo: Implementar → foundry-doctor → Commit → Próxima fatia.
+- 3 estratégias de fatiamento: vertical (padrão), TDD-red first (Foundry-10 obrigatório para agentic), risk-first (para integrações externas).
 - Regra 0.5 Scope Discipline C8-aware: não adicionar código tenant-specific enquanto implementa feature genérico.
-- Integração com `forge-release-discipline`: save point pattern, commit format, manifest sync por onda.
-- Regra: `forge-doctor.sh` com 0 FAILs é o gate entre commits — não pular, não "resolver depois".
+- Integração com `foundry-release-discipline`: save point pattern, commit format, manifest sync por onda.
+- Regra: `foundry-doctor.sh` com 0 FAILs é o gate entre commits — não pular, não "resolver depois".
 - Checklist entre fatias com verificações de C6 (observe() presente) e C8 (nenhum tenant hardcoded).
-- Red flags: >100 linhas sem forge-doctor, tenant hardcode "provisório", C6 adiada.
+- Red flags: >100 linhas sem foundry-doctor, tenant hardcode "provisório", C6 adiada.
 
 **Nova skill `.claude/skills/L1/context-engineering.md` v1.0.0 (F52):**
 
-- Documenta como a hierarquia L0/L1/L2 *é* context engineering para o Forge.
+- Documenta como a hierarquia L0/L1/L2 *é* context engineering para o Foundry.
 - Mapeamento C5 → hierarquia de contexto: Estratégico = L0 + CLAUDE.md (sempre presente), Tático = manifest + spec (por sessão/feature), Operacional = código fonte + erros (por tarefa).
-- CLAUDE.md como rules file de maior alavancagem: template com stack, comandos, princípios ativos e padrões Forge.
-- SessionStart hook (`forge-context.sh`) como injeção automática do nível 1 e 2.
+- CLAUDE.md como rules file de maior alavancagem: template com stack, comandos, princípios ativos e padrões Foundry.
+- SessionStart hook (`foundry-context.sh`) como injeção automática do nível 1 e 2.
 - 3 estratégias de empacotamento: Brain Dump (início de sessão), Selective Include (por tarefa), Hierarchical Summary (projetos grandes).
 - "CONFLITO DE CONTEXTO" pattern: surfaçar conflito entre spec e Constitution em vez de resolver silenciosamente.
 - "REQUISITO FALTANDO" pattern: parar e perguntar em vez de inventar comportamento.
@@ -272,74 +272,74 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 ### Fixed
 
-- **manifest.json**: removidas entradas duplicadas de `skill-forge-release-discipline`, `skill-debugging-pipeline` e `skill-prompt-simplification` (introduzidas por bug no script de atualização em v0.17.0).
+- **manifest.json**: removidas entradas duplicadas de `skill-foundry-release-discipline`, `skill-debugging-pipeline` e `skill-prompt-simplification` (introduzidas por bug no script de atualização em v0.17.0).
 
 ---
 
 ## [0.17.0] — 2026-05-14
 
-### Added (Forge-16 — Skills SDLC adaptadas de agent-skills)
+### Added (Foundry-16 — Skills SDLC adaptadas de agent-skills)
 
-**Três skills operacionais que completam a camada de desenvolvimento do Forge, adaptadas da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). O Forge tinha 9 skills de governança; esta onda adiciona 3 skills de engenharia do dia-a-dia.**
+**Três skills operacionais que completam a camada de desenvolvimento do Foundry, adaptadas da análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills). O Foundry tinha 9 skills de governança; esta onda adiciona 3 skills de engenharia do dia-a-dia.**
 
 **Nova skill `.claude/skills/L2/debugging-pipeline.md` v1.0.0 (F51):**
 
-- Depuração sistemática de artefatos Forge: tabela de artefatos × sintomas típicos × onde buscar evidência (hooks, evals, SHADOW, manifest).
+- Depuração sistemática de artefatos Foundry: tabela de artefatos × sintomas típicos × onde buscar evidência (hooks, evals, SHADOW, manifest).
 - Regra Pare-a-Linha: 6 steps (parar → preservar → diagnosticar → corrigir → guardar → retomar).
 - Checklist de triagem em 6 steps: reproduzir → localizar → reduzir → corrigir causa raiz → guardar contra recorrência → verificar end-to-end.
 - Padrões por tipo de falha: hook bash (JSON malformado, caminho relativo, dependência ausente, timeout), eval regression (prompt_hash, cases desatualizados, modelo mudou, PII), SHADOW drift (volume, prompt editado sem re-eval, trace ausente, tenant hardcode).
-- Tabela de causas raiz comuns mapeadas a soluções Forge concretas.
+- Tabela de causas raiz comuns mapeadas a soluções Foundry concretas.
 - Seção "saída de erro como dado não confiável" — anti-prompt-injection via eval cases ou logs externos.
-- Integrado com `bash scripts/forge-doctor.sh` e `/acme:pre-merge-check` na etapa de verificação.
+- Integrado com `bash scripts/foundry-doctor.sh` e `/novais-digital:pre-merge-check` na etapa de verificação.
 
 **Nova skill `.claude/skills/L2/prompt-simplification.md` v1.0.0 (F51):**
 
-- Simplificação de prompts Forge (redução de custo C3 sem mudar comportamento de eval) e código de consumer project (integra com pre-merge-check G1-G3).
+- Simplificação de prompts Foundry (redução de custo C3 sem mudar comportamento de eval) e código de consumer project (integra com pre-merge-check G1-G3).
 - 5 princípios: preservar comportamento exatamente, respeitar hierarquia de tier C5, clareza > compactação, manter balance (não simplificação excessiva), escopo no que mudou.
 - Processo em 4 steps: entender antes de tocar (Cerca de Chesterton), identificar oportunidades (tabela de padrões para prompts e código), aplicar incrementalmente (eval após cada mudança), verificar o resultado.
 - 4 padrões de compressão de prompt: remover redundância de contexto L0, consolidar instruções duplicadas, trocar parágrafo por template, substituir exemplo genérico por calibrador.
 - Tabela de padrões de código: nesting profundo → guard clauses, ternário encadeado → if/else, C8 violation → TenantContext, C6 violation → observe(), C7 violation → adapters/.
 - Regra: nunca remover exemplos do 3+3 sem verificação via eval.
 
-**Nova skill `.claude/skills/L1/forge-release-discipline.md` v1.0.0 (F51):**
+**Nova skill `.claude/skills/L1/foundry-release-discipline.md` v1.0.0 (F51):**
 
-- Disciplina de versionamento SemVer + git workflow para o Forge framework e projetos consumidores.
-- Tabela MAJOR/MINOR/PATCH com exemplos Forge concretos e regra do MAJOR (ADR obrigatória).
-- Checklist de 5 artefatos por release MINOR: manifest.json + CHANGELOG.md + README.md + decisions.md + forge-doctor 0 FAIL.
-- Padrão de commit: `type(scope): descrição` com types e scopes específicos Forge (`skill-L0`, `skill-L1`, `skill-L2`, `hook`, `command`, `agent`).
-- Save point pattern: commit após cada task que passa no forge-doctor, reverter se falhar.
+- Disciplina de versionamento SemVer + git workflow para o Foundry framework e projetos consumidores.
+- Tabela MAJOR/MINOR/PATCH com exemplos Foundry concretos e regra do MAJOR (ADR obrigatória).
+- Checklist de 5 artefatos por release MINOR: manifest.json + CHANGELOG.md + README.md + decisions.md + foundry-doctor 0 FAIL.
+- Padrão de commit: `type(scope): descrição` com types e scopes específicos Foundry (`skill-L0`, `skill-L1`, `skill-L2`, `hook`, `command`, `agent`).
+- Save point pattern: commit após cada task que passa no foundry-doctor, reverter se falhar.
 - Change summary pós-wave: "MUDANÇAS FEITAS / COISAS QUE NÃO TOQUEI / PONTOS DE ATENÇÃO".
-- Higiene pré-commit: forge-doctor → JSON válido → grep secrets → diff staged.
+- Higiene pré-commit: foundry-doctor → JSON válido → grep secrets → diff staged.
 - Tabela de arquivos que nunca vão para git vs arquivos que são commitados.
-- Uso de `git bisect` com `forge-doctor` para encontrar commit que introduziu violação.
+- Uso de `git bisect` com `foundry-doctor` para encontrar commit que introduziu violação.
 
 ---
 
 ## [0.16.0] — 2026-05-14
 
-### Added (Forge-15 — SessionStart hook + orchestration patterns + doubt-driven-review)
+### Added (Foundry-15 — SessionStart hook + orchestration patterns + doubt-driven-review)
 
 **Três lacunas identificadas via análise comparativa com [agent-skills](https://github.com/addyosmani/agent-skills): fricção de descoberta no início de sessão, ausência de guia de orquestração declarado, e sem mecanismo estruturado de revisão adversarial pré-SHADOW. Esta onda fecha as três.**
 
-**Novo hook `hooks/session-start/forge-context.sh` v1.0.0 (F50):**
+**Novo hook `hooks/session-start/foundry-context.sh` v1.0.0 (F50):**
 
 - Hook `SessionStart` que roda automaticamente a cada nova sessão do Claude Code.
-- Lê `docs/forge/manifest.json` para obter versão do framework.
-- Lê `docs/forge/project.json` do projeto consumidor (se existir) para exibir `project_type`, `ai_enabled`, `lifecycle_stage` e contagem de artefatos ativos.
-- Injeta conteúdo completo da meta-skill `using-forge.md` como mensagem `IMPORTANT` no início de toda sessão.
+- Lê `docs/foundry/manifest.json` para obter versão do framework.
+- Lê `docs/foundry/project.json` do projeto consumidor (se existir) para exibir `project_type`, `ai_enabled`, `lifecycle_stage` e contagem de artefatos ativos.
+- Injeta conteúdo completo da meta-skill `using-foundry.md` como mensagem `IMPORTANT` no início de toda sessão.
 - Fallback gracioso se `jq` não estiver instalado (informação mínima via python3).
 
-**Nova meta-skill `.claude/skills/L0/using-forge.md` v1.0.0 (F50):**
+**Nova meta-skill `.claude/skills/L0/using-foundry.md` v1.0.0 (F50):**
 
 - Flowchart de descoberta completo: de "novo cliente" até "audit mensal", com rota correta para cada tarefa.
-- Tabela decisória: quando usar skill L0/L1/L2 diretamente vs invocar Guardian vs rodar `/acme:*` command.
+- Tabela decisória: quando usar skill L0/L1/L2 diretamente vs invocar Guardian vs rodar `/novais-digital:*` command.
 - Hierarquia de contexto C5 documentada com regra de "nunca pular tiers".
 - 5 comportamentos obrigatórios: surface assumptions, parar em incerteza, outcome antes de tudo (C2), custo visível (C3), observabilidade em tudo (C6).
 - Modos de operação (vibe/dev/agent) com critérios de detecção.
 - Quick reference de todos os 14 commands com one-liner.
 - Sequência típica por `project_type` (agentic_saas vs platform).
 
-**Novo `docs/forge/orchestration-patterns.md` v1.0.0 (F50):**
+**Novo `docs/foundry/orchestration-patterns.md` v1.0.0 (F50):**
 
 - 6 padrões endossados: invocação direta, slash command como wrapper, fan-out paralelo com merge (promote gate), pipeline sequencial com usuário como orquestrador, isolamento de pesquisa, fan-out de review (pre-merge).
 - 5 anti-padrões documentados: Guardian roteador (meta-orquestrador), Guardian-calls-Guardian, orquestrador sequencial que parafraseia, árvores profundas de Guardian, skill que viola hierarquia de tier C5.
@@ -349,29 +349,29 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 **Nova skill `.claude/skills/L2/doubt-driven-review.md` v1.0.0 (F50):**
 
-- Revisão adversarial fresh-context de artefatos Forge não-triviais antes de SHADOW/promote/merge.
+- Revisão adversarial fresh-context de artefatos Foundry não-triviais antes de SHADOW/promote/merge.
 - Ciclo de 5 steps: AFIRMAÇÃO → EXTRAÇÃO → DUVIDAR → RECONCILIAR → PARAR.
 - Artefatos-alvo: `prompts/{id}/v{n}/system.md`, `docs/specs/{id}.md`, `evals/{id}/cases/`, `docs/clients/{client}/plan-{id}.md`.
-- Tabela de integração com Gates do Forge (G1 pre-merge, Gate 1/4/5 promote, Onda 2 implement).
+- Tabela de integração com Gates do Foundry (G1 pre-merge, Gate 1/4/5 promote, Onda 2 implement).
 - Checklist de classificação de findings por precedência: contrato mal lido / acionável / trade-off / ruído.
 - Limite de 3 ciclos antes de escalar ao usuário.
 - "Doubt theater" como red flag explícito (0 findings acionáveis em 2+ ciclos).
-- Adaptado de `doubt-driven-development` do agent-skills; vocabulário e princípios reescritos para contexto Forge.
+- Adaptado de `doubt-driven-development` do agent-skills; vocabulário e princípios reescritos para contexto Foundry.
 
 ---
 
 ## [0.15.0] — 2026-05-13
 
-### Added (Forge-14 — Surface layer Fase 3 + bonus consumer hardening)
+### Added (Foundry-14 — Surface layer Fase 3 + bonus consumer hardening)
 
 **Fechamento da camada Surface: persona-aware end-to-end. CEO vibecoder pode operar via linguagem natural, dev tem cheatsheet técnico, agente IA recebe contrato JSON. Inclui também schema canônico para AIOS configs e doc do processo MAJOR bump.**
 
-**Novo subagent `.claude/agents/forge-router.md` v1.0.0 (F34):**
+**Novo subagent `.claude/agents/foundry-router.md` v1.0.0 (F34):**
 
-- Roteador de **linguagem natural → comando `/acme:*`** com catálogo **fechado** de 9 intents canônicos (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status).
+- Roteador de **linguagem natural → comando `/novais-digital:*`** com catálogo **fechado** de 9 intents canônicos (diagnose, create_artifact, compute_economics, plan_implementation, implement_now, run_eval, promote, audit, status).
 - Heurística simples por score de keywords + contexto + pré-requisitos. Threshold rígido (0.75) — abaixo escala ao master-prompt com pergunta clarificadora.
 - **Refuse-to-invent** novos intents: catálogo fechado é gate explícito anti-scope-creep.
-- Output **YAML parseável** em todo turno (intent, confidence, command, args, preconditions_met, next_action, forge_mode_applied, rationale).
+- Output **YAML parseável** em todo turno (intent, confidence, command, args, preconditions_met, next_action, foundry_mode_applied, rationale).
 - Modo persona-aware: vibe (PT natural), dev (técnico), agent (JSON puro).
 - Tabela anti-rationalization com 5 tentações documentadas (não inventar intent #10, não disparar cadeia, não bypass pré-req, não esconder comando em vibe, não flexibilizar threshold).
 
@@ -379,10 +379,10 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 - Detecta persona (vibe/dev/agent) na PRIMEIRA invocação baseado em sinais SOMENTE de **filesystem** (TTY, `src/`, `package.json`, `tests/`, `.git/`, `docs/clients/`, `team.has_non_technical_stakeholder` em project.json).
 - **LGPD/GDPR-safe**: NUNCA lê conteúdo de prompt, histórico shell ou arquivos do usuário além de `project.json` (não-PII).
-- One-shot idempotente: após gerar `.forge-mode`, é no-op silencioso.
-- Guard contra repo canônico (não roda no Forge maintainer's repo).
-- Log auditável em `docs/forge/persona-detection.log` (timestamp + detected + confidence + rationale + sinais agregados).
-- Override explícito via `bash scripts/forge mode <vibe|dev|agent>`.
+- One-shot idempotente: após gerar `.foundry-mode`, é no-op silencioso.
+- Guard contra repo canônico (não roda no Foundry maintainer's repo).
+- Log auditável em `docs/foundry/persona-detection.log` (timestamp + detected + confidence + rationale + sinais agregados).
+- Override explícito via `bash scripts/foundry mode <vibe|dev|agent>`.
 - Banner discreto via stderr em TTY interativo informando modo detectado.
 
 **Novo `PLAYGROUND/04-automation/` (F36):**
@@ -390,7 +390,7 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - 4º exemplo executável cobrindo `project_type: automation`, `ai_enabled: false`.
 - `README.md` com outcome contratual (sync ERP→Warehouse a cada 6h, R$ 0,05/registro), stack referência, decisão `automation` vs `platform`, conceitos chave (idempotência não-negociável + audit log obrigatório).
 - `walkthrough.md` (~20 min) com pipeline completo de 9 passos: diagnose → spec automation-job → plan platform → tasks Waves 1P-4P+6P → implement com scaffolding idempotente → tests TDD RED → promote pilot → operação PILOT 14d → promote canonical.
-- `docs/forge/project.json` válido com `project_type=automation`, schedule cron, idempotency_key, max_retries.
+- `docs/foundry/project.json` válido com `project_type=automation`, schedule cron, idempotency_key, max_retries.
 - `PLAYGROUND/README.md` atualizado: 3 exemplos → 4 exemplos.
 - **Bonus**: `PLAYGROUND/03-hybrid/walkthrough.md` criado (gap histórico — 03 só tinha README).
 
@@ -398,16 +398,16 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 - Glossário standalone em **PT-BR leigo** com **60+ termos** organizados alfabeticamente.
 - Cada entrada tem 3 partes: o que é (linguagem natural) + por que importa + equivalente técnico.
-- Cobre: A (Agente, AIOS, Audit log, AUTONOMOUS), B (Baseline), C (C1-C8, Canonical, Constitution), D (DRAFT, DeepAgent, Diagnóstico), E (Eval), F (Forge, Forge-router), G (Gate, Guardian), H (Hook, Hybrid), I (ICP, Idempotência), L (Lifecycle), M (Manifest, Master Prompt, Mode, Módulo), O (Outcome), P (PILOT, Platform, Princípios, Project Type, Prompt), R (Reviewer), S (SHADOW, SKU, Spec, Subagent, Sync), T (TDD, Telemetry, Tenant, Tier), U (Unit economics), V (Versionamento, Vibe), W (Walkthrough, Wizard).
+- Cobre: A (Agente, AIOS, Audit log, AUTONOMOUS), B (Baseline), C (C1-C8, Canonical, Constitution), D (DRAFT, DeepAgent, Diagnóstico), E (Eval), F (Foundry, Foundry-router), G (Gate, Guardian), H (Hook, Hybrid), I (ICP, Idempotência), L (Lifecycle), M (Manifest, Master Prompt, Mode, Módulo), O (Outcome), P (PILOT, Platform, Princípios, Project Type, Prompt), R (Reviewer), S (SHADOW, SKU, Spec, Subagent, Sync), T (TDD, Telemetry, Tenant, Tier), U (Unit economics), V (Versionamento, Vibe), W (Walkthrough, Wizard).
 - Extraído e expandido a partir do glossário inline do QUICKSTART_VIBE.md.
 
 **Hook `friendly-errors.sh` v2.0.0 (F44):**
 
 - Padrões cobertos expandidos de **10 para 18**.
-- Novos: C9 drift (Forge-13), project.json missing (Forge-9), forge-router low confidence (Forge-14), TDD RED não falha (Forge-10/F26-bis), coverage Tier C (Forge-10), Gate 6 CI/CD AUTONOMOUS (Forge-8), persona detect ambíguo (Forge-14/F35), provider lock-in em src/ (C7 extended), manifest órfão (Forge-13).
+- Novos: C9 drift (Foundry-13), project.json missing (Foundry-9), foundry-router low confidence (Foundry-14), TDD RED não falha (Foundry-10/F26-bis), coverage Tier C (Foundry-10), Gate 6 CI/CD AUTONOMOUS (Foundry-8), persona detect ambíguo (Foundry-14/F35), provider lock-in em src/ (C7 extended), manifest órfão (Foundry-13).
 - Cada padrão tem tradução para vibe (linguagem leiga) + dev (técnico com referência a COMMON_ERRORS.md).
 
-**Novo workflow `.github/workflows/forge-playground-validate.yml` (F41):**
+**Novo workflow `.github/workflows/foundry-playground-validate.yml` (F41):**
 
 - Roda em todo PR/push que toca `PLAYGROUND/**` ou `templates/project.template.json`.
 - 7 checks SEM custo LLM: presença de README+walkthrough+project.json por subpasta; JSON válido; project_type válido; cobertura dos 4 project_types; walkthroughs ≥ 5 passos; READMEs mencionam outcome; cross-refs internas.
@@ -419,7 +419,7 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Define contrato: name, description (array de frases), tools, meta (author, version SemVer, tier enum, context_isolation, linked_principles C1-C8 obrigatório), build (entry, module).
 - Schema documenta opcionais específicos: tdd_phase_aware, modes (test_agent), writes_physical_files, coverage_defaults por tier, stack_agnostic.
 
-**`scripts/forge-doctor.sh` v0.7.0 — novo check C10 (F43):**
+**`scripts/foundry-doctor.sh` v0.7.0 — novo check C10 (F43):**
 
 - Em modo canonical, valida que os 6 agentes AIOS conformam ao schema canônico inline (sem dep externa — implementação Node puro).
 - Checa: top-level required, tipos, meta required, SemVer, tier enum, linked_principles válidos, build entry+module.
@@ -430,22 +430,22 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 - Processo formal para breaking changes:
   - Verificação obrigatória de alternativas MINOR (deprecation path, campos opcionais, symlinks)
   - Issue `[MAJOR proposal]` com lista de consumidores impactados + estimativa de esforço de migração POR consumidor
-  - ADR formal + branch `forge/major-vX.0.0` + migration guide
+  - ADR formal + branch `foundry/major-vX.0.0` + migration guide
   - Aviso prévio ≥7 dias aos consumidores conhecidos
 - O que MAJOR NÃO precisa exigir (anti-bloat): reescrita global, quebra de manifest schema, renomeação sem semântica nova.
 - Política de suporte N-1: security-only por 6 meses.
-- Tracking de "zero MAJOR bumps desde Forge-0" — preservar como objetivo.
+- Tracking de "zero MAJOR bumps desde Foundry-0" — preservar como objetivo.
 
 **Mudanças em `settings.json`:**
 
 - Hook `persona-detect` adicionado ao array `PreToolUse[].hooks[]` com matcher `Edit|Write` e timeout 2000ms.
 - `_ids` atualizado para incluir `persona-detect`.
-- `_forge_hooks` bumped para `active-forge-14`.
+- `_foundry_hooks` bumped para `active-foundry-14`.
 
 **Mudanças em `manifest.json`:**
 
-- Novas entradas: `agent-forge-router` v1.0.0, `hook-persona-detect` v1.0.0, `glossary-plain` v1.0.0, `reviewer-aios-agent-config-schema` v1.0.0.
-- Atualizadas: `hook-friendly-errors` 1.0.0 → 2.0.0, `script-forge-doctor` 0.6.0 → 0.7.0, `contributing` 0.2.0 → 0.3.0, `forge-decisions/forge-manifest/changelog` → 0.15.0.
+- Novas entradas: `agent-foundry-router` v1.0.0, `hook-persona-detect` v1.0.0, `glossary-plain` v1.0.0, `reviewer-aios-agent-config-schema` v1.0.0.
+- Atualizadas: `hook-friendly-errors` 1.0.0 → 2.0.0, `script-foundry-doctor` 0.6.0 → 0.7.0, `contributing` 0.2.0 → 0.3.0, `foundry-decisions/foundry-manifest/changelog` → 0.15.0.
 
 ### Versionamento
 
@@ -456,37 +456,37 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 ## [0.14.0] — 2026-05-13
 
-### Added (Forge-13 Sprint 2 — Consumer-mode automation)
+### Added (Foundry-13 Sprint 2 — Consumer-mode automation)
 
-**Fechamento da onda Forge-13: o consumidor passa a fazer upgrade do framework com um comando.**
+**Fechamento da onda Foundry-13: o consumidor passa a fazer upgrade do framework com um comando.**
 
-**`scripts/forge-sync.sh` v1.0.0 (F32):**
+**`scripts/foundry-sync.sh` v1.0.0 (F32):**
 
-- Novo script consumer-side que sincroniza artefatos canônicos do Forge para o projeto consumidor sem fricção.
-- **Guard contra cwd canônico**: se executado dentro do repo Forge canônico, falha com mensagem clara — sync é unidirecional (canônico → consumer).
+- Novo script consumer-side que sincroniza artefatos canônicos do Foundry para o projeto consumidor sem fricção.
+- **Guard contra cwd canônico**: se executado dentro do repo Foundry canônico, falha com mensagem clara — sync é unidirecional (canônico → consumer).
 - **Paths sincronizados** (lista canônica explícita no script para evitar deriva via manifest):
   - `.claude/CONSTITUTION.md` + `.claude/{agents,commands,skills}/`
   - `hooks/{pre-tool-use,post-tool-use,stop}/` + `hooks/scripts/`
-  - `scripts/forge-doctor.sh` + `scripts/forge` (a próprio `forge-sync.sh` é copiado também para próximos upgrades)
+  - `scripts/foundry-doctor.sh` + `scripts/foundry` (a próprio `foundry-sync.sh` é copiado também para próximos upgrades)
   - `templates/` inteiro (specs platform/agentic, AIOS, CI/CD, master-prompt)
   - `reviewer/{prompt.template.md, output-schema.json, validation-rules.json, example-audit.md, README.md}` + `reviewer/deepagents/skills/`
-- **Paths preservados** (nunca sobrescreve): `.claude/settings.json`, `.claude/settings.local.json`, `docs/forge/manifest.json`, `docs/forge/project.json`, `CLAUDE.md`.
+- **Paths preservados** (nunca sobrescreve): `.claude/settings.json`, `.claude/settings.local.json`, `docs/foundry/manifest.json`, `docs/foundry/project.json`, `CLAUDE.md`.
 - **Manifest update controlado**: atualiza no consumer apenas `framework.framework_version_required` + `framework.last_synced_at`; mantém `framework.version` (= última versão aplicada com sucesso) intocada para audit trail.
-- Flags: `--dry-run` (mostra diff sem escrever), `--from <path>` (alternativa a `FORGE_PATH` env e auto-detect), `--force`, `--verbose`, `--help`.
-- Audit trail: cria/atualiza `docs/forge/sync-history.md` no consumer com entrada (data, versão canônica, versão anterior, ADD/UPDATE/UNCHANGED/SKIPPED).
+- Flags: `--dry-run` (mostra diff sem escrever), `--from <path>` (alternativa a `FOUNDRY_PATH` env e auto-detect), `--force`, `--verbose`, `--help`.
+- Audit trail: cria/atualiza `docs/foundry/sync-history.md` no consumer com entrada (data, versão canônica, versão anterior, ADD/UPDATE/UNCHANGED/SKIPPED).
 - **Compat Windows**: helper `to_node_path` converte paths Git Bash (`/c/...`) via `cygpath -m` antes de passar a `node`.
 
-**`scripts/forge-doctor.sh` v0.6.0 — novo check C9 drift (F37):**
+**`scripts/foundry-doctor.sh` v0.6.0 — novo check C9 drift (F37):**
 
-- Em modo consumer, doctor agora compara `framework.framework_version_required` (set pelo forge-sync) com versão atual do canônico local.
-- Resolução do canônico: `FORGE_PATH` env → `../agent-governance-framework/` → `~/Projetos/agent-governance-framework/` → PASS com nota de "drift check pulado".
-- Drift detectado vira WARN com mensagem actionable: `consumer espera vX.Y.Z; canônico atual=A.B.C — rode 'bash scripts/forge-sync.sh'`.
+- Em modo consumer, doctor agora compara `framework.framework_version_required` (set pelo foundry-sync) com versão atual do canônico local.
+- Resolução do canônico: `FOUNDRY_PATH` env → `../agent-governance-framework/` → `~/Projetos/agent-governance-framework/` → PASS com nota de "drift check pulado".
+- Drift detectado vira WARN com mensagem actionable: `consumer espera vX.Y.Z; canônico atual=A.B.C — rode 'bash scripts/foundry-sync.sh'`.
 - Sem rede, sem dependência externa. Compat Windows via mesmo `to_node_path` helper.
 
 **`INSTALL.md` v0.14.0 (F42):**
 
 - Reescrito para liderar com **Surface-aware persona routing** (tabela CEO/dev/agente/wizard logo no topo).
-- Caminho principal: 3 comandos (`git clone`, `cd`, `forge-sync.sh`) — não mais 6 passos manuais.
+- Caminho principal: 3 comandos (`git clone`, `cd`, `foundry-sync.sh`) — não mais 6 passos manuais.
 - Bloco de **upgrade** explicado com diff prévio (`--dry-run`) e commit message sugerido.
 - Manual instalado movido para "fallback" (preservado para auditabilidade).
 - Validação pós-instalação expandida: tabela de 6 checks (consumer doctor, sync history, project.json, Constitution, master-prompt referência, Claude Code carrega).
@@ -495,10 +495,10 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 **Manifest:**
 
 - `install` 0.9.0 → 0.14.0 (descrição reescrita).
-- `script-forge-doctor` 0.5.0 → 0.6.0 (linked_principles, descrição inclui C9).
-- Nova entrada `script-forge-sync` v1.0.0.
-- `forge-decisions` 0.13.0 → 0.14.0 (descrição inclui Sprint 2).
-- `forge-manifest` 0.13.0 → 0.14.0.
+- `script-foundry-doctor` 0.5.0 → 0.6.0 (linked_principles, descrição inclui C9).
+- Nova entrada `script-foundry-sync` v1.0.0.
+- `foundry-decisions` 0.13.0 → 0.14.0 (descrição inclui Sprint 2).
+- `foundry-manifest` 0.13.0 → 0.14.0.
 - `changelog` 0.13.0 → 0.14.0.
 
 ### Versionamento
@@ -510,72 +510,72 @@ Forge-21 (v0.22.0) estabeleceu LangSmith como `llm_trace_provider` canônico e W
 
 ## [0.13.0] — 2026-05-13
 
-### Added (Forge-13 Sprint 1 — Consumer-mode hardening)
+### Added (Foundry-13 Sprint 1 — Consumer-mode hardening)
 
-**O framework deixa de gerar ruído ao ser executado em projeto consumidor. Resolve P0 da auditoria 2026-05-13 (após primeira adoção real por Acme Social).**
+**O framework deixa de gerar ruído ao ser executado em projeto consumidor. Resolve P0 da auditoria 2026-05-13 (após primeira adoção real por Novais Digital Social).**
 
-**`scripts/forge-doctor.sh` v0.5.0 (F30):**
+**`scripts/foundry-doctor.sh` v0.5.0 (F30):**
 
-- Detecta automaticamente se está rodando no repo canônico do Forge ou em projeto consumidor via novo campo `manifest.framework.canonical: true` (presente apenas no canônico).
+- Detecta automaticamente se está rodando no repo canônico do Foundry ou em projeto consumidor via novo campo `manifest.framework.canonical: true` (presente apenas no canônico).
 - Override explícito via flags `--canonical` / `--consumer`.
 - Em modo `consumer`:
   - C1: `reviewer/output-schema.json` e `reviewer/validation-rules.json` passam a ser **opcionais** (não-FAIL se ausentes); consumer pode não ter copiado o pacote reviewer/ se não roda auditoria mensal local.
   - C6: check de **artefatos órfãos é pulado** (manifest do consumer não precisa duplicar entries canônicas do framework — só registra o que ele mesmo produz).
   - C8: AIOS templates **condicional** — se `templates/aios/` não existe, check inteiro pulado (consumer pode não usar AIOS); workflows CI/CD ausentes geram PASS (opcional para consumer) em vez de FAIL.
 - Banner inicial mostra modo ativo (`canonical (repo do framework)` ou `consumer (projeto consumidor)`).
-- Resolve queixa documentada: consumer rodava forge-doctor e via 65 warnings de "órfão" + 2 FAILs de `reviewer/` ausente — agora vê tudo verde quando o consumer está correto.
+- Resolve queixa documentada: consumer rodava foundry-doctor e via 65 warnings de "órfão" + 2 FAILs de `reviewer/` ausente — agora vê tudo verde quando o consumer está correto.
 
-**`docs/forge/decisions.md` — F26 duplicado resolvido (F31):**
+**`docs/foundry/decisions.md` — F26 duplicado resolvido (F31):**
 
-- Decisão original de Forge-10 (TDD-first) tinha sido registrada como `F26` em 2026-05-12, colidindo com `F26` Forge-9 (delivery-type agnostic, 2026-05-08). Reviewer DeepAgent citaria "F26" ambiguamente.
-- Forge-10 renomeada para **F26-bis** com nota de desambiguação explícita; F26 (Forge-9) preservada como canônica e mais referenciada externamente (PLAYGROUND, CLAUDE.md, prompt do reviewer).
+- Decisão original de Foundry-10 (TDD-first) tinha sido registrada como `F26` em 2026-05-12, colidindo com `F26` Foundry-9 (delivery-type agnostic, 2026-05-08). Reviewer DeepAgent citaria "F26" ambiguamente.
+- Foundry-10 renomeada para **F26-bis** com nota de desambiguação explícita; F26 (Foundry-9) preservada como canônica e mais referenciada externamente (PLAYGROUND, CLAUDE.md, prompt do reviewer).
 - Tabela de versionamento de `decisions.md` corrigida.
 - CHANGELOG referência cruzada atualizada.
 
-**`docs/forge/manifest.json` — metadados stale corrigidos (F33):**
+**`docs/foundry/manifest.json` — metadados stale corrigidos (F33):**
 
-- `forge-decisions` `0.8.0` → `0.13.0` (descrição "F1-F26" → "F1-F29 + F26-bis").
-- `forge-roadmap` `0.6.0` → `0.12.0` (descrição "7 ondas" → "12 ondas").
-- `forge-manifest` `0.9.0` → `0.13.0`.
-- `forge-readme` `0.9.0` → `0.12.0` (descrição atualizada).
+- `foundry-decisions` `0.8.0` → `0.13.0` (descrição "F1-F26" → "F1-F29 + F26-bis").
+- `foundry-roadmap` `0.6.0` → `0.12.0` (descrição "7 ondas" → "12 ondas").
+- `foundry-manifest` `0.9.0` → `0.13.0`.
+- `foundry-readme` `0.9.0` → `0.12.0` (descrição atualizada).
 - `changelog` `0.9.0` → `0.13.0`.
-- `claude-md-meta` `0.9.0` → `0.10.0` (atualizado em Forge-11 com seção Master Prompt).
-- `script-forge-doctor` `0.4.1` → `0.5.0` (linked_principles ganha C7).
+- `claude-md-meta` `0.9.0` → `0.10.0` (atualizado em Foundry-11 com seção Master Prompt).
+- `script-foundry-doctor` `0.4.1` → `0.5.0` (linked_principles ganha C7).
 - `reviewer-prompt` `0.3.0` → `0.5.0` (ver abaixo).
-- Adicionado novo campo `framework.canonical: true` (lido pelo forge-doctor para auto-detect).
-- Adicionada entrada `forge-audit-2026-05-13` (`docs/forge/AUDIT_2026-05-13_pendencias.md`).
+- Adicionado novo campo `framework.canonical: true` (lido pelo foundry-doctor para auto-detect).
+- Adicionada entrada `foundry-audit-2026-05-13` (`docs/foundry/AUDIT_2026-05-13_pendencias.md`).
 - Vários `sha256` setados como `null` (recálculo deferido para evitar churn por line endings Windows/Unix).
 
 **`reviewer/prompt.template.md` v0.5.0 — cobertura retroativa (F33):**
 
-Prompt do reviewer v0.3.0 cobria apenas Forge-9. Auditorias mensais geradas com ele teriam blind spots em Forge-10/11/12. v0.5.0 adiciona seção "Checks adicionais introduzidos pós-v0.3.0":
+Prompt do reviewer v0.3.0 cobria apenas Foundry-9. Auditorias mensais geradas com ele teriam blind spots em Foundry-10/11/12. v0.5.0 adiciona seção "Checks adicionais introduzidos pós-v0.3.0":
 
-- **C4.tdd.*** (Forge-10 / F26-bis) — TDD red phase files, coverage targets present, test_commands present, integration sem business mocks, Tier C blocking gates, review_agent verdict. `applies_when`: projeto declara `aios_tier` OU possui `templates/aios/`.
-- **C8.master_prompt.*** (Forge-11 / F27) — master-prompt instalado, versão compatível, anti-duplicação manual no CLAUDE.md local.
-- **C7.surface.*** (Forge-12 / F28+F29) — `HELLO.md` presente quando há stakeholder não-técnico, `.forge-mode` válido, hook `friendly-errors` ativo, PLAYGROUND opcional.
+- **C4.tdd.*** (Foundry-10 / F26-bis) — TDD red phase files, coverage targets present, test_commands present, integration sem business mocks, Tier C blocking gates, review_agent verdict. `applies_when`: projeto declara `aios_tier` OU possui `templates/aios/`.
+- **C8.master_prompt.*** (Foundry-11 / F27) — master-prompt instalado, versão compatível, anti-duplicação manual no CLAUDE.md local.
+- **C7.surface.*** (Foundry-12 / F28+F29) — `HELLO.md` presente quando há stakeholder não-técnico, `.foundry-mode` válido, hook `friendly-errors` ativo, PLAYGROUND opcional.
 - **Política de retro-aplicação** — audits gerados com prompt ≤ v0.3.0 devem incluir nota explícita de blind spot conhecido e recomendar re-auditoria.
 
-**Novo workflow dogfooded `.github/workflows/forge-validate.yml`:**
+**Novo workflow dogfooded `.github/workflows/foundry-validate.yml`:**
 
-- O repo canônico do Forge passa a rodar seus próprios gates em todo PR/push para `master`.
-- 4 jobs: `forge-doctor --canonical`, `skill-security-scan`, `manifest-json-valid`, `hooks-bash-syntax` + `summary` consolidado.
-- Pré-merge-check e tdd-red-phase-check do template canônico **não** se aplicam ao próprio Forge (sem `src/skus/` produtivo).
+- O repo canônico do Foundry passa a rodar seus próprios gates em todo PR/push para `master`.
+- 4 jobs: `foundry-doctor --canonical`, `skill-security-scan`, `manifest-json-valid`, `hooks-bash-syntax` + `summary` consolidado.
+- Pré-merge-check e tdd-red-phase-check do template canônico **não** se aplicam ao próprio Foundry (sem `src/skus/` produtivo).
 - Garante que o framework não regride nos próprios gates que distribui.
 
 **Decisões formalizadas:**
 
-- Esta release **não** abre uma nova decisão Fxx — é Sprint 1 da onda Forge-13 catalogada em `docs/forge/AUDIT_2026-05-13_pendencias.md`. A onda completa terá ADR consolidada após Sprint 2 (F32 sync script + F42 INSTALL update).
+- Esta release **não** abre uma nova decisão Fxx — é Sprint 1 da onda Foundry-13 catalogada em `docs/foundry/AUDIT_2026-05-13_pendencias.md`. A onda completa terá ADR consolidada após Sprint 2 (F32 sync script + F42 INSTALL update).
 
 ### Versionamento
 
-- **MINOR bump** (v0.12.0 → v0.13.0): adiciona capability nova de modo consumer + correções estruturais que afetam comportamento (forge-doctor relaxado, IDs renomeados). Tudo é backwards-compatible — projetos consumidores em ≤ v0.12.x continuam funcionando.
+- **MINOR bump** (v0.12.0 → v0.13.0): adiciona capability nova de modo consumer + correções estruturais que afetam comportamento (foundry-doctor relaxado, IDs renomeados). Tudo é backwards-compatible — projetos consumidores em ≤ v0.12.x continuam funcionando.
 - Não exige ADR de Constitution.
 
 ---
 
 ## [0.12.0] — 2026-05-13
 
-### Added (Forge-12 Fase 2 — Aprendizado por exemplos + tradução de erros)
+### Added (Foundry-12 Fase 2 — Aprendizado por exemplos + tradução de erros)
 
 **Fecha as 2 lacunas da Fase 1: (a) ler doc não fixa, falta ver fazendo; (b) mensagens de erro técnicas continuam hostis no modo vibe mesmo com glossário leigo. Solução: PLAYGROUND com exemplos reais + tradução automática de erros via hook.**
 
@@ -583,41 +583,41 @@ Prompt do reviewer v0.3.0 cobria apenas Forge-9. Auditorias mensais geradas com 
 
 - **`PLAYGROUND/README.md`** — visão geral, tabela comparativa dos 3 tipos, guia por onde começar.
 
-- **`PLAYGROUND/01-agentic-saas-agent/`** (Carrossel Agent, inspirado Acme Social):
+- **`PLAYGROUND/01-agentic-saas-agent/`** (Carrossel Agent, inspirado Novais Digital Social):
   - `README.md` — outcome contratual, stack, conceitos-chave
   - `walkthrough.md` — passo a passo do pipeline (~25 min): diagnose → spec → plan + ADR → tasks → implement (AIOS TDD-first) → eval (20+ cases LLM-as-judge) → promote SHADOW → ASSISTED → AUTONOMOUS
-  - `docs/forge/project.json` — manifest real (`project_type=agentic_saas`, `ai_enabled=true`)
+  - `docs/foundry/project.json` — manifest real (`project_type=agentic_saas`, `ai_enabled=true`)
 
 - **`PLAYGROUND/02-platform-module/`** (Módulo Faturamento, inspirado SchoolPlatform):
   - `README.md` — diferenças críticas vs agentic (C3 audita infra; C4 acceptance gate; lifecycle draft→canonical)
   - `walkthrough.md` (~20 min) — pipeline platform com delivery-economics, audit-trail-check, acceptance-report assinado pelo decisor cliente
-  - `docs/forge/project.json` — manifest real (`platform`, `ai_enabled=false`, criticality=C para módulo financeiro)
+  - `docs/foundry/project.json` — manifest real (`platform`, `ai_enabled=false`, criticality=C para módulo financeiro)
 
 - **`PLAYGROUND/03-hybrid/`** (Plataforma com módulo IA add-on, inspirado Aicfo):
   - `README.md` — interpretação C1-C8 por módulo, ADR obrigatório para adicionar módulo IA, hooks rodam condicionalmente, reviewer mensal ramifica
-  - `docs/forge/project.json` — 3 módulos heterogêneos (2 platform_module + 1 agentic_sku) no mesmo projeto
+  - `docs/foundry/project.json` — 3 módulos heterogêneos (2 platform_module + 1 agentic_sku) no mesmo projeto
 
 **Novo `COMMON_ERRORS.md` na raiz (top 10 erros + soluções copy-paste):**
 
 Cada erro segue padrão: mensagem literal → causa-raiz → diagnóstico → solução passo a passo → prevenção.
 
 Cobertura:
-1. `forge-doctor C2 path missing` (manifest ↔ filesystem)
-2. `forge-doctor C3 version mismatch` (4 fontes divergentes)
-3. `forge-doctor C6 artefato órfão` (arquivo sem entry no manifest)
+1. `foundry-doctor C2 path missing` (manifest ↔ filesystem)
+2. `foundry-doctor C3 version mismatch` (4 fontes divergentes)
+3. `foundry-doctor C6 artefato órfão` (arquivo sem entry no manifest)
 4. Hook `outcome-clause-guard` bloqueia spec (C2 vago)
 5. Hook `adr-approval-gate` bloqueia edit (C5 ausente)
 6. Hook `secret-scan` bloqueia commit (env vazio)
 7. `@po-guardian` rejeita spec (outcome vago, ICP fit unclear)
 8. `@unit-economist` falha C3 (custo > 25% preço)
 9. Hash sha256 incorreto no manifest (LF/CRLF, edição sem update)
-10. TDD red phase missing (Gate G6 Forge-10)
+10. TDD red phase missing (Gate G6 Foundry-10)
 
 **Novo hook `hooks/post-tool-use/friendly-errors.sh` (PostToolUse):**
 
 - Intercepta output de tools/comandos Claude Code
 - Detecta padrões de violação C1-C8 via regex (9 padrões: C1-C8, hash mismatch, secret)
-- Anexa mensagem traduzida conforme `.forge-mode`:
+- Anexa mensagem traduzida conforme `.foundry-mode`:
   - **vibe** — tradução leiga: "Esse SKU está caro demais — você precisa cobrar mais ou cortar custos"
   - **dev** — tradução + detalhes técnicos + referência a COMMON_ERRORS.md
   - **agent** — passa direto sem traduzir (downstream automation)
@@ -636,12 +636,12 @@ Cobertura:
 
 **Decisões formalizadas:**
 
-- **F29** em `docs/forge/decisions.md` registrando arquitetura "leitura → execução supervisionada" via PLAYGROUND, gates novos (playground completeness, common errors coverage, friendly errors fallback, mode-aware translation), mapeamento C1-C8 detalhado e trade-off aceito.
+- **F29** em `docs/foundry/decisions.md` registrando arquitetura "leitura → execução supervisionada" via PLAYGROUND, gates novos (playground completeness, common errors coverage, friendly errors fallback, mode-aware translation), mapeamento C1-C8 detalhado e trade-off aceito.
 
-### Próximas evoluções previstas (Forge-12 Fase 3)
+### Próximas evoluções previstas (Foundry-12 Fase 3)
 
 - `GLOSSARY_PLAIN.md` standalone (hoje embutido no QUICKSTART_VIBE)
-- `forge-router` subagent — automação completa de linguagem natural → slash commands
+- `foundry-router` subagent — automação completa de linguagem natural → slash commands
 - Modo persona auto-detectado baseado em comportamento
 - PLAYGROUND 04 (automation/RPA)
 
@@ -654,9 +654,9 @@ Cobertura:
 
 ## [0.11.0] — 2026-05-13
 
-### Added (Forge-12 Fase 1 — Camada de usabilidade adaptativa por persona)
+### Added (Foundry-12 Fase 1 — Camada de usabilidade adaptativa por persona)
 
-**O Forge passa a ter portas de entrada distintas para 3 personas reais (CEO vibecoder, dev novo no time, agente IA) sem mudar a base técnica. Foco em reduzir tempo-até-primeira-contribuição de dias para minutos.**
+**O Foundry passa a ter portas de entrada distintas para 3 personas reais (CEO vibecoder, dev novo no time, agente IA) sem mudar a base técnica. Foco em reduzir tempo-até-primeira-contribuição de dias para minutos.**
 
 **Novos arquivos na raiz:**
 
@@ -664,11 +664,11 @@ Cobertura:
   - 🎨 CEO / vibecoder → `QUICKSTART_VIBE.md`
   - 🛠️ dev → `QUICKSTART_DEV.md`
   - 🤖 agente IA → `templates/master-prompt.md`
-  - 🆘 não sei → wizard interativo (`bash scripts/forge start`)
+  - 🆘 não sei → wizard interativo (`bash scripts/foundry start`)
 
 - **`QUICKSTART_VIBE.md`** — guia em linguagem natural, sem jargão técnico (5 min de leitura). Inclui:
   - 3 exemplos do mundo real (criar carrossel, criar agente, entender erro)
-  - Glossário leigo (Forge = "regras invisíveis"; Outcome = "o que o cliente paga")
+  - Glossário leigo (Foundry = "regras invisíveis"; Outcome = "o que o cliente paga")
   - 5 receitas práticas (templates de pedido natural)
   - Sinais de "tá tudo bem" vs "para aí"
   - Frases mágicas para socorro ("me explica em português")
@@ -685,10 +685,10 @@ Cobertura:
 
 **Novo script:**
 
-- **`scripts/forge`** — CLI wrapper unificado (bash 4+, compatível Windows via git bash). 5 verbos canônicos:
-  - `start` — wizard interativo (detecta persona, salva em `.forge-mode` gitignored)
-  - `doctor` — alias para `scripts/forge-doctor.sh`
-  - `version` — versão + fase Forge + modo local
+- **`scripts/foundry`** — CLI wrapper unificado (bash 4+, compatível Windows via git bash). 5 verbos canônicos:
+  - `start` — wizard interativo (detecta persona, salva em `.foundry-mode` gitignored)
+  - `doctor` — alias para `scripts/foundry-doctor.sh`
+  - `version` — versão + fase Foundry + modo local
   - `mode <vibe|dev|agent>` — define modo de operação
   - `help [verbo]` — ajuda contextual
   
@@ -696,43 +696,43 @@ Cobertura:
 
 **Mudanças em manifest.json:**
 
-- Nova entrada `script-forge-cli` em `artifacts.scripts[]` v1.0.0 com `linked_principles: [C7]` (portability).
+- Nova entrada `script-foundry-cli` em `artifacts.scripts[]` v1.0.0 com `linked_principles: [C7]` (portability).
 
 **Mudanças em .gitignore:**
 
-- `.forge-mode` adicionado (preferência de modo por usuário, não commitar).
+- `.foundry-mode` adicionado (preferência de modo por usuário, não commitar).
 
 **Decisões formalizadas:**
 
-- **F28** em `docs/forge/decisions.md` registrando arquitetura Surface/Translator/Core, princípio fundador ("traduzir, não esconder"), gates novos (persona-aware entry, vibe glossary, dev cheatsheet scannability, CLI verb whitelist), mapeamento com Constitution e trade-off aceito.
+- **F28** em `docs/foundry/decisions.md` registrando arquitetura Surface/Translator/Core, princípio fundador ("traduzir, não esconder"), gates novos (persona-aware entry, vibe glossary, dev cheatsheet scannability, CLI verb whitelist), mapeamento com Constitution e trade-off aceito.
 
-### Próximas evoluções previstas (Forge-12 Fases 2-3)
+### Próximas evoluções previstas (Foundry-12 Fases 2-3)
 
 - **Fase 2** — `PLAYGROUND/` com 3 exemplos executáveis para dev; `COMMON_ERRORS.md` top 10 erros e soluções; hook `friendly-errors` que traduz erros C1-C8 para humano.
-- **Fase 3** — `GLOSSARY_PLAIN.md` standalone; `forge-router` subagent (automação linguagem natural → slash commands); modo persona detectado automaticamente.
+- **Fase 3** — `GLOSSARY_PLAIN.md` standalone; `foundry-router` subagent (automação linguagem natural → slash commands); modo persona detectado automaticamente.
 
 ### Versionamento
 
-- **MINOR bump** (v0.10.0 → v0.11.0): adiciona capability nova (camada de surface) sem mudar Constitution ou quebrar APIs. Projetos consumidores em Forge ≤ 0.10.x continuam funcionando — toda Fase 1 é **opcional** e **adicional**.
+- **MINOR bump** (v0.10.0 → v0.11.0): adiciona capability nova (camada de surface) sem mudar Constitution ou quebrar APIs. Projetos consumidores em Foundry ≤ 0.10.x continuam funcionando — toda Fase 1 é **opcional** e **adicional**.
 - Não exige ADR de Constitution.
 
 ---
 
 ## [0.10.0] — 2026-05-13
 
-### Added (Forge-11 — Master prompt universal para projetos consumidores)
+### Added (Foundry-11 — Master prompt universal para projetos consumidores)
 
-**O Forge passa a distribuir um único ponto de entrada canônico que projetos consumidores instalam para operar sob o framework sem manter instruções manuais duplicadas em cada CLAUDE.md.**
+**O Foundry passa a distribuir um único ponto de entrada canônico que projetos consumidores instalam para operar sob o framework sem manter instruções manuais duplicadas em cada CLAUDE.md.**
 
 **Novo `templates/master-prompt.md` v1.0.0:**
 
 - Documento operacional de 12 seções (~17.5 KB) que substitui ~200 linhas duplicadas nos CLAUDE.md dos consumidores.
-- **Detecção automática** de `project_type` (`agentic_saas` | `platform` | `automation` | `hybrid`) + `ai_enabled` lendo `docs/forge/manifest.json` (ou `project.json`) do consumidor — não exige instrução manual.
+- **Detecção automática** de `project_type` (`agentic_saas` | `platform` | `automation` | `hybrid`) + `ai_enabled` lendo `docs/foundry/manifest.json` (ou `project.json`) do consumidor — não exige instrução manual.
 - **Interpretação adaptativa de C1-C8** conforme matriz já estabelecida em F26:
   - `agentic_saas`: C3 audita tokens, C4 exige eval-suite LLM, C6 Langfuse obrigatório, lifecycle SHADOW→ASSISTED→AUTONOMOUS
   - `platform` (ai_enabled=false): C3 audita infra/operação, C4 usa acceptance gate, C6 condiciona Langfuse, lifecycle draft→staging→pilot→canonical
   - `hybrid`: per-module via ADR
-- **Roteamento por tipo** dos slash commands `/acme:*` (ex.: `/acme:spec --type=platform-sku` para agentic; `--type=platform-module` para platform).
+- **Roteamento por tipo** dos slash commands `/novais-digital:*` (ex.: `/novais-digital:spec --type=platform-sku` para agentic; `--type=platform-module` para platform).
 - **Catálogo dos 10 Guardians** com modo (ATIVO/PASSIVO) e ordem de invocação.
 - **3 fluxos completos** documentados: Criar agente IA, Criar módulo platform, Adicionar feature IA em platform.
 - **Guardrails universais** (NUNCA editar Constitution sem ADR; SEMPRE invocar po-guardian em specs novas; etc.).
@@ -741,7 +741,7 @@ Cobertura:
 
 **Entrada em `manifest.json`:**
 
-- Novo template `template-master-prompt` v1.0.0 vinculado a TODOS os 8 princípios (C1-C8) — único template com escopo universal no Forge.
+- Novo template `template-master-prompt` v1.0.0 vinculado a TODOS os 8 princípios (C1-C8) — único template com escopo universal no Foundry.
 - `applies_to_project_types: [agentic_saas, platform, automation, hybrid]`.
 
 **Nova seção em `CLAUDE.md` raiz:**
@@ -752,23 +752,23 @@ Cobertura:
 
 **Decisões formalizadas:**
 
-- **F27** em `docs/forge/decisions.md` registrando contexto (drift entre CLAUDE.md de consumidores), decisão, gates novos (Manifest-driven detection, Adaptive C1-C8 interpretation, Output 5-seções, Escalation triggers), mapeamento com Constitution e trade-off aceito.
+- **F27** em `docs/foundry/decisions.md` registrando contexto (drift entre CLAUDE.md de consumidores), decisão, gates novos (Manifest-driven detection, Adaptive C1-C8 interpretation, Output 5-seções, Escalation triggers), mapeamento com Constitution e trade-off aceito.
 
-### Próximas evoluções previstas (Forge-11.x)
+### Próximas evoluções previstas (Foundry-11.x)
 
-- `forge-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara automaticamente o pipeline correto, eliminando necessidade do operador conhecer slash commands.
-- Adoção real por Acme Social, Aicfo e SchoolPlatform — cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local.
+- `foundry-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara automaticamente o pipeline correto, eliminando necessidade do operador conhecer slash commands.
+- Adoção real por Novais Digital Social, Aicfo e SchoolPlatform — cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local.
 
 ### Versionamento
 
-- **MINOR bump** (v0.9.0 → v0.10.0): adiciona capability nova sem mudar Constitution ou quebrar APIs. Projetos consumidores em Forge ≤ 0.9.x continuam funcionando — o master prompt é **opcional**, substitui instruções manuais quando adotado.
+- **MINOR bump** (v0.9.0 → v0.10.0): adiciona capability nova sem mudar Constitution ou quebrar APIs. Projetos consumidores em Foundry ≤ 0.9.x continuam funcionando — o master prompt é **opcional**, substitui instruções manuais quando adotado.
 - Não exige ADR de Constitution.
 
 ---
 
 ## [0.9.0] — 2026-05-12
 
-### Added (Forge-10 — AIOS pipeline TDD-first)
+### Added (Foundry-10 — AIOS pipeline TDD-first)
 
 **O pipeline AIOS deixa de ser "test-after" e passa a ser TDD real, com arquivos físicos de teste e coverage gate por tier mecanicamente enforçado na CI.**
 
@@ -800,7 +800,7 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 **`templates/aios/config.yaml.template` v0.2.0 — novos blocos:**
 
 - `stack.tests_unit`, `stack.tests_integration`, `stack.tests_e2e` (separados por camada).
-- `stack.tests` mantido como **fallback** para backwards-compat com Forge ≤ 0.8.x.
+- `stack.tests` mantido como **fallback** para backwards-compat com Foundry ≤ 0.8.x.
 - `coverage_targets: {A,B,C}: {line, branch, critical_path}`.
 - `test_commands: {install, lint, typecheck, unit, integration, e2e, coverage_report_path}` — comandos lidos pelo CI sem hardcode.
 - `modules[].has_ui` (default `true`) — determina se e2e é exigido.
@@ -820,15 +820,15 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 - Nova seção 3 "Testes funcionais do projeto cliente" com 11 itens 🔴 (workflow ativo, `test_commands` preenchidos, coverage gate, integration sem mocks, e2e para módulos com UI, Tier C bloqueante).
 - Total atualizado: **39 itens (29 🔴, 10 🟡)**. Branch protection adiciona checks obrigatórios `tdd-red-phase-check`, `unit-tests`, `integration-tests`.
 
-**`scripts/forge-doctor.sh` — novo check C8 "AIOS templates TDD-ready":**
+**`scripts/foundry-doctor.sh` — novo check C8 "AIOS templates TDD-ready":**
 
 - C8.1: `test_agent/config.json.template` declara `modes: [red, verify]`.
 - C8.2: orchestrator aceita `--mode red|verify`.
 - C8.3: `config.yaml.template` tem `coverage_targets` + `test_commands`.
-- C8.4: workflow `forge-test.template.yml` presente.
-- C8.5: `forge-validate.template.yml` tem job `tdd-red-phase-check`.
+- C8.4: workflow `foundry-test.template.yml` presente.
+- C8.5: `foundry-validate.template.yml` tem job `tdd-red-phase-check`.
 
-**Mapeamento com a Constitution** — F26-bis em [`docs/forge/decisions.md`](./docs/forge/decisions.md) (originalmente registrada como F26 em 2026-05-12, renomeada para F26-bis em v0.13.0 para evitar colisão com F26 Forge-9). Pipeline TDD-first não muda nenhum princípio da Constitution (MINOR bump).
+**Mapeamento com a Constitution** — F26-bis em [`docs/foundry/decisions.md`](./docs/foundry/decisions.md) (originalmente registrada como F26 em 2026-05-12, renomeada para F26-bis em v0.13.0 para evitar colisão com F26 Foundry-9). Pipeline TDD-first não muda nenhum princípio da Constitution (MINOR bump).
 
 **Trade-off aceito**: projetos consumidores precisam configurar `test_commands` + ter runner de teste + service container para DB. Em troca, regressão de regra de negócio em Tier C **não passa silenciosamente** — a CI bloqueia mecanicamente PRs que reduzam cobertura abaixo de 95% line em código financeiro.
 
@@ -836,10 +836,10 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 
 ## [0.8.1] — 2026-05-08
 
-### Added (Forge-9.x — Pendentes de Forge-9 concluídos)
+### Added (Foundry-9.x — Pendentes de Foundry-9 concluídos)
 
 **F9.11 — Hooks runtime condicionais por `ai_enabled`:**
-- `hooks/post-tool-use/langfuse-trace-check.sh` — lê `docs/forge/project.json`; exit 0 imediato quando `ai_enabled=false` (não penaliza plataformas)
+- `hooks/post-tool-use/langfuse-trace-check.sh` — lê `docs/foundry/project.json`; exit 0 imediato quando `ai_enabled=false` (não penaliza plataformas)
 - `hooks/post-tool-use/unit-economics-recalc.sh` — ramo platform: avisa quando `docs/modules/*/delivery-economics-*.md` muda; ramo agentic: comportamento original (prompts)
 - `hooks/stop/eval-suite-fresh.sh` — lê `project.json`; skip completo quando `ai_enabled=false` (platform usa E2E, não LLM evals)
 - `hooks/stop/5-gates-summary.sh` G3 — ramo platform: verifica presença de `pilot-state.md` por módulo em `docs/modules/`; ramo agentic: verifica eval suites ≥ 30 casos (comportamento original)
@@ -849,26 +849,26 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 - `reviewer/deepagents/skills/L2/eval-case-author/SKILL.md` — `applies_when: ai_enabled=true`; plataforma usa E2E tests
 - `reviewer/deepagents/skills/L2/shadow-mode-runner/SKILL.md` — `applies_when: ai_enabled=true`; plataforma usa STAGING→PILOT com `pilot-state.template.md`
 - `reviewer/deepagents/skills/L1/baseline-cost-builder/SKILL.md` v0.2.0 — path duplo: agentic (custo inferência/preço) e platform (`platform_margin`); Step P + inputs platform + Template P6
-- `reviewer/deepagents/skills/reviewer/forge-auditor/SKILL.md` — step 3.5 carrega `project.json`; step 5 ramifica escopo (subscriptions OU modules); step 6 passa project_type a sub-agents; rubric C1-C8 com ramos agentic/platform; instrução explícita anti-FAIL para Langfuse quando `ai_enabled=false`
+- `reviewer/deepagents/skills/reviewer/foundry-auditor/SKILL.md` — step 3.5 carrega `project.json`; step 5 ramifica escopo (subscriptions OU modules); step 6 passa project_type a sub-agents; rubric C1-C8 com ramos agentic/platform; instrução explícita anti-FAIL para Langfuse quando `ai_enabled=false`
 
-**F9.14 — `/acme:plan` e `/acme:tasks` ramificados:**
-- `/acme:plan` v0.2.0 — step 0 resolve `project_type` de `project.json`; seções 2P (camadas service), 4P (audit log), 6P (cronograma PILOT) para platform; output com `plan_variant` e campos platform/agentic separados; pre-conditions bifurcadas
-- `/acme:tasks` v0.2.0 — step 0 resolve `project_type`; Waves 1P-4P + 6P para platform (`scaffolding → service build → E2E → PILOT prep → CI/CD`); T6.2P (`forge-tests`) substitui T6.2 (`forge-eval`) em plataformas; DAG platform; frontmatter com `project_type` optional arg
+**F9.14 — `/novais-digital:plan` e `/novais-digital:tasks` ramificados:**
+- `/novais-digital:plan` v0.2.0 — step 0 resolve `project_type` de `project.json`; seções 2P (camadas service), 4P (audit log), 6P (cronograma PILOT) para platform; output com `plan_variant` e campos platform/agentic separados; pre-conditions bifurcadas
+- `/novais-digital:tasks` v0.2.0 — step 0 resolve `project_type`; Waves 1P-4P + 6P para platform (`scaffolding → service build → E2E → PILOT prep → CI/CD`); T6.2P (`foundry-tests`) substitui T6.2 (`foundry-eval`) em plataformas; DAG platform; frontmatter com `project_type` optional arg
 
 ---
 
 ## [0.8.0] — 2026-05-08
 
-### Added (Forge-9 — Delivery-type agnostic)
+### Added (Foundry-9 — Delivery-type agnostic)
 
-**O Forge passa a suportar formalmente múltiplos tipos de projeto consumidor sem quebrar projetos agentic existentes.**
+**O Foundry passa a suportar formalmente múltiplos tipos de projeto consumidor sem quebrar projetos agentic existentes.**
 
 **Conceito introduzido — `project_type` × `ai_enabled`:**
 
 - `project_type` ∈ `agentic_saas` (default histórico) | `platform` (SaaS/operacional, ex: school-platform/CAPSYSTEM) | `automation` (jobs/RPA) | `hybrid` (plataforma com módulos agênticos)
 - `ai_enabled` (boolean) — quando `false`, o reviewer **não** marca FAIL por ausência de LLM/Langfuse/prompts; usa-se audit log + structured logging em vez disso
 
-**Novo template `templates/project.template.json`** — fonte canônica de declaração do projeto consumidor; copiado para `docs/forge/project.json` no consumidor; lido pelo reviewer DeepAgent e pelos commands antes de qualquer check. Backwards compat: ausência → defaults legados (`agentic_saas` + `ai_enabled=true`).
+**Novo template `templates/project.template.json`** — fonte canônica de declaração do projeto consumidor; copiado para `docs/foundry/project.json` no consumidor; lido pelo reviewer DeepAgent e pelos commands antes de qualquer check. Backwards compat: ausência → defaults legados (`agentic_saas` + `ai_enabled=true`).
 
 **Constitution v0.3.0** — cada princípio C1-C8 ganhou matriz "Como validar — por `project_type`":
 
@@ -894,16 +894,16 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 - `automation` (herda platform com C2.automation.* específico)
 - `hybrid` (compõe platform + agentic_saas por módulo)
 
-**`reviewer/prompt.template.md` v0.3.0** — passo obrigatório de carregar `docs/forge/project.json` antes de qualquer check; ramificação da matriz por princípio; **NÃO marca FAIL por ausência de LLM em `ai_enabled=false`** (instrução explícita anti-FAIL falso). Variantes de drift por modelo econômico.
+**`reviewer/prompt.template.md` v0.3.0** — passo obrigatório de carregar `docs/foundry/project.json` antes de qualquer check; ramificação da matriz por princípio; **NÃO marca FAIL por ausência de LLM em `ai_enabled=false`** (instrução explícita anti-FAIL falso). Variantes de drift por modelo econômico.
 
-**`docs/forge/reviewer-contract.md` v0.2.0** — `project.json` adicionado como input contratual obrigatório (§3.2 NOVO); §3.5 separa eval suites (IA) de testes E2E + acceptance-report (platform); §4 com tabela "agentic vs platform" por princípio.
+**`docs/foundry/reviewer-contract.md` v0.2.0** — `project.json` adicionado como input contratual obrigatório (§3.2 NOVO); §3.5 separa eval suites (IA) de testes E2E + acceptance-report (platform); §4 com tabela "agentic vs platform" por princípio.
 
 **Commands ramificados (todos `project_type_aware: true`):**
 
-- `/acme:diagnose` v0.2.0 — aceita `--project_type` e `--ai_enabled`; bloco 5 do roteiro adapta-se (classified_outcome / operational_action / execution_event); output emite `proposed_outcome.kind` e `audit_log_event_expected`.
-- `/acme:spec` v0.2.0 — `--type` aceita `platform-module` e `automation-job` (template `platform-module-spec.template.md`); `type_compatibility_matrix` valida combinação com project_type.
-- `/acme:promote` v0.3.0 — aceita transições agentic (start_shadow/shadow_to_assisted/assisted_to_autonomous) **OU** platform (to_staging/to_pilot/to_canonical/to_deprecated). 6 gates reinterpretados: testes E2E + acceptance-report.md em vez de eval suite + shadow-mode-runner. Persistência em `pilot-state.md` para platform. Decisor cliente obrigatório para `to_canonical` com `criticality: critical`.
-- `/acme:audit-monthly` v0.2.0 — auditoria ramificada: `outcomes`+LLM trace para agentic, `audited_actions`+audit log para platform; `--module_filter`.
+- `/novais-digital:diagnose` v0.2.0 — aceita `--project_type` e `--ai_enabled`; bloco 5 do roteiro adapta-se (classified_outcome / operational_action / execution_event); output emite `proposed_outcome.kind` e `audit_log_event_expected`.
+- `/novais-digital:spec` v0.2.0 — `--type` aceita `platform-module` e `automation-job` (template `platform-module-spec.template.md`); `type_compatibility_matrix` valida combinação com project_type.
+- `/novais-digital:promote` v0.3.0 — aceita transições agentic (start_shadow/shadow_to_assisted/assisted_to_autonomous) **OU** platform (to_staging/to_pilot/to_canonical/to_deprecated). 6 gates reinterpretados: testes E2E + acceptance-report.md em vez de eval suite + shadow-mode-runner. Persistência em `pilot-state.md` para platform. Decisor cliente obrigatório para `to_canonical` com `criticality: critical`.
+- `/novais-digital:audit-monthly` v0.2.0 — auditoria ramificada: `outcomes`+LLM trace para agentic, `audited_actions`+audit log para platform; `--module_filter`.
 
 **Manifest v0.8.0:**
 
@@ -914,11 +914,11 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 
 **Decisão fundacional:**
 
-- F26 (NOVO) — Forge delivery-type agnostic: motivação (caso `school-platform`), implicações arquiteturais, SemVer, pendências.
+- F26 (NOVO) — Foundry delivery-type agnostic: motivação (caso `school-platform`), implicações arquiteturais, SemVer, pendências.
 
 ### Backwards compatibility — preservada
 
-Projetos consumidores **sem** `docs/forge/project.json` continuam funcionando exatamente como na v0.7.0:
+Projetos consumidores **sem** `docs/foundry/project.json` continuam funcionando exatamente como na v0.7.0:
 - defaults retroativos: `project_type: agentic_saas`, `ai_enabled: true`
 - todos os checks LLM-centric continuam disparando
 - eval suites + Langfuse + SHADOW/ASSISTED/AUTONOMOUS mantidos
@@ -926,10 +926,10 @@ Projetos consumidores **sem** `docs/forge/project.json` continuam funcionando ex
 
 O reviewer registra em `audit_metadata.limitations_encountered` quando aplica defaults legados, sugerindo criar `project.json` na próxima janela.
 
-### Pendências (Forge-9.x)
+### Pendências (Foundry-9.x)
 
-- **Hooks** (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Em projeto platform, simplesmente não disparam (paths/patterns LLM ausentes). Refator condicional explícito → Forge-9.1.
-- **Skills DeepAgent** (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas. Conversão para platform → Forge-9.2 (não bloqueia adoção pelo `school-platform`).
+- **Hooks** (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Em projeto platform, simplesmente não disparam (paths/patterns LLM ausentes). Refator condicional explícito → Foundry-9.1.
+- **Skills DeepAgent** (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas. Conversão para platform → Foundry-9.2 (não bloqueia adoção pelo `school-platform`).
 - **Primeira auditoria real** de projeto platform (`school-platform`) será o teste de stress da v0.8.0.
 
 ### Migração para projetos consumidores
@@ -938,7 +938,7 @@ O reviewer registra em `audit_metadata.limitations_encountered` quando aplica de
 
 **Projetos `platform` (incluindo `school-platform`)**:
 
-1. Copiar `templates/project.template.json` → `docs/forge/project.json` no repo do consumidor
+1. Copiar `templates/project.template.json` → `docs/foundry/project.json` no repo do consumidor
 2. Preencher: `project.type=platform`, `ai_enabled=false`, `economics.model=platform_margin`, `telemetry.audit_log_provider`, `telemetry.structured_logging_provider`, `telemetry.error_tracking_provider`
 3. Para cada módulo: criar `docs/specs/{module}.md` a partir de `platform-module-spec.template.md`
 4. Antes de cada `to_pilot`/`to_canonical`: criar `pilot-state.md` (template) e `acceptance-report.md` (template)
@@ -948,25 +948,25 @@ O reviewer registra em `audit_metadata.limitations_encountered` quando aplica de
 
 ## [0.7.0] — 2026-05-07
 
-### Added (Forge-8 — CI/CD esteira completa para produção)
+### Added (Foundry-8 — CI/CD esteira completa para produção)
 
-**Nenhum SKU pode promover para AUTONOMOUS sem CI/CD pipeline ativo verificável — Gate 6 obrigatório no `/acme:promote`:**
+**Nenhum SKU pode promover para AUTONOMOUS sem CI/CD pipeline ativo verificável — Gate 6 obrigatório no `/novais-digital:promote`:**
 
 **Novo diretório `templates/cicd/`:**
 
-- `templates/cicd/github-actions-validate.template.yml` — workflow de validação para todo PR: forge-doctor (7 checks estruturais) + skill-security-scan (S1-S5) + pre-merge G1-G5 (C7 imports, C8 anti-hardcode, C6 observe(), manifest sync, eval freshness). Copiar para `.github/workflows/forge-validate.yml`.
-- `templates/cicd/github-actions-eval.template.yml` — eval automático em mudanças de `prompts/`: detecta artifact_id modificado, roda eval por categoria via `scripts/eval-runner.py`, falha PR se `pass_rate < agreement_rate_min`, trace Langfuse obrigatório em CI (C6), comentário automático no PR com resumo. Copiar para `.github/workflows/forge-eval.yml`.
-- `templates/cicd/github-actions-audit.template.yml` — auditoria mensal via cron (1ª seg. 06:00 UTC): invoca reviewer DeepAgent (`forge-auditor`), commit automático de `docs/forge/audits/{YYYY-MM}.md`, cria Issue se SLA breach detectado. Trigger manual via `workflow_dispatch`. Copiar para `.github/workflows/forge-audit.yml`.
+- `templates/cicd/github-actions-validate.template.yml` — workflow de validação para todo PR: foundry-doctor (7 checks estruturais) + skill-security-scan (S1-S5) + pre-merge G1-G5 (C7 imports, C8 anti-hardcode, C6 observe(), manifest sync, eval freshness). Copiar para `.github/workflows/foundry-validate.yml`.
+- `templates/cicd/github-actions-eval.template.yml` — eval automático em mudanças de `prompts/`: detecta artifact_id modificado, roda eval por categoria via `scripts/eval-runner.py`, falha PR se `pass_rate < agreement_rate_min`, trace Langfuse obrigatório em CI (C6), comentário automático no PR com resumo. Copiar para `.github/workflows/foundry-eval.yml`.
+- `templates/cicd/github-actions-audit.template.yml` — auditoria mensal via cron (1ª seg. 06:00 UTC): invoca reviewer DeepAgent (`foundry-auditor`), commit automático de `docs/foundry/audits/{YYYY-MM}.md`, cria Issue se SLA breach detectado. Trigger manual via `workflow_dispatch`. Copiar para `.github/workflows/foundry-audit.yml`.
 - `templates/cicd/cicd-checklist.template.md` — checklist platform-agnostic com **27 itens em 7 seções** (validação estrutural, pre-merge G1-G5, eval automático, auditoria mensal, branch protection, secrets, rastreabilidade de deploys). **18 itens 🔴 obrigatórios** para Gate 6; 9 itens 🟡 recomendados. Preencher em `docs/cicd-checklist-{artifact_id}.md`.
 
-**Gate 6 CI/CD adicionado ao `/acme:promote`:**
+**Gate 6 CI/CD adicionado ao `/novais-digital:promote`:**
 
 - Gate 6 é **obrigatório apenas para `assisted_to_autonomous`** (skipped para start_shadow e shadow_to_assisted)
-- Evidências exigidas: `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`, todos os 18 itens 🔴 marcados, `ci_pipeline_url` preenchido, `last_ci_run_status: passing`, workflows `forge-validate` + `forge-eval` + `forge-audit` presentes
+- Evidências exigidas: `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`, todos os 18 itens 🔴 marcados, `ci_pipeline_url` preenchido, `last_ci_run_status: passing`, workflows `foundry-validate` + `foundry-eval` + `foundry-audit` presentes
 - `gate_count: 5 → 6`; output structured expandido com `cicd_pipeline_active: pass | skipped`
 - Tabela anti-rationalization: "CI/CD é DevOps, não bloqueia AUTONOMOUS" → bloqueado; completar Wave 6 e apresentar checklist
 
-**Wave 6 CI/CD adicionada ao `/acme:tasks`:**
+**Wave 6 CI/CD adicionada ao `/novais-digital:tasks`:**
 
 - 5 tasks (T6.1–T6.5): workflow validate, workflow eval + `scripts/eval-runner.py`, branch protection rules, workflow audit, checklist assinado
 - DAG expandido; T6.5 produz `docs/cicd-checklist-{artifact_id}.md` com `gate_6_status: pass`
@@ -980,24 +980,24 @@ O reviewer registra em `audit_metadata.limitations_encountered` quando aplica de
 
 **Decisão registrada (F25):**
 
-- `docs/forge/decisions.md` — F25 documenta a decisão de tornar CI/CD um Gate obrigatório (vs. recomendado), mapeamento com Constitution C1/C4/C6/C7, trade-off (custo adicional da Wave 6 em troca de garantia mecânica contra regressão em produção)
+- `docs/foundry/decisions.md` — F25 documenta a decisão de tornar CI/CD um Gate obrigatório (vs. recomendado), mapeamento com Constitution C1/C4/C6/C7, trade-off (custo adicional da Wave 6 em troca de garantia mecânica contra regressão em produção)
 
 ### Changed
 
 - `manifest.json` versão `0.6.0 → 0.7.0`; `phase` atualizado; novo bloco `artifacts.templates_cicd.files[]` com 4 entradas; `version_bumps.0.6.0_to_0.7.0` adicionado
-- `docs/forge/roadmap.md` — header status atualizado para v0.7.0; tabela expandida para **8 ondas**; nova seção **"Forge-8 — CI/CD esteira completa"** completa com tasks F8.1-F8.6 e critério de pronto
-- `docs/forge/decisions.md` — F25 adicionada; histórico expandido com linha v0.7.0
-- `.claude/commands/acme/tasks.md` — v0.1.0 → v0.2.0; Wave 6 adicionada; DAG expandido; verification gate atualizado
-- `.claude/commands/acme/promote.md` — v0.1.0 → v0.2.0; Gate 6 adicionado; gate_count 5→6; output structured expandido
+- `docs/foundry/roadmap.md` — header status atualizado para v0.7.0; tabela expandida para **8 ondas**; nova seção **"Foundry-8 — CI/CD esteira completa"** completa com tasks F8.1-F8.6 e critério de pronto
+- `docs/foundry/decisions.md` — F25 adicionada; histórico expandido com linha v0.7.0
+- `.claude/commands/novais-digital/tasks.md` — v0.1.0 → v0.2.0; Wave 6 adicionada; DAG expandido; verification gate atualizado
+- `.claude/commands/novais-digital/promote.md` — v0.1.0 → v0.2.0; Gate 6 adicionado; gate_count 5→6; output structured expandido
 - `.claude/agents/promotion-officer.md` — v0.1.0 → v0.2.0; Gate 6 integrado ao fluxo de `assisted_to_autonomous`
 
 ---
 
 ## [0.6.0] — 2026-05-07
 
-### Added (Forge-7 — AIOS agentes portáveis em templates físicos canônicos)
+### Added (Foundry-7 — AIOS agentes portáveis em templates físicos canônicos)
 
-**6 agentes AIOS extraídos como templates canônicos versionados na Forge — qualquer novo projeto consumidor recebe os agentes prontos via `/acme:aios-init` (sem hardcode de cliente, sem dependência da implementação de referência SchoolPlatform/EDIX):**
+**6 agentes AIOS extraídos como templates canônicos versionados na Foundry — qualquer novo projeto consumidor recebe os agentes prontos via `/novais-digital:aios-init` (sem hardcode de cliente, sem dependência da implementação de referência SchoolPlatform/EDIX):**
 
 **Novo diretório `templates/aios/`:**
 
@@ -1021,52 +1021,52 @@ Cada `entry.py.template` inclui obrigatoriamente:
 - `tenantId` lido de `task_input["tenant_id"]`, nunca hardcoded (C8)
 - Carregamento de `aios/config.yaml` para `_PROJECT_NAME` e `_STACK_*` em runtime (zero hardcode de cliente)
 
-**`/acme:aios-init` bumped para v0.2.0:**
+**`/novais-digital:aios-init` bumped para v0.2.0:**
 
 - Passa a **copiar dos templates físicos** em `templates/aios/` em vez de gerar boilerplate inline
-- Cobre os 6 agentes (Forge-6 cobria só 3): especializados são regenerados a cada chamada; compartilhados (schema/test/review) são **idempotentes** — só criados se ausentes
+- Cobre os 6 agentes (Foundry-6 cobria só 3): especializados são regenerados a cada chamada; compartilhados (schema/test/review) são **idempotentes** — só criados se ausentes
 - Cria `aios/orchestrator.py` e `aios/config.yaml` quando ausentes, copiando dos templates
 - Atualiza `aios/config.yaml → modules:` automaticamente com o novo módulo
-- Validation gate aumentado de 4 para 7 checks (adiciona: forge_root, pyyaml, langfuse-warning)
-- Resolução de `${FORGE_ROOT}` em ordem: `ACME_FORGE_ROOT` env → `./forge/` → `./.claude/forge/`
+- Validation gate aumentado de 4 para 7 checks (adiciona: foundry_root, pyyaml, langfuse-warning)
+- Resolução de `${FOUNDRY_ROOT}` em ordem: `NOVAIS_FOUNDRY_ROOT` env → `./foundry/` → `./.claude/foundry/`
 
 **Decisão registrada (F24):**
 
-- `docs/forge/decisions.md` — F24 documenta a extração dos agentes como templates canônicos, mapeamento com Constitution e trade-off (evolução coordenada via 6 arquivos centralizados em troca de garantia C7/C8 e propagação automática para todos os consumidores)
+- `docs/foundry/decisions.md` — F24 documenta a extração dos agentes como templates canônicos, mapeamento com Constitution e trade-off (evolução coordenada via 6 arquivos centralizados em troca de garantia C7/C8 e propagação automática para todos os consumidores)
 
 ### Changed
 
-- `manifest.json` versão `0.5.0 → 0.6.0`; novo bloco `artifacts.templates_aios.files[]` com 9 entradas (README + orchestrator + config + 6 agent dirs); `command-aios-init` bumped para v0.2.0; `_status` de `commands.aios` atualizado para "Forge-2+5+6+7"; `version_bumps.0.5.0_to_0.6.0` adicionado
-- `docs/forge/roadmap.md` — header status atualizado para v0.6.0; tabela de visão geral expandida para **7 ondas**; nova seção **"Forge-7 — AIOS agentes portáveis"** completa com tasks F7.1-F7.6 e critério de pronto (todas marcadas `[x]`)
-- `docs/forge/decisions.md` — F24 adicionada; histórico expandido com linha v0.6.0
+- `manifest.json` versão `0.5.0 → 0.6.0`; novo bloco `artifacts.templates_aios.files[]` com 9 entradas (README + orchestrator + config + 6 agent dirs); `command-aios-init` bumped para v0.2.0; `_status` de `commands.aios` atualizado para "Foundry-2+5+6+7"; `version_bumps.0.5.0_to_0.6.0` adicionado
+- `docs/foundry/roadmap.md` — header status atualizado para v0.6.0; tabela de visão geral expandida para **7 ondas**; nova seção **"Foundry-7 — AIOS agentes portáveis"** completa com tasks F7.1-F7.6 e critério de pronto (todas marcadas `[x]`)
+- `docs/foundry/decisions.md` — F24 adicionada; histórico expandido com linha v0.6.0
 
 ### Constitution
 
-8 princípios C1–C8 **inalterados**. Forge-7 é evolução de empacotamento da Forge-6 (camada de implementação no consumidor), não princípio novo — não exige MAJOR bump.
+8 princípios C1–C8 **inalterados**. Foundry-7 é evolução de empacotamento da Foundry-6 (camada de implementação no consumidor), não princípio novo — não exige MAJOR bump.
 
 ---
 
 ## [0.5.0] — 2026-05-06
 
-### Added (Forge-6 — AIOS Server camada de implementação multiagente)
+### Added (Foundry-6 — AIOS Server camada de implementação multiagente)
 
 **Suporte nativo no framework para projetos consumidores que adotam AIOS Server (`agiresearch/AIOS` v0.2.2, arXiv 2403.16971) como kernel LLM OS:**
 
-**3 novos slash commands em `.claude/commands/acme/`:**
+**3 novos slash commands em `.claude/commands/novais-digital/`:**
 
-- `/acme:aios-init` — scaffolda estrutura `aios/agents/{module}/` (spec_agent + backend_agent + frontend_agent) com 4 checks pré-criação (spec existe, aios/config.yaml existe, Python 3.10+, ANTHROPIC_API_KEY)
-- `/acme:aios-run` — wrapper para `python aios/orchestrator.py pipeline` com health check do kernel + **gates humanos C4 obrigatórios** após cada step (spec/build/test/review). Não re-executa automaticamente após gate rejeitado
-- `/acme:aios-status` — comando read-only que exibe tabela de status de todos os módulos (spec/backend/frontend/testes/review/kernel) com detecção de BLOCKERs em review e fallback filesystem sem kernel
+- `/novais-digital:aios-init` — scaffolda estrutura `aios/agents/{module}/` (spec_agent + backend_agent + frontend_agent) com 4 checks pré-criação (spec existe, aios/config.yaml existe, Python 3.10+, ANTHROPIC_API_KEY)
+- `/novais-digital:aios-run` — wrapper para `python aios/orchestrator.py pipeline` com health check do kernel + **gates humanos C4 obrigatórios** após cada step (spec/build/test/review). Não re-executa automaticamente após gate rejeitado
+- `/novais-digital:aios-status` — comando read-only que exibe tabela de status de todos os módulos (spec/backend/frontend/testes/review/kernel) com detecção de BLOCKERs em review e fallback filesystem sem kernel
 
 **3 commands existentes atualizados (mudanças condicionais — comportamento original preservado quando `aios_tier` ausente):**
 
-- `/acme:plan` — seção 9 condicional "Classificação AIOS" com tabela de módulos, aviso C7 portabilidade (SYSTEM_PROMPTs standalone), próximos passos por tier
-- `/acme:tasks` — Wave 2-AIOS com 4 tasks (T2-AIOS-1 init → T2-AIOS-2 build → T2-AIOS-3 test+review → T2-AIOS-4 mover para src/) emitida quando `spec.aios_tier` presente
-- `/acme:implement` — bloco "Modo de implementação" no topo com detecção de `--via aios` ou `spec.aios_tier`, health check do kernel, redirecionamento para `/acme:aios-run`. Argumento opcional `via_aios` adicionado ao frontmatter
+- `/novais-digital:plan` — seção 9 condicional "Classificação AIOS" com tabela de módulos, aviso C7 portabilidade (SYSTEM_PROMPTs standalone), próximos passos por tier
+- `/novais-digital:tasks` — Wave 2-AIOS com 4 tasks (T2-AIOS-1 init → T2-AIOS-2 build → T2-AIOS-3 test+review → T2-AIOS-4 mover para src/) emitida quando `spec.aios_tier` presente
+- `/novais-digital:implement` — bloco "Modo de implementação" no topo com detecção de `--via aios` ou `spec.aios_tier`, health check do kernel, redirecionamento para `/novais-digital:aios-run`. Argumento opcional `via_aios` adicionado ao frontmatter
 
 **Padrão de telemetria oficial:**
 
-- `docs/forge/aios-telemetry-pattern.md` — Langfuse `trace.generation()` → `generation.end()` em cada `send_request()`, campos obrigatórios (`name`, `agent`, `module`, `tier`, `aios_version`, `trace_id`), mock fallback `_MockTrace` para dev local sem `LANGFUSE_PUBLIC_KEY`, integração com hook existente `langfuse-trace-check.sh`, mapeamento explícito C6/C7/C8
+- `docs/foundry/aios-telemetry-pattern.md` — Langfuse `trace.generation()` → `generation.end()` em cada `send_request()`, campos obrigatórios (`name`, `agent`, `module`, `tier`, `aios_version`, `trace_id`), mock fallback `_MockTrace` para dev local sem `LANGFUSE_PUBLIC_KEY`, integração com hook existente `langfuse-trace-check.sh`, mapeamento explícito C6/C7/C8
 
 **Template atualizado:**
 
@@ -1074,17 +1074,17 @@ Cada `entry.py.template` inclui obrigatoriamente:
 
 **Decisão registrada (F23):**
 
-- `docs/forge/decisions.md` — F23 documenta adoção de AIOS pelo projeto consumidor SchoolPlatform/EDIX e o **mapeamento com a Constitution sem alterar princípios**: Tier A/B/C ↔ C5; `send_request()` + Langfuse ↔ C6; SYSTEM_PROMPTs standalone ↔ C7; `tenantId` em `task_input` ↔ C8
+- `docs/foundry/decisions.md` — F23 documenta adoção de AIOS pelo projeto consumidor SchoolPlatform/EDIX e o **mapeamento com a Constitution sem alterar princípios**: Tier A/B/C ↔ C5; `send_request()` + Langfuse ↔ C6; SYSTEM_PROMPTs standalone ↔ C7; `tenantId` em `task_input` ↔ C8
 
 ### Changed
 
-- `manifest.json` versão `0.4.1 → 0.5.0`; nova seção `artifacts.commands.aios[]` com 3 entradas; `forge-aios-telemetry-pattern` adicionado em `forge_docs[]`; `_status` de commands atualizado para "Forge-2+5+6 — 15 commands"; `version_bumps.0.4.1_to_0.5.0` adicionado
-- `docs/forge/roadmap.md` — header status atualizado para v0.5.0; tabela de visão geral expandida com Forge-6; nova seção **"Forge-6 — AIOS Server"** completa com tasks F6.1–F6.6 e critério de pronto (todas marcadas `[x]`)
-- `docs/forge/decisions.md` — histórico expandido com linha v0.5.0 / F23
+- `manifest.json` versão `0.4.1 → 0.5.0`; nova seção `artifacts.commands.aios[]` com 3 entradas; `foundry-aios-telemetry-pattern` adicionado em `foundry_docs[]`; `_status` de commands atualizado para "Foundry-2+5+6 — 15 commands"; `version_bumps.0.4.1_to_0.5.0` adicionado
+- `docs/foundry/roadmap.md` — header status atualizado para v0.5.0; tabela de visão geral expandida com Foundry-6; nova seção **"Foundry-6 — AIOS Server"** completa com tasks F6.1–F6.6 e critério de pronto (todas marcadas `[x]`)
+- `docs/foundry/decisions.md` — histórico expandido com linha v0.5.0 / F23
 
 ### Constitution
 
-8 princípios C1–C8 **inalterados**. Forge-6 é camada de implementação no consumidor, não princípio novo — não exige MAJOR bump.
+8 princípios C1–C8 **inalterados**. Foundry-6 é camada de implementação no consumidor, não princípio novo — não exige MAJOR bump.
 
 ---
 
@@ -1094,28 +1094,28 @@ Cada `entry.py.template` inclui obrigatoriamente:
 
 **6 divergências de versão/status corrigidas após auditoria interna pré-CI:**
 
-- `README.md` — badges atualizados (`version-0.2.0` → `0.4.1`, `phase-Forge-0` → `Forge-5`); tabela "Status atual" corrigida para refletir Forge-1..5 concluídas; seção "Forge resolve com" expandida (items 5-8 adicionados: hooks, commands, agents, skills); "Estrutura do repositório" expandida com `.claude/{skills,agents,commands}/`, `hooks/`, `docs/playbooks/`, `docs/retrospectives/`, 3 templates novos e `reviewer/deepagents/`
-- `.claude/settings.json` — `_forge_version: "0.3.0"` → `"0.4.1"`; `_constitution_version: "0.1.0"` → `"0.2.0"` (Constitution é fonte canônica — settings espelha)
-- `docs/forge/decisions.md` — título e header atualizados para "F1–F22 / v0.4.1"; F22 adicionada documentando a sincronização e a política sha256
-- `docs/forge/roadmap.md` — header de status atualizado para v0.4.1
-- `docs/forge/manifest.json` — `manifest_version` e `framework.version` bumped para `0.4.1`; versões individuais de readme, changelog, forge-decisions, forge-roadmap, forge-manifest, claude-settings atualizadas; `sha256_policy: "post-install"` adicionado em `_meta`; `path_kind: "directory"` adicionado em `examples/acme/`; `version_bumps.0.4.0_to_0.4.1` adicionado
+- `README.md` — badges atualizados (`version-0.2.0` → `0.4.1`, `phase-Foundry-0` → `Foundry-5`); tabela "Status atual" corrigida para refletir Foundry-1..5 concluídas; seção "Foundry resolve com" expandida (items 5-8 adicionados: hooks, commands, agents, skills); "Estrutura do repositório" expandida com `.claude/{skills,agents,commands}/`, `hooks/`, `docs/playbooks/`, `docs/retrospectives/`, 3 templates novos e `reviewer/deepagents/`
+- `.claude/settings.json` — `_foundry_version: "0.3.0"` → `"0.4.1"`; `_constitution_version: "0.1.0"` → `"0.2.0"` (Constitution é fonte canônica — settings espelha)
+- `docs/foundry/decisions.md` — título e header atualizados para "F1–F22 / v0.4.1"; F22 adicionada documentando a sincronização e a política sha256
+- `docs/foundry/roadmap.md` — header de status atualizado para v0.4.1
+- `docs/foundry/manifest.json` — `manifest_version` e `framework.version` bumped para `0.4.1`; versões individuais de readme, changelog, foundry-decisions, foundry-roadmap, foundry-manifest, claude-settings atualizadas; `sha256_policy: "post-install"` adicionado em `_meta`; `path_kind: "directory"` adicionado em `examples/novais-digital/`; `version_bumps.0.4.0_to_0.4.1` adicionado
 
 ### Added
 
 - `reviewer/README.md` — índice do diretório `reviewer/`, ordem de leitura para deep-agent e dev humano, tabela de assets, ponteiro para `deepagents/README.md` e `reviewer-contract.md`
-- `docs/forge/manifest.json` — entry `reviewer-readme` em `artifacts.reviewer_assets`
+- `docs/foundry/manifest.json` — entry `reviewer-readme` em `artifacts.reviewer_assets`
 
 ---
 
 ## [0.4.0] — 2026-05-01
 
-### Added (Forge-5 — Playbooks verticais)
+### Added (Foundry-5 — Playbooks verticais)
 
 **Infraestrutura para reutilização vertical (meta: cliente 2 ≤ 30% esforço do cliente 1):**
 
 - `templates/playbook.template.md` — template de playbook vertical com blocos reutilizáveis por tier (confiança alta/média/baixa), padrão de TenantContext, métricas de esforço cliente 1 vs. cliente 2
 - `templates/retrospective.template.md` — retrospectiva por SKU com compliance C1-C8, gate failures, métricas reais (C3 custo/preço, C4 SHADOW, C6 trace coverage), lições aprendidas
-- `/acme:playbook-extract` — slash command que guia extração de playbook a partir de SKU em AUTONOMOUS; gera `docs/playbooks/{vertical}/playbook.md` + `docs/retrospectives/{sku}/`
+- `/novais-digital:playbook-extract` — slash command que guia extração de playbook a partir de SKU em AUTONOMOUS; gera `docs/playbooks/{vertical}/playbook.md` + `docs/retrospectives/{sku}/`
 - `docs/playbooks/README.md` + `docs/retrospectives/` — estrutura de diretórios no framework
 
 **Decisões adicionadas:**
@@ -1126,13 +1126,13 @@ Cada `entry.py.template` inclui obrigatoriamente:
 ### Changed
 
 - `manifest.json` versão `0.3.0 → 0.4.0` (12 commands: +playbook-extract; 12 templates: +playbook + retrospective)
-- `docs/forge/decisions.md` — F19, F20, F21 adicionadas; histórico atualizado
+- `docs/foundry/decisions.md` — F19, F20, F21 adicionadas; histórico atualizado
 
 ---
 
 ## [0.3.0] — 2026-05-01
 
-### Added (Forge-4 — Hooks runtime)
+### Added (Foundry-4 — Hooks runtime)
 
 **9 hooks ativos em `.claude/settings.json`:**
 
@@ -1144,20 +1144,20 @@ Cada `entry.py.template` inclui obrigatoriamente:
 | `any-type-guard` | PreToolUse | 2 (block) | Bloqueia `any` TypeScript em src/skus + src/agents |
 | `langfuse-trace-check` | PostToolUse | 1 (warn) | LLM calls sem trace Langfuse (C6) |
 | `unit-economics-recalc` | PostToolUse | 1 (warn) | Prompts mudaram — recalc C3 necessário |
-| `manifest-sync` | PostToolUse | 0 (info) | Artefatos Forge mudaram sem update de manifest |
+| `manifest-sync` | PostToolUse | 0 (info) | Artefatos Foundry mudaram sem update de manifest |
 | `5-gates-summary` | Stop | 0/1 | Relatório dos 5 gates ao fim de sessão |
 | `eval-suite-fresh` | Stop | 0/1 | Eval suites < 30 casos (C4) ao fim de sessão |
 
-**Bypass auditado:** `ACME_FORGE_BYPASS=<motivo>` em env ou `settings.local.json` (gitignored). Todos os bypasses registrados em `docs/forge/bypass-log/YYYY-MM-DD.md`.
+**Bypass auditado:** `NOVAIS_FOUNDRY_BYPASS=<motivo>` em env ou `settings.local.json` (gitignored). Todos os bypasses registrados em `docs/foundry/bypass-log/YYYY-MM-DD.md`.
 
 **Skill security scan standalone:** `hooks/scripts/skill-security-scan.sh` — 5 checks (S1-S5: secrets, URLs, destrutivos, bypass, frontmatter) — para uso em CI/PR.
 
-**Relatórios de sessão:** `docs/forge/session-gate-reports/` — persistidos pelo `5-gates-summary` hook.
+**Relatórios de sessão:** `docs/foundry/session-gate-reports/` — persistidos pelo `5-gates-summary` hook.
 
 ### Changed
 
-- `settings.json` `_forge_version` bumped `0.1.0 → 0.3.0`
-- `settings.json` `_planned_features` → `_forge_features` (hooks_path adicionado)
+- `settings.json` `_foundry_version` bumped `0.1.0 → 0.3.0`
+- `settings.json` `_planned_features` → `_foundry_features` (hooks_path adicionado)
 - `manifest.json` versão `0.2.0 → 0.3.0`
 
 ---
@@ -1166,14 +1166,14 @@ Cada `entry.py.template` inclui obrigatoriamente:
 
 ### Repositioning
 
-**Forge agora é repositório standalone consumível por N projetos** (devs com Claude Code + DeepAgents + outros agentes autônomos), não mais framework embarcado em `acme-governanca-ia`.
+**Foundry agora é repositório standalone consumível por N projetos** (devs com Claude Code + DeepAgents + outros agentes autônomos), não mais framework embarcado em `novais-digital-governanca-ia`.
 
 ### Added (multi-consumer enablement)
 
 - **README.md** reescrito para 3 audiências (dev humano, deep-agent, framework-maintainer)
-- **QUICKSTART.md** — instalar Forge em projeto novo em <5 minutos
+- **QUICKSTART.md** — instalar Foundry em projeto novo em <5 minutos
 - **ARCHITECTURE.md** — visão estrutural, fluxos, camadas de governança (1-6)
-- **DEEPAGENT_GUIDE.md** — como agente autônomo navega o Forge para auditoria mensal
+- **DEEPAGENT_GUIDE.md** — como agente autônomo navega o Foundry para auditoria mensal
 - **GLOSSARY.md** — vocabulário compartilhado entre humanos e agentes
 - **CONTRIBUTING.md** — processo de evolução do framework
 
@@ -1192,29 +1192,29 @@ Cada `entry.py.template` inclui obrigatoriamente:
 - `reviewer/validation-rules.json` — checks formais para cada princípio C1-C8
 - `reviewer/example-audit.md` — exemplo sintético de relatório bem-feito (gabarito)
 
-### Added (caso real como exemplo — pasta `examples/acme/`)
+### Added (caso real como exemplo — pasta `examples/novais-digital/`)
 
-- `examples/acme/README.md` — overview do caso Acme
-- `examples/acme/portfolio.md` — 3 categorias formais (Diagnóstico/Plataforma/Produtos)
-- `examples/acme/constitution-extension.md` — princípios C9, C10, C11 específicos Acme (lifecycle, two-track economics, portfolio)
-- `examples/acme/clickup-blueprint.md` — estrutura ClickUp interno Acme
-- `examples/acme/methodology/` — 3 metodologias originais (clássica, SaaS², Sincra)
-- `examples/acme/products/acme-fin.md` — Acme Fin (Beta em produção)
-- `examples/acme/products/acme-educacional.md` — Acme Educacional (Discovery)
+- `examples/novais-digital/README.md` — overview do caso Novais Digital
+- `examples/novais-digital/portfolio.md` — 3 categorias formais (Diagnóstico/Plataforma/Produtos)
+- `examples/novais-digital/constitution-extension.md` — princípios C9, C10, C11 específicos Novais Digital (lifecycle, two-track economics, portfolio)
+- `examples/novais-digital/clickup-blueprint.md` — estrutura ClickUp interno Novais Digital
+- `examples/novais-digital/methodology/` — 3 metodologias originais (clássica, SaaS², Sincra)
+- `examples/novais-digital/products/novais-fin.md` — Novais Digital Fin (Beta em produção)
+- `examples/novais-digital/products/novais-educacional.md` — Novais Digital Educacional (Discovery)
 
 ### Changed
 
-- **Constitution v0.1.0 → v0.2.0**: princípios C1-C8 desacoplados de Acme específico; vocabulário multi-domínio (Tier 1/2/3 ou L0/L1/L2 ou Strategic/Tactical/Operational); refs Acme hardcoded movidas para `examples/acme/constitution-extension.md`
+- **Constitution v0.1.0 → v0.2.0**: princípios C1-C8 desacoplados de Novais Digital específico; vocabulário multi-domínio (Tier 1/2/3 ou L0/L1/L2 ou Strategic/Tactical/Operational); refs Novais Digital hardcoded movidas para `examples/novais-digital/constitution-extension.md`
 - **Manifest enriquecido**: `consumer_types[]`, `principle_extensions_path`, `reviewer.artifacts{}`, `templates[]` expandido para 9, `reviewer_assets[]`, `examples[]`
 - **Decisions F2** atualizado: instalação como projeto-only → repositório standalone consumível externamente
 - **`templates/sku-spec.template.md` → `templates/platform-sku-spec.template.md`**: renomeado para clareza (existem agora 3 tipos de spec: platform-sku, product, diagnostic)
 
 ### New decisions registered
 
-- **F13** — Constitution genérica vs Acme-específica (extensões em `examples/`)
+- **F13** — Constitution genérica vs Novais-específica (extensões em `examples/`)
 - **F14** — `examples/` como caso real, não conteúdo prescritivo
 - **F15** — SemVer estrito com regras de bump claras
-- **F16** — Distribuição privada por enquanto; reavaliar pós Forge-5
+- **F16** — Distribuição privada por enquanto; reavaliar pós Foundry-5
 
 ### Constitution principles status
 
@@ -1229,7 +1229,7 @@ Cada `entry.py.template` inclui obrigatoriamente:
 - C7 — Portability over lock-in
 - C8 — Anti-customização heroica
 
-Extensões Acme (em `examples/acme/constitution-extension.md`):
+Extensões Novais Digital (em `examples/novais-digital/constitution-extension.md`):
 
 - C9 — Lifecycle declarado por produto/SKU
 - C10 — Two-track economics
@@ -1239,7 +1239,7 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ## [0.1.0] — 2026-04-30
 
-### Added (Forge-0 — Fundação)
+### Added (Foundry-0 — Fundação)
 
 - **Constitution v0.1.0** com 8 princípios versionados (`.claude/CONSTITUTION.md`)
   - C1 Diagnose-before-design
@@ -1253,32 +1253,32 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 - **`.claude/settings.json`** com:
   - Allow list de comandos seguros (npm, prisma, git read-only, docker compose)
   - Deny list de comandos destrutivos (`rm -rf`, `npm publish`, `prisma migrate reset --force`, `git push --force`, `docker volume rm`)
-  - Hooks placeholders documentando intent (Forge-4 implementa)
+  - Hooks placeholders documentando intent (Foundry-4 implementa)
 - **4 templates fundamentais** (`templates/`):
-  - `sku-spec.template.md` — consolida D1 + D2 da Onda 0 Acme com cláusula contratual de outcome
+  - `sku-spec.template.md` — consolida D1 + D2 da Onda 0 Novais Digital com cláusula contratual de outcome
   - `adr.template.md` — Architecture Decision Record padrão
   - `eval-case.template.md` — caso de eval suite por SKU com gabarito justificado
   - `unit-economics.template.md` — consolida D5 com gate C3 (custo ≤ 25%)
-- **6 documentos do framework** (`docs/forge/`):
+- **6 documentos do framework** (`docs/foundry/`):
   - `README.md` — overview interno e ponteiros
   - `decisions.md` — F1-F8 com defaults aprovados pelo CEO + override F4 (DeepAgents/GPT-5.5)
-  - `roadmap.md` — 5 ondas Forge-0 a Forge-5 com tasks e critérios de pronto
+  - `roadmap.md` — 5 ondas Foundry-0 a Foundry-5 com tasks e critérios de pronto
   - `reviewer-contract.md` — contrato formal com reviewer externo DeepAgents/GPT-5.5
-  - `out-of-scope.md` — o que explicitamente NÃO entra no Forge
+  - `out-of-scope.md` — o que explicitamente NÃO entra no Foundry
   - `manifest.json` — inventory machine-readable consumido pelo reviewer
 - **`CLAUDE.md.template`** — template para projeto consumidor adaptar como CLAUDE.md raiz
 - **`README.md` raiz** + **`INSTALL.md`** — onboarding e instalação manual
 
 ### Decisões registradas
 
-- **F1** Nome: Acme Forge ✅
-- **F2** Instalação: projeto-only primeiro (cross-project será reavaliado pós Forge-3) ✅
+- **F1** Nome: Novais Digital Foundry ✅
+- **F2** Instalação: projeto-only primeiro (cross-project será reavaliado pós Foundry-3) ✅
 - **F3** `lc-spec-driven`: pular até confirmar nome correto (não encontrado no GitHub) ✅
 - **F4** Reviewer: **DeepAgents/GPT-5.5** ⚠️ (override de Gemini Pro inicialmente sugerido)
-- **F5** Plugin marketplace: não na Forge-0 ✅
+- **F5** Plugin marketplace: não na Foundry-0 ✅
 - **F6** BMAD helper pattern: sim, apenas em L0 ✅
 - **F7** Smart model routing: aceitar default (Opus / Sonnet / Haiku) ✅
-- **F8** `legacy-pmo/`: usar como L0 temporário até Onda 5 da Acme ✅
+- **F8** `legacy-pmo/`: usar como L0 temporário até Onda 5 da Novais Digital ✅
 
 ### Repos absorvidos (origem dos componentes)
 
@@ -1303,22 +1303,22 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ### Pendências para próximas ondas
 
-- F9: Stack do reviewer (Python `deepagents` vs Node/TS LangGraph) — Forge-3
-- F10: Provedor (OpenAI direto vs OpenRouter vs Vertex) — Forge-3
-- F11: Cadência da auditoria (mensal default; eventos críticos disparam?) — Forge-3
-- F12: Adoção em outros projetos do workspace (CarInsight, FacilIAuto) — pós Forge-5
+- F9: Stack do reviewer (Python `deepagents` vs Node/TS LangGraph) — Foundry-3
+- F10: Provedor (OpenAI direto vs OpenRouter vs Vertex) — Foundry-3
+- F11: Cadência da auditoria (mensal default; eventos críticos disparam?) — Foundry-3
+- F12: Adoção em outros projetos do workspace (CarInsight, FacilIAuto) — pós Foundry-5
 
 ---
 
-## [Unreleased] — Forge-3 em execução
+## [Unreleased] — Foundry-3 em execução
 
 ### Added (2026-05-01) — 10 subagents Claude Code (`.claude/agents/`)
 
 - **4 Guardians Opus** (decisão estratégica):
-  - `po-guardian` — Product Owner; valida cláusula de outcome (C2), ICP fit, catalog fit; cross-approver mandatório do `/acme:promote` Gate 5
+  - `po-guardian` — Product Owner; valida cláusula de outcome (C2), ICP fit, catalog fit; cross-approver mandatório do `/novais-digital:promote` Gate 5
   - `artifact-architect` — **renomeado de `sku-architect`** (alinhamento v0.2.0 — multi-type artifact); plan 8 seções, `agent_readiness_score`, abstração C5/C7/C8; `target_model` advisory apenas
-  - `unit-economist` — economic firewall; valida `c3_check`, baseline-cost, força recalc quando `prompt_hash` muda; bloqueia `/acme:sla-threshold` se unviable
-  - `promotion-officer` — autoridade de transição de modo; Gate 5 do `/acme:promote`; cross-approval com `po-guardian`; refuta self-approval; gate adicional para `assisted_to_autonomous`
+  - `unit-economist` — economic firewall; valida `c3_check`, baseline-cost, força recalc quando `prompt_hash` muda; bloqueia `/novais-digital:sla-threshold` se unviable
+  - `promotion-officer` — autoridade de transição de modo; Gate 5 do `/novais-digital:promote`; cross-approval com `po-guardian`; refuta self-approval; gate adicional para `assisted_to_autonomous`
 - **4 Guardians Sonnet** (validação técnica):
   - `eval-engineer` — eval suite quality; coverage por outcome_category, source_mode breakdown (real/synthetic/edge/adversarial), ground-truth justified, regressão por `prompt_hash`
   - `tenant-context-curator` — anti-customização (C8); lint regex de `tenantId === '...'`, `switch(tenantName)`, pastas `clients/{nome}/`; valida TenantContext schema
@@ -1326,7 +1326,7 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
   - `security-privacy-guardian` — PII/LGPD/secrets; lint em eval-cases, prompts, traces sample; **assinatura terceira mandatória** para `assisted_to_autonomous`
 - **2 cross-LLM reviewers**:
   - `code-reviewer-claude` (Sonnet) — code review nativo Claude para PRs (focado em src/, prompts/, evals/)
-  - `code-reviewer-cross` (Haiku, delegator) — **bridge** para o DeepAgent externo (`forge-auditor` via deepagents CLI); não revisa diretamente; orquestra invocação + traduz output
+  - `code-reviewer-cross` (Haiku, delegator) — **bridge** para o DeepAgent externo (`foundry-auditor` via deepagents CLI); não revisa diretamente; orquestra invocação + traduz output
 
 ### Added — Template ADR-002
 
@@ -1349,22 +1349,22 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 - `artifacts.agents{}` populado com 3 grupos (`guardians_opus`, `guardians_sonnet`, `cross_llm_reviewers`) — total 10 entradas
 - `artifacts.templates[]` cresce de 9 para 10 (adiciona `template-adr-reviewer-runtime`)
-- `framework.phase` indica "Forge-3 in progress — 10 SKILL.md + 8 Guardians + 2 cross-LLM reviewers delivered"
+- `framework.phase` indica "Foundry-3 in progress — 10 SKILL.md + 8 Guardians + 2 cross-LLM reviewers delivered"
 
-### Pendente em Forge-3 (responsabilidade do consumer)
+### Pendente em Foundry-3 (responsabilidade do consumer)
 
 - ADR-002 efetiva no projeto consumidor (template entregue)
-- Primeira auditoria mensal de teste com `forge-auditor` rodando contra repo real
+- Primeira auditoria mensal de teste com `foundry-auditor` rodando contra repo real
 
 ---
 
-## [Pré-Forge-3 agents] — Reviewer DeepAgent infraestrutura
+## [Pré-Foundry-3 agents] — Reviewer DeepAgent infraestrutura
 
 ### Added (2026-05-01) — Reviewer DeepAgent (F17 + F18)
 
-- **Decisões F17/F18 registradas** em `docs/forge/decisions.md`:
+- **Decisões F17/F18 registradas** em `docs/foundry/decisions.md`:
   - F17: stack do reviewer = **`deepagents` CLI (Python, LangChain) v0.0.34+**; processo separado, modelo configurável via `DEEPAGENTS_MODEL`
-  - F18: tradução Claude Code → Deep Agents via `andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter` (MIT); skills do Forge ficam canônicas em `.claude/skills/`, versão Deep Agents em `reviewer/deepagents/skills/` é **gerada** (nunca editada à mão)
+  - F18: tradução Claude Code → Deep Agents via `andersonamaral2/Claude-Code-to-Deep-Agents-Skills-Converter` (MIT); skills do Foundry ficam canônicas em `.claude/skills/`, versão Deep Agents em `reviewer/deepagents/skills/` é **gerada** (nunca editada à mão)
 
 - **Estrutura `reviewer/deepagents/`** criada:
   - `README.md` — guia de instalação (Deep Agents CLI + converter + 10 skills) e uso
@@ -1372,7 +1372,7 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
   - `skills/L0/{company-dna,icp-loader,offerings-loader}/SKILL.md` — 3 skills Tier 1 convertidas
   - `skills/L1/{baseline-cost-builder,diagnostic-runner,process-mapper}/SKILL.md` — 3 skills Tier 2 convertidas
   - `skills/L2/{artifact-prompt-builder,eval-case-author,shadow-mode-runner}/SKILL.md` — 3 skills Tier 3 convertidas
-  - `skills/reviewer/forge-auditor/SKILL.md` — **skill nativa Deep Agents** (não convertida) que orquestra a auditoria mensal C1-C8 via 9 sub-agents `task` paralelos
+  - `skills/reviewer/foundry-auditor/SKILL.md` — **skill nativa Deep Agents** (não convertida) que orquestra a auditoria mensal C1-C8 via 9 sub-agents `task` paralelos
 
 - **8 transformações T1-T8** aplicadas em cada conversão:
   - T1 Execution Context (tabela de tools `read_file/write_file/execute/task`)
@@ -1386,9 +1386,9 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 - **Manifest** atualizado: `framework.reviewer.stack` declarado, `implementation_status` mudado de `specified-not-implemented` para `infrastructure-complete`, lista completa dos 10 SKILL.md em `deepagents_skills[]`
 
-- **Output do reviewer**: `forge-auditor` produz `docs/forge/audits/{YYYY-MM}.md` validado contra `reviewer/output-schema.json`. Auditoria roda 9 checks em paralelo (C1-C8 + structural drift) via `task`.
+- **Output do reviewer**: `foundry-auditor` produz `docs/foundry/audits/{YYYY-MM}.md` validado contra `reviewer/output-schema.json`. Auditoria roda 9 checks em paralelo (C1-C8 + structural drift) via `task`.
 
-### Pendente em Forge-3
+### Pendente em Foundry-3
 
 - 8 Subagent Guardians (`po-guardian`, `sku-architect`, `unit-economist`, `eval-engineer`, `tenant-context-curator`, `observability-guardian`, `promotion-officer`, `security-privacy-guardian`)
 - 2 Cross-LLM reviewers (`code-reviewer-claude`, `code-reviewer-cross`)
@@ -1397,21 +1397,21 @@ Extensões Acme (em `examples/acme/constitution-extension.md`):
 
 ---
 
-## [Pré-Forge-3] — Forge-1 em execução
+## [Pré-Foundry-3] — Foundry-1 em execução
 
-### Added (Forge-1 — Tier 1 entregue, 2026-04-30)
+### Added (Foundry-1 — Tier 1 entregue, 2026-04-30)
 
 - **3 skills L0 (Tier 1 estratégico)** em `.claude/skills/L0/` com helper pattern BMAD:
   - `company-dna.md` — carrega DNA da organização (purpose, mission, values, north-star) em YAML compacto cacheável
   - `icp-loader.md` — carrega Ideal Customer Profile com sinais de qualificação e **anti-ICP** mandatório
   - `offerings-loader.md` — carrega catálogo de ofertas com `lifecycle_stage` e `pricing_model` declarados
-- **`docs/forge/helper-pattern.md`** — documenta padrão BMAD (cache `ephemeral-strong`, namespace `__forge_cache.<key>`, regras hard R1-R4) com meta de ≥70% redução de tokens
-- **Manifest** atualizado: `artifacts.skills.L0[]` populado com 3 entradas; `framework.phase` mudada para `Forge-1 in progress`
+- **`docs/foundry/helper-pattern.md`** — documenta padrão BMAD (cache `ephemeral-strong`, namespace `__foundry_cache.<key>`, regras hard R1-R4) com meta de ≥70% redução de tokens
+- **Manifest** atualizado: `artifacts.skills.L0[]` populado com 3 entradas; `framework.phase` mudada para `Foundry-1 in progress`
 
 ### Padrão das skills L0 (canonical reference)
 
 Cada skill segue estrutura:
-- Frontmatter Anthropic (`name`, `description`) + extensões Forge (`tier`, `linked_principles`, `helper_pattern`, `cache_strategy`, `reads_from_tier`, `must_not_read`, `activation.{paths,keywords,explicit_invocation}`)
+- Frontmatter Anthropic (`name`, `description`) + extensões Foundry (`tier`, `linked_principles`, `helper_pattern`, `cache_strategy`, `reads_from_tier`, `must_not_read`, `activation.{paths,keywords,explicit_invocation}`)
 - Tabela anti-rationalization (Addy Osmani) — 5 tentações comuns × resposta correta
 - Verification gate com checklist
 - C5 hard rule (Tier 1 **não** lê Tier 2/3)
@@ -1419,15 +1419,15 @@ Cada skill segue estrutura:
 
 ### Scope decision
 
-Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme-específicas (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`) ficam em `examples/acme/skills/` (consumidas por `acme-governanca-ia`), respeitando F13/F14.
+Foundry-1 escopo enxuto: apenas **9 skills genéricas** no Foundry. As 4 skills Novais-específicas (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`) ficam em `examples/novais-digital/skills/` (consumidas por `novais-digital-governanca-ia`), respeitando F13/F14.
 
-### Added (Forge-2 — validation entregue, 2026-04-30) — **Forge-2 completa: 11/11 commands**
+### Added (Foundry-2 — validation entregue, 2026-04-30) — **Foundry-2 completa: 11/11 commands**
 
-- **4 slash commands** em `.claude/commands/acme/` fechando o pipeline:
-  - `/acme:eval` — executa eval suite com **pass rate por outcome_category** + **source_mode breakdown** (real/synthetic/edge/adversarial) + detecção de **regressão** vs último run com mesmo `prompt_hash`. Sub-trace por case (100%, sem amostragem)
-  - `/acme:promote` — **único caminho legítimo** para mudar `subscription.mode`; valida **5 gates** obrigatórios (C2 outcome clause hash match, C3 viable + recalc clean, C4 SLA pré-contratada com signature, eval recente verde, aprovação cruzada PO × Promotion Officer). Append-only log em `subscriptions/{id}/promotions.md`
-  - `/acme:audit-monthly` — sample 5-10% de runs ASSISTED/AUTONOMOUS, audit estrutural C1-C8 (lint regex C7/C8 + correspondência prompt ↔ baseline-cost), drift detection, formato consumível pelo reviewer DeepAgent (`reviewer/output-schema.json`). Suporta `auto_rollback_on_breach: false` (default — bypass exige flag explícita)
-  - `/acme:pre-merge-check` — **read-only**, < 30s, **5 gates** mecânicos (G1 C7 imports, G2 C8 hardcode, G3 C6 observe, G4 manifest sync, G5 eval green). Exit code 0/1/2 para CI/pre-commit; integração com hook `pre-merge-check` virá em Forge-4
+- **4 slash commands** em `.claude/commands/novais-digital/` fechando o pipeline:
+  - `/novais-digital:eval` — executa eval suite com **pass rate por outcome_category** + **source_mode breakdown** (real/synthetic/edge/adversarial) + detecção de **regressão** vs último run com mesmo `prompt_hash`. Sub-trace por case (100%, sem amostragem)
+  - `/novais-digital:promote` — **único caminho legítimo** para mudar `subscription.mode`; valida **5 gates** obrigatórios (C2 outcome clause hash match, C3 viable + recalc clean, C4 SLA pré-contratada com signature, eval recente verde, aprovação cruzada PO × Promotion Officer). Append-only log em `subscriptions/{id}/promotions.md`
+  - `/novais-digital:audit-monthly` — sample 5-10% de runs ASSISTED/AUTONOMOUS, audit estrutural C1-C8 (lint regex C7/C8 + correspondência prompt ↔ baseline-cost), drift detection, formato consumível pelo reviewer DeepAgent (`reviewer/output-schema.json`). Suporta `auto_rollback_on_breach: false` (default — bypass exige flag explícita)
+  - `/novais-digital:pre-merge-check` — **read-only**, < 30s, **5 gates** mecânicos (G1 C7 imports, G2 C8 hardcode, G3 C6 observe, G4 manifest sync, G5 eval green). Exit code 0/1/2 para CI/pre-commit; integração com hook `pre-merge-check` virá em Foundry-4
 
 - **Pipeline completo end-to-end** agora encadeado nos 11 commands:
   ```
@@ -1440,32 +1440,32 @@ Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme
   /pre-merge-check em todo PR
   ```
 
-- **Bloqueio mecânico de promoção**: nenhuma skill ou command (exceto `/acme:promote`) pode mudar `subscription.mode`. `@shadow-mode-runner.start` checked twice (pre-condição em command + skill).
+- **Bloqueio mecânico de promoção**: nenhuma skill ou command (exceto `/novais-digital:promote`) pode mudar `subscription.mode`. `@shadow-mode-runner.start` checked twice (pre-condição em command + skill).
 
-### Pendente em Forge-2
+### Pendente em Foundry-2
 
 - Nenhum item — onda concluída.
 
-- **3 slash commands** em `.claude/commands/acme/` para a fase de implementação:
-  - `/acme:plan` — gera plano técnico em **8 seções canônicas** (escopo derivado da spec, camadas C5/C7, fluxo input→output, pontos de instrumentação C6, TenantContext schema C8, cronograma com faixas, riscos enumerados, critérios de pronto). `target_model_advisory` apenas — escolha de modelo concreto fica para ADR-002 ou config (C7)
-  - `/acme:tasks` — quebra plan em **DAG validado** (sem ciclos) distribuído em 5 ondas: (1) scaffolding C5/C6/C7/C8, (2) prompt build via `@artifact-prompt-builder`, (3) eval seed via `@eval-case-author` em loop até `c4_threshold_met: true` por categoria, (4) SHADOW prep (sem iniciar), (5) métricas e alertas. Cada task tem gate de pronto verificável (lint, test, hash)
-  - `/acme:implement` — executa as 5 ondas em ordem topológica do DAG, gera **stubs boilerplate** (`src/llm/adapters/`, `src/observability/trace.ts`, `src/tenants/context.ts`, `src/skus/{id}/index.ts`, `src/skus/{id}/prompt.ts`), enforce mecânico de C6/C7/C8 (lint regex), pausa em gates subjetivos. **Nunca inicia SHADOW** — bloqueio enforced via `error: shadow_start_attempted`
+- **3 slash commands** em `.claude/commands/novais-digital/` para a fase de implementação:
+  - `/novais-digital:plan` — gera plano técnico em **8 seções canônicas** (escopo derivado da spec, camadas C5/C7, fluxo input→output, pontos de instrumentação C6, TenantContext schema C8, cronograma com faixas, riscos enumerados, critérios de pronto). `target_model_advisory` apenas — escolha de modelo concreto fica para ADR-002 ou config (C7)
+  - `/novais-digital:tasks` — quebra plan em **DAG validado** (sem ciclos) distribuído em 5 ondas: (1) scaffolding C5/C6/C7/C8, (2) prompt build via `@artifact-prompt-builder`, (3) eval seed via `@eval-case-author` em loop até `c4_threshold_met: true` por categoria, (4) SHADOW prep (sem iniciar), (5) métricas e alertas. Cada task tem gate de pronto verificável (lint, test, hash)
+  - `/novais-digital:implement` — executa as 5 ondas em ordem topológica do DAG, gera **stubs boilerplate** (`src/llm/adapters/`, `src/observability/trace.ts`, `src/tenants/context.ts`, `src/skus/{id}/index.ts`, `src/skus/{id}/prompt.ts`), enforce mecânico de C6/C7/C8 (lint regex), pausa em gates subjetivos. **Nunca inicia SHADOW** — bloqueio enforced via `error: shadow_start_attempted`
 
 - **Princípio de design**: implement gera estrutura mínima viável com `TODO` explícito; conhecimento de domínio fica com o dev. Provider e modelo concretos são decisão do consumidor, não do framework
 
-### Pendente em Forge-2
+### Pendente em Foundry-2
 
-- F2.3 validação: `/acme:eval`, `/acme:promote`, `/acme:audit-monthly`, `/acme:pre-merge-check` (4 commands)
+- F2.3 validação: `/novais-digital:eval`, `/novais-digital:promote`, `/novais-digital:audit-monthly`, `/novais-digital:pre-merge-check` (4 commands)
 
 ---
 
-### Added (Forge-2 — spec/economics entregue, 2026-04-30) — 4/11 commands
+### Added (Foundry-2 — spec/economics entregue, 2026-04-30) — 4/11 commands
 
-- **4 slash commands** em `.claude/commands/acme/` orquestrando as skills do Forge-1:
-  - `/acme:diagnose` — Fase 0 cobrável; orquestra `@diagnostic-runner` + helpers L0; persiste `docs/clients/{client_id}/diagnostic.md`
-  - `/acme:spec` — **renomeada de `/acme:spec-sku`**; aceita `--type=platform-sku|product|diagnostic` resolvendo o template correto pós-v0.2.0; cláusula de outcome copiada literalmente do diagnostic com hash registrado
-  - `/acme:unit-economics` — invoca `@baseline-cost-builder`; **bloqueia** `/acme:sla-threshold` se `c3_check.status == unviable`; cross-valida volume diagnostic vs process-map (±20%)
-  - `/acme:sla-threshold` — pré-contrata `c4_thresholds` com **aprovação humana explícita + signature_hash**, hard floor `min_window_days >= 14`, validação de consistência com C3, bloqueio de self-approval (checks-and-balances comercial × engenharia)
+- **4 slash commands** em `.claude/commands/novais-digital/` orquestrando as skills do Foundry-1:
+  - `/novais-digital:diagnose` — Fase 0 cobrável; orquestra `@diagnostic-runner` + helpers L0; persiste `docs/clients/{client_id}/diagnostic.md`
+  - `/novais-digital:spec` — **renomeada de `/novais-digital:spec-sku`**; aceita `--type=platform-sku|product|diagnostic` resolvendo o template correto pós-v0.2.0; cláusula de outcome copiada literalmente do diagnostic com hash registrado
+  - `/novais-digital:unit-economics` — invoca `@baseline-cost-builder`; **bloqueia** `/novais-digital:sla-threshold` se `c3_check.status == unviable`; cross-valida volume diagnostic vs process-map (±20%)
+  - `/novais-digital:sla-threshold` — pré-contrata `c4_thresholds` com **aprovação humana explícita + signature_hash**, hard floor `min_window_days >= 14`, validação de consistência com C3, bloqueio de self-approval (checks-and-balances comercial × engenharia)
 
 - **Padrão de slash command** estabelecido (canonical para F2.2/F2.3):
   - Frontmatter: `description`, `allowed-tools`, `arguments.{required,optional}`, `linked_principles`, `invokes_skills`, `output_artifact`, `trace_required`, opcional `human_approval_required`
@@ -1477,12 +1477,12 @@ Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme
   - Saída de erro estruturada com enum
   - Trace Langfuse mesmo em uso manual (C6)
 
-- **Decisão de naming**: `/acme:spec-sku` → `/acme:spec` para alinhar ao reposicionamento v0.2.0 (3 templates de spec disponíveis). Mudança documentada no histórico do command.
+- **Decisão de naming**: `/novais-digital:spec-sku` → `/novais-digital:spec` para alinhar ao reposicionamento v0.2.0 (3 templates de spec disponíveis). Mudança documentada no histórico do command.
 
 
 ---
 
-### Added (Forge-1 — Tier 3 entregue, 2026-04-30) — todas as skills genéricas concluídas (9/9)
+### Added (Foundry-1 — Tier 3 entregue, 2026-04-30) — todas as skills genéricas concluídas (9/9)
 
 - **3 skills L2 (Tier 3 operacional)** em `.claude/skills/L2/` fechando a cadeia operacional:
   - `artifact-prompt-builder.md` — constrói system prompt versionado em **9 seções canônicas** (identidade, contexto Tier 1 cacheado, cláusula de outcome literal, schema de input/output, processo do mapper, guard-rails C3, instrumentação C6 obrigatória, anti-hardcode C8). Persiste em `prompts/{artifact}/v{version}/system.md` com `prompt_hash` (sha256:16) e flag `recalc_unit_economics_required: true` em todo build
@@ -1492,7 +1492,7 @@ Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme
 
 ---
 
-### Added (Forge-1 — Tier 2 entregue, 2026-04-30)
+### Added (Foundry-1 — Tier 2 entregue, 2026-04-30)
 
 - **3 skills L1 (Tier 2 tático)** em `.claude/skills/L1/` com handoffs declarados entre si:
   - `baseline-cost-builder.md` — calcula custo humano (volume × tempo × custo-hora) e deriva `min_price_per_outcome` para satisfazer C3 (custo ≤ 25%); persiste em `docs/clients/{client}/baseline-cost-{process}.md`
@@ -1501,36 +1501,36 @@ Forge-1 escopo enxuto: apenas **9 skills genéricas** no Forge. As 4 skills Acme
 - **Padrão Tier 2** (canonical para Tier 3): `helper_pattern: none` (consome cache L0, não cacheia), `reads_from_tier: [1, 2]`, `must_not_read: [3]`, `requires_helper:` declara dependências L0, parâmetros obrigatórios incluem `client_id`/`process_id`, output persistido em arquivo (não in-memory)
 - **Manifest** atualizado: `artifacts.skills.L1[]` populado; `framework.phase` → `Tier 1 + Tier 2 generic skills delivered: 6/9`
 
-### Pendente em Forge-1
+### Pendente em Foundry-1
 
-- 4 skills Acme-específicas em `examples/acme/skills/` (F1.6 — escopo opcional)
-- Validação empírica do `≥70% redução de tokens` (medível só em Forge-3 com Langfuse)
+- 4 skills Novais-específicas em `examples/novais-digital/skills/` (F1.6 — escopo opcional)
+- Validação empírica do `≥70% redução de tokens` (medível só em Foundry-3 com Langfuse)
 
 ---
 
 ## [Próximas ondas]
 
-### Forge-1 (resíduo) — Acme examples
+### Foundry-1 (resíduo) — Novais Digital examples
 
-- 4 skills em `examples/acme/skills/` (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`)
+- 4 skills em `examples/novais-digital/skills/` (`tenant-onboarding`, `outcome-classifier`, `billing-calculator`, `flywheel-collector`)
 
-### Forge-2 — Slash commands
+### Foundry-2 — Slash commands
 
 - 11 commands do pipeline `/diagnose → /spec → /unit-economics → /sla → /plan → /tasks → /implement → /eval → /promote → /audit-monthly → /pre-merge-check`
 
-### Forge-3 — Subagents Guardian + Reviewer
+### Foundry-3 — Subagents Guardian + Reviewer
 
 - 8 Guardians + 2 Cross-LLM reviewers
 - ADR-002: stack do reviewer DeepAgents/GPT-5.5
 - Primeira auditoria mensal de teste
 
-### Forge-4 — Hooks runtime
+### Foundry-4 — Hooks runtime
 
 - Hooks PreToolUse, PostToolUse, Stop ativos
 - `manifest-sync` automatizado
-- Bypass auditado (`ACME_FORGE_BYPASS=incident`)
+- Bypass auditado (`NOVAIS_FOUNDRY_BYPASS=incident`)
 
-### Forge-5 — Playbooks verticais (contínuo)
+### Foundry-5 — Playbooks verticais (contínuo)
 
 - Extração de playbooks pós primeiro cliente em AUTONOMOUS
 - Reavaliação F2 (promoção a `~/.claude/` global) e F5 (plugin marketplace)

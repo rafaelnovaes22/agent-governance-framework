@@ -1,7 +1,7 @@
-# Instalando o Acme Forge em um projeto consumidor
+# Instalando o Novais Digital Foundry em um projeto consumidor
 
-> Versão atual: **0.13.0+** (Forge-13 Sprint 1 — Consumer-mode hardening).
-> Instalação automática via `scripts/forge-sync.sh`; validação via `bash scripts/forge-doctor.sh --consumer`.
+> Versão atual: **0.13.0+** (Foundry-13 Sprint 1 — Consumer-mode hardening).
+> Instalação automática via `scripts/foundry-sync.sh`; validação via `bash scripts/foundry-doctor.sh --consumer`.
 
 ---
 
@@ -12,7 +12,7 @@
 | 🎨 **CEO / vibecoder / não-dev** | [`HELLO.md`](./HELLO.md) → [`QUICKSTART_VIBE.md`](./QUICKSTART_VIBE.md) |
 | 🛠️ **Dev** (Claude Code instalado) | continue lendo este INSTALL.md |
 | 🤖 **Agente IA** (DeepAgent, etc.) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) |
-| 🆘 **Não sei** | rode `bash scripts/forge start` (wizard interativo) |
+| 🆘 **Não sei** | rode `bash scripts/foundry start` (wizard interativo) |
 
 ---
 
@@ -27,10 +27,10 @@
 
 ## Instalação automática (caminho recomendado)
 
-### 1. Clonar o Forge canônico
+### 1. Clonar o Foundry canônico
 
 ```bash
-git clone git@github.com:acme-startup/agent-governance-framework.git ~/Projetos/agent-governance-framework
+git clone git@github.com:novais-digital/agent-governance-framework.git ~/Projetos/agent-governance-framework
 ```
 
 ### 2. Ir até o projeto consumidor
@@ -39,30 +39,30 @@ git clone git@github.com:acme-startup/agent-governance-framework.git ~/Projetos/
 cd /path/to/seu-projeto
 ```
 
-### 3. Rodar `forge-sync.sh`
+### 3. Rodar `foundry-sync.sh`
 
 ```bash
-bash ~/Projetos/agent-governance-framework/scripts/forge-sync.sh --from ~/Projetos/agent-governance-framework --dry-run
+bash ~/Projetos/agent-governance-framework/scripts/foundry-sync.sh --from ~/Projetos/agent-governance-framework --dry-run
 ```
 
 `--dry-run` mostra exatamente o que vai mudar sem escrever nada. Revise o output. Se aceitar, rode sem `--dry-run`:
 
 ```bash
-bash ~/Projetos/agent-governance-framework/scripts/forge-sync.sh --from ~/Projetos/agent-governance-framework
+bash ~/Projetos/agent-governance-framework/scripts/foundry-sync.sh --from ~/Projetos/agent-governance-framework
 ```
 
 O sync:
-- Copia `.claude/{CONSTITUTION,agents,commands,skills}/`, `hooks/`, `scripts/forge*`, `templates/`, `reviewer/*` do canônico
-- **Preserva** seu `.claude/settings.json`, `.claude/settings.local.json`, `docs/forge/manifest.json`, `docs/forge/project.json`, `CLAUDE.md`
-- Atualiza no seu `docs/forge/manifest.json`: `framework.framework_version_required` + `last_synced_at`
-- Registra entrada em `docs/forge/sync-history.md` (audit trail)
+- Copia `.claude/{CONSTITUTION,agents,commands,skills}/`, `hooks/`, `scripts/foundry*`, `templates/`, `reviewer/*` do canônico
+- **Preserva** seu `.claude/settings.json`, `.claude/settings.local.json`, `docs/foundry/manifest.json`, `docs/foundry/project.json`, `CLAUDE.md`
+- Atualiza no seu `docs/foundry/manifest.json`: `framework.framework_version_required` + `last_synced_at`
+- Registra entrada em `docs/foundry/sync-history.md` (audit trail)
 
-### 4. Criar `docs/forge/project.json` (se ainda não existe)
+### 4. Criar `docs/foundry/project.json` (se ainda não existe)
 
 Declarar tipo de projeto:
 
 ```bash
-cp templates/project.template.json docs/forge/project.json
+cp templates/project.template.json docs/foundry/project.json
 # Editar: project.type (agentic_saas | platform | automation | hybrid)
 #         ai_enabled (true | false)
 #         modules[] (para hybrid ou platform multi-módulo)
@@ -82,13 +82,13 @@ E editar para refletir:
 - Comandos úteis (`npm run dev`, `pytest`, etc.)
 - **Referência ao master-prompt** (recomendado): adicionar linha:
   ```markdown
-  > Operação adaptativa sob Forge: ver [`templates/master-prompt.md`](./templates/master-prompt.md).
+  > Operação adaptativa sob Foundry: ver [`templates/master-prompt.md`](./templates/master-prompt.md).
   ```
 
 ### 6. Validar instalação
 
 ```bash
-bash scripts/forge-doctor.sh --consumer
+bash scripts/foundry-doctor.sh --consumer
 ```
 
 Esperado: **0 FAIL**. Warns são aceitáveis na primeira instalação (ex: drift se ainda não rodou sync); ajuste conforme indicações.
@@ -96,64 +96,64 @@ Esperado: **0 FAIL**. Warns são aceitáveis na primeira instalação (ex: drift
 ### 7. (Opcional) Definir modo de operação
 
 ```bash
-bash scripts/forge mode dev    # ou vibe, ou agent
+bash scripts/foundry mode dev    # ou vibe, ou agent
 ```
 
-Cria `.forge-mode` (gitignored). Hooks `friendly-errors` e `forge-router` adaptam saída.
+Cria `.foundry-mode` (gitignored). Hooks `friendly-errors` e `foundry-router` adaptam saída.
 
 ---
 
-## Atualizar Forge instalado (upgrade)
+## Atualizar Foundry instalado (upgrade)
 
-Quando uma nova versão do Forge canônico sair (`git pull` no `agent-governance-framework/`), no projeto consumidor:
+Quando uma nova versão do Foundry canônico sair (`git pull` no `agent-governance-framework/`), no projeto consumidor:
 
 ```bash
 cd /path/to/seu-projeto
 
 # Diff prévio sem escrever (ver o que vai mudar)
-bash ~/Projetos/agent-governance-framework/scripts/forge-sync.sh --from ~/Projetos/agent-governance-framework --dry-run
+bash ~/Projetos/agent-governance-framework/scripts/foundry-sync.sh --from ~/Projetos/agent-governance-framework --dry-run
 
 # Aplicar
-bash ~/Projetos/agent-governance-framework/scripts/forge-sync.sh --from ~/Projetos/agent-governance-framework
+bash ~/Projetos/agent-governance-framework/scripts/foundry-sync.sh --from ~/Projetos/agent-governance-framework
 
 # Revisar diff resultante
 git diff
 
 # Validar
-bash scripts/forge-doctor.sh --consumer
+bash scripts/foundry-doctor.sh --consumer
 
 # Commitar
-git commit -am "chore(forge): sync v$(node -e "console.log(JSON.parse(require('fs').readFileSync('docs/forge/manifest.json','utf8')).framework.framework_version_required)")"
+git commit -am "chore(foundry): sync v$(node -e "console.log(JSON.parse(require('fs').readFileSync('docs/foundry/manifest.json','utf8')).framework.framework_version_required)")"
 ```
 
-**Variável de ambiente**: pode definir `FORGE_PATH=~/Projetos/agent-governance-framework` em `.bashrc`/`.zshrc` para omitir `--from`.
+**Variável de ambiente**: pode definir `FOUNDRY_PATH=~/Projetos/agent-governance-framework` em `.bashrc`/`.zshrc` para omitir `--from`.
 
 ---
 
 ## Instalação manual (fallback)
 
-Apenas se `forge-sync.sh` não estiver disponível ou se você quer entender o que ele faz. Roda a partir do diretório do projeto consumidor:
+Apenas se `foundry-sync.sh` não estiver disponível ou se você quer entender o que ele faz. Roda a partir do diretório do projeto consumidor:
 
 ```bash
-FORGE=/path/to/agent-governance-framework
+FOUNDRY=/path/to/agent-governance-framework
 
 # Camada canônica
-cp "$FORGE/.claude/CONSTITUTION.md" .claude/
-cp -r "$FORGE/.claude/agents/" .claude/
-cp -r "$FORGE/.claude/commands/" .claude/
-cp -r "$FORGE/.claude/skills/" .claude/
-cp -r "$FORGE/hooks/" .
-cp -r "$FORGE/templates/" .
-cp "$FORGE/scripts/forge-doctor.sh" scripts/
-cp "$FORGE/scripts/forge" scripts/
-cp "$FORGE/scripts/forge-sync.sh" scripts/  # para próximos updates
-cp -r "$FORGE/reviewer/" .
+cp "$FOUNDRY/.claude/CONSTITUTION.md" .claude/
+cp -r "$FOUNDRY/.claude/agents/" .claude/
+cp -r "$FOUNDRY/.claude/commands/" .claude/
+cp -r "$FOUNDRY/.claude/skills/" .claude/
+cp -r "$FOUNDRY/hooks/" .
+cp -r "$FOUNDRY/templates/" .
+cp "$FOUNDRY/scripts/foundry-doctor.sh" scripts/
+cp "$FOUNDRY/scripts/foundry" scripts/
+cp "$FOUNDRY/scripts/foundry-sync.sh" scripts/  # para próximos updates
+cp -r "$FOUNDRY/reviewer/" .
 
 # settings.json — copiar só se não existe (preservar customizações locais)
-[ ! -f .claude/settings.json ] && cp "$FORGE/.claude/settings.json" .claude/
+[ ! -f .claude/settings.json ] && cp "$FOUNDRY/.claude/settings.json" .claude/
 
 # CLAUDE.md.template — usar como base se você ainda não tem CLAUDE.md
-[ ! -f CLAUDE.md ] && cp "$FORGE/CLAUDE.md.template" CLAUDE.md
+[ ! -f CLAUDE.md ] && cp "$FOUNDRY/CLAUDE.md.template" CLAUDE.md
 ```
 
 ---
@@ -162,26 +162,26 @@ cp -r "$FORGE/reviewer/" .
 
 | Check | Comando | Esperado |
 |---|---|---|
-| Consistência consumer | `bash scripts/forge-doctor.sh --consumer` | 0 FAIL |
-| Sync history | `cat docs/forge/sync-history.md` | ≥ 1 entrada |
-| Project type declarado | `cat docs/forge/project.json` | `project.type` válido |
+| Consistência consumer | `bash scripts/foundry-doctor.sh --consumer` | 0 FAIL |
+| Sync history | `cat docs/foundry/sync-history.md` | ≥ 1 entrada |
+| Project type declarado | `cat docs/foundry/project.json` | `project.type` válido |
 | Constitution acessível | `cat .claude/CONSTITUTION.md \| head -5` | imprime versão e princípios |
 | Master prompt referenciado | `grep -q master-prompt CLAUDE.md && echo OK` | OK |
-| Claude Code carrega contexto | abrir o projeto no Claude Code e digitar "/" | lista de `/acme:*` aparece |
+| Claude Code carrega contexto | abrir o projeto no Claude Code e digitar "/" | lista de `/novais-digital:*` aparece |
 
 ---
 
 ## Solução de problemas
 
-### "forge-doctor falha em consumer mode com erro de reviewer/"
+### "foundry-doctor falha em consumer mode com erro de reviewer/"
 
-Em v0.13.0+ o forge-doctor detecta consumer mode automaticamente (via `manifest.framework.canonical` ausente) e relaxa requisitos de `reviewer/*`. Se ainda falha:
-- Garanta que está usando a versão `≥ 0.5.0` do `scripts/forge-doctor.sh` (rode `bash scripts/forge-doctor.sh --consumer` explicitamente).
-- O canônico do Forge precisa estar acessível em `FORGE_PATH` ou `../agent-governance-framework/` para o drift check (C9) funcionar.
+Em v0.13.0+ o foundry-doctor detecta consumer mode automaticamente (via `manifest.framework.canonical` ausente) e relaxa requisitos de `reviewer/*`. Se ainda falha:
+- Garanta que está usando a versão `≥ 0.5.0` do `scripts/foundry-doctor.sh` (rode `bash scripts/foundry-doctor.sh --consumer` explicitamente).
+- O canônico do Foundry precisa estar acessível em `FOUNDRY_PATH` ou `../agent-governance-framework/` para o drift check (C9) funcionar.
 
-### "Consumer manifest perde modificações após forge-sync"
+### "Consumer manifest perde modificações após foundry-sync"
 
-`forge-sync.sh` **NÃO** sobrescreve `docs/forge/manifest.json` do consumer (preserva via `PRESERVE_PATHS`). Apenas atualiza dois campos: `framework.framework_version_required` + `framework.last_synced_at`. Se você viu sumiço de outras chaves, abra issue.
+`foundry-sync.sh` **NÃO** sobrescreve `docs/foundry/manifest.json` do consumer (preserva via `PRESERVE_PATHS`). Apenas atualiza dois campos: `framework.framework_version_required` + `framework.last_synced_at`. Se você viu sumiço de outras chaves, abra issue.
 
 ### "Manifest tem hashes diferentes dos arquivos no consumidor"
 
@@ -193,13 +193,13 @@ Esperado — `sha256` no manifest é calculado em normalização LF (Linux). Em 
 
 ### "settings.json conflita com settings.local.json"
 
-`settings.local.json` tem prioridade — é o override do dev. Conflitos são por design. Forge nunca mexe em `settings.local.json`.
+`settings.local.json` tem prioridade — é o override do dev. Conflitos são por design. Foundry nunca mexe em `settings.local.json`.
 
 ---
 
 ## Suporte
 
-- 📋 Bugs: GitHub do `agent-governance-framework` (privado, `acme-startup/agent-governance-framework`)
+- 📋 Bugs: GitHub do `agent-governance-framework` (privado, `novais-digital/agent-governance-framework`)
 - 📚 Doc operacional pós-instalação: [`templates/master-prompt.md`](./templates/master-prompt.md)
 - 🎓 Aprendizado por exemplos: [`PLAYGROUND/`](./PLAYGROUND/)
 - 🆘 Erros comuns: [`COMMON_ERRORS.md`](./COMMON_ERRORS.md)

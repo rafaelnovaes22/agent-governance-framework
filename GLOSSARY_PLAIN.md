@@ -1,6 +1,6 @@
 # Glossário em português claro
 
-> O Forge tem muitas palavras técnicas. Esse arquivo traduz tudo para linguagem do dia-a-dia.
+> O Foundry tem muitas palavras técnicas. Esse arquivo traduz tudo para linguagem do dia-a-dia.
 > Foi feito para CEO, fundador, decisor de cliente, e qualquer pessoa que não programa.
 
 ---
@@ -23,7 +23,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: agentic SKU, LLM agent.
 
 ### **AIOS**
-**O que é**: o "modo de trabalho em equipe" do Forge para construir coisas grandes. Ele divide o trabalho em 6 especialistas: spec, frontend, backend, schema, test, review. Cada um faz sua parte.
+**O que é**: o "modo de trabalho em equipe" do Foundry para construir coisas grandes. Ele divide o trabalho em 6 especialistas: spec, frontend, backend, schema, test, review. Cada um faz sua parte.
 **Por que importa**: quando você pede algo grande ao Claude, ele usa AIOS por trás. Não precisa entender — só saber que existe.
 **Equivalente técnico**: AIOS Server multi-agent pipeline.
 
@@ -51,8 +51,8 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ## C
 
 ### **C1-C8**
-**O que é**: 8 regras invisíveis que o Forge **força** todo agente a seguir. Tipo "tem que ter logs", "não pode custar mais que 25% do preço", etc.
-**Por que importa**: você nunca vai mexer nelas. O Forge avisa quando alguma é quebrada.
+**O que é**: 8 regras invisíveis que o Foundry **força** todo agente a seguir. Tipo "tem que ter logs", "não pode custar mais que 25% do preço", etc.
+**Por que importa**: você nunca vai mexer nelas. O Foundry avisa quando alguma é quebrada.
 **Equivalente técnico**: Constitution C1-C8.
 
 ### **Canonical**
@@ -61,7 +61,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: lifecycle_stage = canonical.
 
 ### **Constitution**
-**O que é**: as 8 regras fundamentais do Forge.
+**O que é**: as 8 regras fundamentais do Foundry.
 **Por que importa**: você não muda essas regras sem reunião formal (ADR + bump major).
 **Equivalente técnico**: `.claude/CONSTITUTION.md`.
 
@@ -80,9 +80,9 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: DeepAgent reviewer / GPT-5.5.
 
 ### **Diagnóstico**
-**O que é**: a primeira reunião com cliente novo, onde você descobre o problema dele com perguntas. O Forge tem um roteiro pronto.
+**O que é**: a primeira reunião com cliente novo, onde você descobre o problema dele com perguntas. O Foundry tem um roteiro pronto.
 **Por que importa**: sem diagnóstico, você não tem outcome contratual.
-**Equivalente técnico**: `/acme:diagnose` + `docs/clients/{X}/diagnostic.md`.
+**Equivalente técnico**: `/novais-digital:diagnose` + `docs/clients/{X}/diagnostic.md`.
 
 ---
 
@@ -97,15 +97,15 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ## F
 
-### **Forge**
+### **Foundry**
 **O que é**: o framework (estrutura de regras + scripts + agentes auxiliares) que torna seu projeto auditável e cobrável.
 **Por que importa**: é o que você está usando agora. Sem ele, cada projeto seria do zero.
-**Equivalente técnico**: Acme Forge — github.com/acme-startup/agent-governance-framework.
+**Equivalente técnico**: Novais Digital Foundry — github.com/novais-digital/agent-governance-framework.
 
-### **Forge-router**
+### **Foundry-router**
 **O que é**: um agente que escuta você falar normalmente em português ("quero diagnosticar o cliente X") e descobre qual comando técnico chamar.
-**Por que importa**: você não precisa decorar `/acme:diagnose` — pode falar natural.
-**Equivalente técnico**: `forge-router` subagent.
+**Por que importa**: você não precisa decorar `/novais-digital:diagnose` — pode falar natural.
+**Equivalente técnico**: `foundry-router` subagent.
 
 ---
 
@@ -113,7 +113,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **Gate**
 **O que é**: uma checagem obrigatória antes de avançar. Tipo "não pode promover para AUTONOMOUS sem CI/CD ativo".
-**Por que importa**: o Forge **bloqueia** quando gate falha. Não é negociável.
+**Por que importa**: o Foundry **bloqueia** quando gate falha. Não é negociável.
 **Equivalente técnico**: gate (mecânico ou humano).
 
 ### **Guardian**
@@ -144,7 +144,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **ICP** (Ideal Customer Profile)
 **O que é**: o perfil de cliente que você sabe atender bem. "Empresa entre 50 e 500 funcionários do setor jurídico" é um ICP.
-**Por que importa**: se cliente não bate com ICP, Forge avisa antes de você queimar 2 semanas com ele.
+**Por que importa**: se cliente não bate com ICP, Foundry avisa antes de você queimar 2 semanas com ele.
 **Equivalente técnico**: ICP doc + icp-loader skill.
 
 ### **Idempotência**
@@ -169,22 +169,22 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ## M
 
 ### **Manifest**
-**O que é**: um arquivo `manifest.json` que lista tudo que existe no Forge. Tipo "índice da biblioteca".
-**Por que importa**: você raramente edita à mão. Forge atualiza automaticamente.
-**Equivalente técnico**: `docs/forge/manifest.json`.
+**O que é**: um arquivo `manifest.json` que lista tudo que existe no Foundry. Tipo "índice da biblioteca".
+**Por que importa**: você raramente edita à mão. Foundry atualiza automaticamente.
+**Equivalente técnico**: `docs/foundry/manifest.json`.
 
 ### **Master Prompt**
 **O que é**: o "manual operacional" que o Claude recebe ao abrir seu projeto. Substitui você ter que dizer "olha, leia esses 20 arquivos" toda vez.
 **Por que importa**: sem master prompt, Claude não saberia que tem que respeitar Constitution e invocar Guardians.
 **Equivalente técnico**: `templates/master-prompt.md` (canônico) ou `MASTER_PROMPT.md` no seu projeto.
 
-### **Mode (`.forge-mode`)**
-**O que é**: arquivo escondido que diz para o Forge como falar com você:
+### **Mode (`.foundry-mode`)**
+**O que é**: arquivo escondido que diz para o Foundry como falar com você:
 - `vibe` → linguagem leiga
 - `dev` → linguagem técnica
 - `agent` → JSON puro (para outra IA consumir)
-**Por que importa**: você nunca edita à mão. O Forge detecta automático na primeira vez. Pode trocar com `bash scripts/forge mode vibe`.
-**Equivalente técnico**: `.forge-mode` (gitignored).
+**Por que importa**: você nunca edita à mão. O Foundry detecta automático na primeira vez. Pode trocar com `bash scripts/foundry mode vibe`.
+**Equivalente técnico**: `.foundry-mode` (gitignored).
 
 ### **Módulo (em platform)**
 **O que é**: uma parte da plataforma. Ex: "Módulo Financeiro", "Módulo CRM", "Módulo Cobranças".
@@ -215,21 +215,21 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **Platform**
 **O que é**: software comum (sem IA), tipo plataforma SaaS de gestão. SchoolPlatform é assim.
-**Por que importa**: Forge sabe lidar com isso — não exige LLM, eval, prompts.
+**Por que importa**: Foundry sabe lidar com isso — não exige LLM, eval, prompts.
 **Equivalente técnico**: project_type = platform, ai_enabled = false.
 
 ### **Princípios C1-C8**
 **O que é**: as 8 regras fundamentais. Veja "Constitution".
-**Por que importa**: você não vai violar à mão — Forge avisa.
+**Por que importa**: você não vai violar à mão — Foundry avisa.
 
 ### **Project Type**
 **O que é**: tipo de projeto. Tem 4:
-- `agentic_saas` — entrega agentes IA (Acme Social)
+- `agentic_saas` — entrega agentes IA (Novais Digital Social)
 - `platform` — entrega software SaaS (SchoolPlatform)
 - `automation` — entrega job/script RPA
 - `hybrid` — mistura (Aicfo)
-**Por que importa**: declarar isso no `project.json` faz o Forge se adaptar ao caso.
-**Equivalente técnico**: `docs/forge/project.json → project_type`.
+**Por que importa**: declarar isso no `project.json` faz o Foundry se adaptar ao caso.
+**Equivalente técnico**: `docs/foundry/project.json → project_type`.
 
 ### **Prompt**
 **O que é**: o texto que você dá pro agente IA seguir. Tipo "redija um post de Instagram sobre X com tom amigável".
@@ -243,7 +243,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ### **Reviewer**
 **O que é**: o auditor automático mensal, separado do Claude. Veja "DeepAgent".
 **Por que importa**: ele que detecta drift e pega coisas que passariam batido.
-**Equivalente técnico**: forge-auditor DeepAgent.
+**Equivalente técnico**: foundry-auditor DeepAgent.
 
 ---
 
@@ -261,7 +261,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **Spec**
 **O que é**: documento que descreve o agente/módulo: o que ele faz, qual outcome, qual stack, quais critérios de aceite.
-**Por que importa**: sem spec, time fica adivinhando. Forge tem template pronto.
+**Por que importa**: sem spec, time fica adivinhando. Foundry tem template pronto.
 **Equivalente técnico**: `docs/specs/{artifact_id}.md`.
 
 ### **Subagent**
@@ -270,9 +270,9 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: subagent em `.claude/agents/`.
 
 ### **Sync**
-**O que é**: comando que pega a versão nova do Forge canônico e aplica no seu projeto.
-**Por que importa**: ao sair Forge v0.14.0, você roda `forge-sync.sh` no seu projeto e atualiza tudo de uma vez.
-**Equivalente técnico**: `bash scripts/forge-sync.sh --from /path/to/agent-governance-framework`.
+**O que é**: comando que pega a versão nova do Foundry canônico e aplica no seu projeto.
+**Por que importa**: ao sair Foundry v0.14.0, você roda `foundry-sync.sh` no seu projeto e atualiza tudo de uma vez.
+**Equivalente técnico**: `bash scripts/foundry-sync.sh --from /path/to/agent-governance-framework`.
 
 ---
 
@@ -280,17 +280,17 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **TDD (Test-Driven Development)**
 **O que é**: você escreve os testes ANTES do código. Garante que pensou no que tem que dar certo.
-**Por que importa**: o Forge força TDD em módulos Tier C (críticos, financeiros). CI bloqueia sem isso.
+**Por que importa**: o Foundry força TDD em módulos Tier C (críticos, financeiros). CI bloqueia sem isso.
 **Equivalente técnico**: test_agent --mode red → build → test_agent --mode verify.
 
 ### **Telemetry**
 **O que é**: dados de execução que o sistema grava — quantos tokens gastou, quanto tempo demorou, qual foi a saída.
-**Por que importa**: sem isso, você não consegue auditar nada. Forge exige.
+**Por que importa**: sem isso, você não consegue auditar nada. Foundry exige.
 **Equivalente técnico**: LangSmith trace (agentic) ou audit log (platform).
 
 ### **Tenant**
-**O que é**: um cliente específico dentro do seu sistema multi-cliente. Tipo "o cliente Acme tem suas configurações isoladas do cliente Beta".
-**Por que importa**: o Forge proíbe `if (cliente === "Acme") fazer X` — força configuração genérica.
+**O que é**: um cliente específico dentro do seu sistema multi-cliente. Tipo "o cliente Novais Digital tem suas configurações isoladas do cliente Beta".
+**Por que importa**: o Foundry proíbe `if (cliente === "Novais Digital") fazer X` — força configuração genérica.
 **Equivalente técnico**: TenantContext, multi-tenant config.
 
 ### **Tier (criticality)**
@@ -307,7 +307,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 
 ### **Unit economics**
 **O que é**: a conta de quanto custa fazer uma unidade vs quanto cobra. Ex: "custa R$ 1,80 em tokens; cobro R$ 8 por carrossel; margem 77%".
-**Por que importa**: se custo passa de 25% do preço, Forge bloqueia. C3.
+**Por que importa**: se custo passa de 25% do preço, Foundry bloqueia. C3.
 **Equivalente técnico**: cost_per_outcome (agentic) ou platform_margin (platform).
 
 ---
@@ -323,9 +323,9 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: SemVer 2.0.0.
 
 ### **Vibe (modo vibe)**
-**O que é**: modo "linguagem leiga" para CEO/decisor não-técnico. Forge traduz mensagens automaticamente nesse modo.
-**Por que importa**: você não precisa entender técnico para usar o Forge.
-**Equivalente técnico**: `.forge-mode = vibe`.
+**O que é**: modo "linguagem leiga" para CEO/decisor não-técnico. Foundry traduz mensagens automaticamente nesse modo.
+**Por que importa**: você não precisa entender técnico para usar o Foundry.
+**Equivalente técnico**: `.foundry-mode = vibe`.
 
 ---
 
@@ -337,19 +337,19 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: `PLAYGROUND/{NN}-{tipo}/walkthrough.md`.
 
 ### **WireLog**
-**O que é**: a "câmera de segurança do negócio" do Forge. Registra o que aconteceu com cada resultado entregue — foi criado? foi entregue? foi cobrado? Alguém tentou mudar o status e falhou?
+**O que é**: a "câmera de segurança do negócio" do Foundry. Registra o que aconteceu com cada resultado entregue — foi criado? foi entregue? foi cobrado? Alguém tentou mudar o status e falhou?
 **Por que importa**: o LangSmith (câmera técnica) grava o que o agente fez internamente. O WireLog grava o que aconteceu no negócio. São câmeras diferentes com propósitos diferentes. Você, como CEO, se importa mais com a câmera do negócio.
 **Equivalente técnico**: `analytics_provider=wirelog` em `project.json`.
 
 ### **Wizard**
-**O que é**: assistente interativo. `bash scripts/forge start` faz perguntas e te ajuda a configurar.
+**O que é**: assistente interativo. `bash scripts/foundry start` faz perguntas e te ajuda a configurar.
 **Por que importa**: primeira vez? Use o wizard.
 
 ---
 
 ## Não está aqui?
 
-Se a palavra não está aqui, abra issue no repo do Forge ou pergunte direto ao Claude: "me explica essa palavra em linguagem do dia-a-dia". O Claude tem este glossário em contexto e vai traduzir.
+Se a palavra não está aqui, abra issue no repo do Foundry ou pergunte direto ao Claude: "me explica essa palavra em linguagem do dia-a-dia". O Claude tem este glossário em contexto e vai traduzir.
 
 ---
 

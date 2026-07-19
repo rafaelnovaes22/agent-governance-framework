@@ -2,7 +2,7 @@
 
 > Pipeline completo para construir um projeto `hybrid`: plataforma SaaS sem IA com **um módulo específico que usa LLM**. Interpretação dos princípios C1-C8 é **por módulo**, não pelo projeto inteiro.
 > **Duração**: ~25 min leitura + execução em consumer real.
-> **Pré-req**: Forge v0.13.0+, `docs/forge/project.json` com `project_type=hybrid`.
+> **Pré-req**: Foundry v0.13.0+, `docs/foundry/project.json` com `project_type=hybrid`.
 
 ---
 
@@ -26,14 +26,14 @@ Plataforma B2B de gestão financeira (inspirada em Aicfo). 95% do código é CRU
 }
 ```
 
-Forge usa esse arquivo para ramificar checks por módulo. po-guardian, unit-economist, security-privacy-guardian **TODOS** sabem ler `ai_enabled` por módulo.
+Foundry usa esse arquivo para ramificar checks por módulo. po-guardian, unit-economist, security-privacy-guardian **TODOS** sabem ler `ai_enabled` por módulo.
 
 ---
 
 ## 🟢 Passo 2 — Diagnose por subset (módulo IA isolado)
 
 ```bash
-> /acme:diagnose --project_type=hybrid --module=ai-financial-analysis
+> /novais-digital:diagnose --project_type=hybrid --module=ai-financial-analysis
 ```
 
 O comando reconhece que precisa rodar **dois fluxos paralelos**:
@@ -63,7 +63,7 @@ sla:
 Aqui está a diferença chave de `hybrid`: **adicionar módulo IA dentro de uma plataforma core sem IA exige ADR** porque expande C7 (portability) — a plataforma agora depende de provider de inferência.
 
 ```bash
-> /acme:spec --type=adr --module=ai-financial-analysis
+> /novais-digital:spec --type=adr --module=ai-financial-analysis
 ```
 
 ADR-007 (exemplo):
@@ -88,14 +88,14 @@ para permitir trocar por OpenAI/Gemini se preço/qualidade divergirem >30%.
 - Eval suite obrigatória (não acceptance gate) — módulo IA segue caminho agentic.
 ```
 
-ADR assinada por arquiteto + product owner. Forge usa hook `adr-approval-gate` para impedir edição posterior sem nova ADR.
+ADR assinada por arquiteto + product owner. Foundry usa hook `adr-approval-gate` para impedir edição posterior sem nova ADR.
 
 ---
 
 ## 🟢 Passo 4 — Spec do módulo IA (template `platform-sku-spec`)
 
 ```bash
-> /acme:spec --type=platform-sku --module=ai-financial-analysis
+> /novais-digital:spec --type=platform-sku --module=ai-financial-analysis
 ```
 
 Spec inclui:
@@ -110,7 +110,7 @@ Spec inclui:
 
 ## 🟢 Passo 5 — Plan paralelo: platform sem IA + módulo IA
 
-`/acme:plan` gera **plano composto**:
+`/novais-digital:plan` gera **plano composto**:
 
 ```
 src/modules/tenant-mgmt/        # platform — sem IA
@@ -131,7 +131,7 @@ Cronograma:
 
 ## 🟢 Passo 6 — Tasks + Implement (Waves híbridas)
 
-`/acme:tasks` emite **6 ondas** para platform + **5 ondas agentic** apenas para módulo IA:
+`/novais-digital:tasks` emite **6 ondas** para platform + **5 ondas agentic** apenas para módulo IA:
 
 | Wave | Platform modules | Módulo IA |
 |---|---|---|
@@ -149,7 +149,7 @@ Implement gera scaffolding com `// TODO` por módulo. Operador preenche regras c
 ## 🟢 Passo 7 — Eval do módulo IA (sem afetar platform)
 
 ```bash
-> /acme:eval --module=ai-financial-analysis
+> /novais-digital:eval --module=ai-financial-analysis
 ```
 
 Roda APENAS contra o módulo IA. 30 casos categorizados:
@@ -167,35 +167,35 @@ Pass rate por categoria ≥ 80% para promover SHADOW → ASSISTED.
 Cada módulo tem seu próprio ciclo de promoção:
 
 ```bash
-> /acme:promote --to=pilot --module=billing-stripe       # platform, 14d crítico
-> /acme:promote --to=canonical --module=billing-stripe   # após PILOT
-> /acme:promote --to=assisted --module=ai-financial-analysis  # após SHADOW + eval verde
-> /acme:promote --to=autonomous --module=ai-financial-analysis  # após 30d ASSISTED + Gate 6 CI
+> /novais-digital:promote --to=pilot --module=billing-stripe       # platform, 14d crítico
+> /novais-digital:promote --to=canonical --module=billing-stripe   # após PILOT
+> /novais-digital:promote --to=assisted --module=ai-financial-analysis  # após SHADOW + eval verde
+> /novais-digital:promote --to=autonomous --module=ai-financial-analysis  # após 30d ASSISTED + Gate 6 CI
 ```
 
-Forge bloqueia `autonomous` do módulo IA se `billing-stripe` ainda em pilot — algumas dependências cruzadas exigem que infra esteja sólida.
+Foundry bloqueia `autonomous` do módulo IA se `billing-stripe` ainda em pilot — algumas dependências cruzadas exigem que infra esteja sólida.
 
 ---
 
 ## 🟢 Passo 9 — Auditoria mensal ramificada
 
-`/acme:audit-monthly` lê `project.json → modules[]` e ramifica:
+`/novais-digital:audit-monthly` lê `project.json → modules[]` e ramifica:
 
 - Para módulos `ai_enabled=false`: audita `audited_actions` table, calcula `platform_margin`, valida pilot-state.md de cada um
 - Para módulos `ai_enabled=true`: amostra 5-10% de outcomes em LANGSMITH, valida `cost_per_outcome`, valida eval suite recente
 
-Output em `docs/forge/audits/2026-06.md` tem **2 seções separadas**, uma por classe de módulo.
+Output em `docs/foundry/audits/2026-06.md` tem **2 seções separadas**, uma por classe de módulo.
 
 ---
 
 ## 🎯 O que aprendemos com este exemplo
 
-1. **`hybrid` é interpretação por módulo, não por projeto inteiro** — F26 (Forge-9) formalizou
+1. **`hybrid` é interpretação por módulo, não por projeto inteiro** — F26 (Foundry-9) formalizou
 2. **Adicionar módulo IA em platform exige ADR** — expande C7 e introduz custo variável
 3. **Adapters compartilhados** preservam C7 mesmo em hybrid (`src/llm/adapters/`)
 4. **Lifecycles independentes** — cada módulo promove no seu ritmo, com seus gates
 5. **Reviewer mensal ramifica automaticamente** — sem reescrever prompt
-6. **CI/CD pode ser compartilhado** — um único `forge-validate.yml` cobre todos os módulos com matrix
+6. **CI/CD pode ser compartilhado** — um único `foundry-validate.yml` cobre todos os módulos com matrix
 
 ---
 

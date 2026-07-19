@@ -1,4 +1,4 @@
-# Architecture — Acme Forge
+# Architecture — Novais Digital Foundry
 
 > Visão estrutural e dos fluxos do framework. Para quem quer entender o "como funciona" antes de instalar.
 
@@ -15,7 +15,7 @@
 
 ### 2. Manifest
 
-**O que**: `docs/forge/manifest.json` com inventário machine-readable de todos os artefatos.
+**O que**: `docs/foundry/manifest.json` com inventário machine-readable de todos os artefatos.
 **Para quê**: contrato com reviewer externo; permite navegação programática.
 **Conteúdo**: paths, hashes, versões, descrições, links a princípios, validation rules.
 **Audiência**: principalmente máquina (DeepAgent, hooks, scripts CI).
@@ -36,9 +36,9 @@
 
 ### 5. Examples
 
-**O que**: pasta `examples/{domínio}/` com aplicação real do Forge a um caso.
+**O que**: pasta `examples/{domínio}/` com aplicação real do Foundry a um caso.
 **Para quê**: mostrar como Constitution se traduz em spec real, sem ser prescritivo.
-**Atual**: `examples/acme/` com 3 metodologias, portfolio, ClickUp blueprint, products.
+**Atual**: `examples/novais-digital/` com 3 metodologias, portfolio, ClickUp blueprint, products.
 **Futuro**: outros projetos podem contribuir seus próprios `examples/{nome}/`.
 
 ---
@@ -70,15 +70,15 @@ graph LR
     D --> E[Amostra 5-10% outcomes produção]
     E --> F[Compara com gabarito]
     F --> G[Gera relatório seguindo output-schema.json]
-    G --> H[Commita audit em docs/forge/audits/YYYY-MM-DD.md]
+    G --> H[Commita audit em docs/foundry/audits/YYYY-MM-DD.md]
     H --> I[Notifica humanos]
 ```
 
-### C. Mantenedor evolui o Forge
+### C. Mantenedor evolui o Foundry
 
 ```mermaid
 graph LR
-    A[Issue: 'adicionar X'] --> B[Branch forge/X]
+    A[Issue: 'adicionar X'] --> B[Branch foundry/X]
     B --> C[Edita templates/skills/etc]
     C --> D[Atualiza manifest.json]
     D --> E[Bump versão CHANGELOG]
@@ -98,10 +98,10 @@ seu-projeto/
 ├── .claude/
 │   ├── CONSTITUTION.md             ← cópia canônica (não modificar)
 │   ├── settings.json               ← cópia canônica (pode adicionar permissões)
-│   └── settings.local.json         ← overrides do dev (intocável pelo Forge)
+│   └── settings.local.json         ← overrides do dev (intocável pelo Foundry)
 ├── docs/
-│   ├── forge/                      ← cópia canônica do framework
-│   │   ├── manifest.json           ← inventário (atualiza com hooks Forge-4)
+│   ├── foundry/                      ← cópia canônica do framework
+│   │   ├── manifest.json           ← inventário (atualiza com hooks Foundry-4)
 │   │   ├── reviewer-contract.md
 │   │   └── ...
 │   └── adr/                        ← decisões do projeto consumidor
@@ -114,7 +114,7 @@ seu-projeto/
     └── ...
 ```
 
-**Regra de ouro**: arquivos copiados do Forge (Constitution, templates) ficam **inalterados** no projeto consumidor. Adaptações vivem em arquivos do projeto (CLAUDE.md, ADRs, specs).
+**Regra de ouro**: arquivos copiados do Foundry (Constitution, templates) ficam **inalterados** no projeto consumidor. Adaptações vivem em arquivos do projeto (CLAUDE.md, ADRs, specs).
 
 ---
 
@@ -155,7 +155,7 @@ seu-projeto/
 │  CAMADA 6 — AUDITORIA (validação independente mensal)               │
 │  Reviewer DeepAgent compara C1-C8 com camadas 3, 4, 5               │
 │  Cruza: DB outcomes ↔ LangSmith traces ↔ WireLog events             │
-│  Output: docs/forge/audits/YYYY-MM-DD.md                            │
+│  Output: docs/foundry/audits/YYYY-MM-DD.md                            │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -215,7 +215,7 @@ Promoção registrada em log auditável. Reviewer audita transições.
 | Constitution | SemVer estrito | MAJOR = quebra; mudanças exigem ADR |
 | Manifest | SemVer | Acompanha Constitution |
 | Templates | Por arquivo (frontmatter) | PATCH/MINOR/MAJOR conforme impacto |
-| Reviewer prompt | Por release do Forge | Sempre testar contra exemplo antes de promover |
+| Reviewer prompt | Por release do Foundry | Sempre testar contra exemplo antes de promover |
 | Examples | Não-versionado individualmente | Refletem estado em cada release |
 
 Consumidores atualizam por `cp -r` da release nova → diff manual em arquivos adaptados (CLAUDE.md, ADRs específicos).
@@ -224,11 +224,11 @@ Consumidores atualizam por `cp -r` da release nova → diff manual em arquivos a
 
 ## Decisões fundadoras (referência rápida)
 
-Detalhe completo em [`docs/forge/decisions.md`](./docs/forge/decisions.md).
+Detalhe completo em [`docs/foundry/decisions.md`](./docs/foundry/decisions.md).
 
 | ID | Tema | Default |
 |---|---|---|
-| F1 | Nome | Acme Forge |
+| F1 | Nome | Novais Digital Foundry |
 | F2 | Distribuição | Repo independente, consumido por projetos terceiros |
 | F4 | Reviewer externo | DeepAgent / GPT-5.5 via OpenAI SDK |
 | F6 | Helper pattern | Sim, em Tier 1 (cache de DNA/ICP) |
@@ -240,13 +240,13 @@ Detalhe completo em [`docs/forge/decisions.md`](./docs/forge/decisions.md).
 
 | Pergunta | Resposta |
 |---|---|
-| Quais regras o Forge impõe? | [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md) |
-| Como auditar um projeto Forge? | [`reviewer/`](./reviewer/) + [`docs/forge/reviewer-contract.md`](./docs/forge/reviewer-contract.md) |
-| Como ficou em outro caso real? | [`examples/acme/`](./examples/acme/) |
-| Como estender Forge para meu domínio? | [`CONTRIBUTING.md`](./CONTRIBUTING.md) |
+| Quais regras o Foundry impõe? | [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md) |
+| Como auditar um projeto Foundry? | [`reviewer/`](./reviewer/) + [`docs/foundry/reviewer-contract.md`](./docs/foundry/reviewer-contract.md) |
+| Como ficou em outro caso real? | [`examples/novais-digital/`](./examples/novais-digital/) |
+| Como estender Foundry para meu domínio? | [`CONTRIBUTING.md`](./CONTRIBUTING.md) |
 | Vocabulário | [`GLOSSARY.md`](./GLOSSARY.md) |
-| Roadmap | [`docs/forge/roadmap.md`](./docs/forge/roadmap.md) |
-| O que está fora do escopo | [`docs/forge/out-of-scope.md`](./docs/forge/out-of-scope.md) |
+| Roadmap | [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md) |
+| O que está fora do escopo | [`docs/foundry/out-of-scope.md`](./docs/foundry/out-of-scope.md) |
 
 ---
 

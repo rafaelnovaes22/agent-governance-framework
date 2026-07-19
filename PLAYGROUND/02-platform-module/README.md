@@ -41,43 +41,43 @@
 
 | Artefato | Onde fica | Propósito |
 |----------|-----------|-----------|
-| `project.json` | `docs/forge/` | Declaração `project_type=platform, ai_enabled=false` |
-| `diagnostic.md` | `docs/forge/modules/faturamento/` | C1 — diagnose-before-build |
-| `spec.md` | `docs/forge/modules/faturamento/` | C2 — outcome operacional |
-| `delivery-economics.md` | `docs/forge/modules/faturamento/` | C3 — variante platform de unit-economics |
-| `acceptance-report.md` | `docs/forge/modules/faturamento/` | C4 — gate platform (substitui eval LLM) |
-| `pilot-state.md` | `docs/forge/modules/faturamento/` | C4 — append-only log de transições |
-| `decisions.md` | `docs/forge/modules/faturamento/` | C5 — ADRs locais |
+| `project.json` | `docs/foundry/` | Declaração `project_type=platform, ai_enabled=false` |
+| `diagnostic.md` | `docs/foundry/modules/faturamento/` | C1 — diagnose-before-build |
+| `spec.md` | `docs/foundry/modules/faturamento/` | C2 — outcome operacional |
+| `delivery-economics.md` | `docs/foundry/modules/faturamento/` | C3 — variante platform de unit-economics |
+| `acceptance-report.md` | `docs/foundry/modules/faturamento/` | C4 — gate platform (substitui eval LLM) |
+| `pilot-state.md` | `docs/foundry/modules/faturamento/` | C4 — append-only log de transições |
+| `decisions.md` | `docs/foundry/modules/faturamento/` | C5 — ADRs locais |
 
 ---
 
 ## 🎯 Pipeline aplicado (resumo)
 
 ```
-1. /acme:diagnose faturamento --project_type=platform
+1. /novais-digital:diagnose faturamento --project_type=platform
    → @po-guardian valida outcome operacional
    ↓
-2. /acme:spec --type=platform-module
+2. /novais-digital:spec --type=platform-module
    → @unit-economist audita delivery-economics
    ↓
-3. /acme:plan faturamento
+3. /novais-digital:plan faturamento
    → @artifact-architect valida abstração
    ↓
-4. /acme:tasks faturamento (Wave 1P-4P + 6P)
+4. /novais-digital:tasks faturamento (Wave 1P-4P + 6P)
    ↓
-5. /acme:implement (AIOS TDD-first com vitest/playwright)
+5. /novais-digital:implement (AIOS TDD-first com vitest/playwright)
    ↓
-6. /acme:pre-merge-check
+6. /novais-digital:pre-merge-check
    → audit-trail-check hook valida log em services
    → testes funcionais passam (não eval LLM)
    ↓
-7. /acme:promote faturamento --to=staging
+7. /novais-digital:promote faturamento --to=staging
    → @promotion-officer assina
    ↓ (após 7 dias em staging com smoke tests)
-8. /acme:promote faturamento --to=pilot
+8. /novais-digital:promote faturamento --to=pilot
    → cliente real testa em ambiente isolado
    ↓ (após acceptance-report assinado pelo decisor cliente)
-9. /acme:promote faturamento --to=canonical
+9. /novais-digital:promote faturamento --to=canonical
    → módulo entra em produção para todos os tenants
 ```
 
@@ -96,4 +96,4 @@ Acompanhe o passo a passo em [`walkthrough.md`](./walkthrough.md).
 ✅ **Audit trail obrigatório** — toda mutação em services críticos gera log auditável
 ✅ **C3 reinterpretado** — custo de infra + suporte ÷ ARR atribuído ≤ 25%
 ✅ **Lifecycle 4 estágios** — draft (dev) → staging (interno) → pilot (1 cliente) → canonical (todos)
-✅ **TDD-first ainda obrigatório** — gate G6 do Forge-10 aplica em platform também
+✅ **TDD-first ainda obrigatório** — gate G6 do Foundry-10 aplica em platform também

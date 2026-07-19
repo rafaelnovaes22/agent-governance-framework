@@ -1,8 +1,8 @@
 # Walkthrough — PLAYGROUND/04-automation
 
-> Pipeline completo para criar um job RPA determinístico sob o Forge, do diagnose ao CANONICAL.
+> Pipeline completo para criar um job RPA determinístico sob o Foundry, do diagnose ao CANONICAL.
 > **Duração estimada**: ~20 min de leitura + execução em consumer real.
-> **Pré-requisitos**: Forge v0.13.0+ instalado, `docs/forge/project.json` declarando `project_type=automation`.
+> **Pré-requisitos**: Foundry v0.13.0+ instalado, `docs/foundry/project.json` declarando `project_type=automation`.
 
 ---
 
@@ -12,11 +12,11 @@ Cliente operacional precisa sincronizar pedidos do ERP legado (sem webhooks, sem
 
 ---
 
-## Passo 1 — Diagnóstico (`/acme:diagnose`)
+## Passo 1 — Diagnóstico (`/novais-digital:diagnose`)
 
 ```bash
 claude
-> /acme:diagnose --project_type=automation --ai_enabled=false
+> /novais-digital:diagnose --project_type=automation --ai_enabled=false
 ```
 
 Output esperado em `docs/clients/{client_id}/diagnostic.md`:
@@ -42,10 +42,10 @@ icp_fit: "high (cliente já paga R$ 2400/mês em horas-homem manual)"
 
 ---
 
-## Passo 2 — Spec (`/acme:spec --type=automation-job`)
+## Passo 2 — Spec (`/novais-digital:spec --type=automation-job`)
 
 ```bash
-> /acme:spec --type=automation-job --client_id=cliente-erp-sync
+> /novais-digital:spec --type=automation-job --client_id=cliente-erp-sync
 ```
 
 Output em `docs/specs/erp-to-warehouse-sync.md` (gerado a partir de `templates/platform-module-spec.template.md` com adaptações `automation`):
@@ -79,10 +79,10 @@ acceptance_criteria:
 
 ---
 
-## Passo 3 — Plan (`/acme:plan`)
+## Passo 3 — Plan (`/novais-digital:plan`)
 
 ```bash
-> /acme:plan
+> /novais-digital:plan
 ```
 
 Plano em `docs/specs/erp-to-warehouse-sync.plan.md` — variante platform (sem seções LLM, sem prompts, sem LANGSMITH):
@@ -120,9 +120,9 @@ tests/erp-to-warehouse-sync/integration/ # ERP mock + DB real ephemeral
 
 ---
 
-## Passo 4 — Tasks (`/acme:tasks`)
+## Passo 4 — Tasks (`/novais-digital:tasks`)
 
-DAG platform (Waves 1P-4P + 6P, T6.2P forge-tests):
+DAG platform (Waves 1P-4P + 6P, T6.2P foundry-tests):
 
 ```
 Wave 1P (scaffolding): src/jobs/ + tests/{module}/unit/ vazios
@@ -130,8 +130,8 @@ Wave 2P (service build): erp client + warehouse adapter + job orchestrator
 Wave 3P (E2E): tests/{module}/integration/ + tests/{module}/e2e/ (com fixtures)
 Wave 4P (PILOT prep): audit_log schema + monitoring dashboard + alerting
 Wave 6P (CI/CD):
-  T6.1P: forge-validate.yml ativo
-  T6.2P: forge-test.yml com unit + integration (Postgres ephemeral)
+  T6.1P: foundry-validate.yml ativo
+  T6.2P: foundry-test.yml com unit + integration (Postgres ephemeral)
   T6.3P: branch protection
   T6.4P: audit cron mensal
   T6.5P: cicd-checklist.template.md gate_6_status: pass
@@ -139,7 +139,7 @@ Wave 6P (CI/CD):
 
 ---
 
-## Passo 5 — Implement (`/acme:implement`)
+## Passo 5 — Implement (`/novais-digital:implement`)
 
 Gera scaffolding com idempotência embutida. Boilerplate de exemplo (`src/jobs/erp-to-warehouse-sync.ts`):
 
@@ -186,7 +186,7 @@ export async function run(syncWindowStart: Date) {
 }
 ```
 
-**Verificação humana obrigatória** (gate em `/acme:implement`): operador revisa scaffolding, preenche `TODO`s com lógica de domínio antes de marcar Wave 2P completa.
+**Verificação humana obrigatória** (gate em `/novais-digital:implement`): operador revisa scaffolding, preenche `TODO`s com lógica de domínio antes de marcar Wave 2P completa.
 
 ---
 
@@ -225,10 +225,10 @@ Operador roda localmente, **confirma que falham (RED)**, depois implementa, depo
 
 ---
 
-## Passo 7 — PILOT (`/acme:promote --to=pilot`)
+## Passo 7 — PILOT (`/novais-digital:promote --to=pilot`)
 
 ```bash
-> /acme:promote --to=pilot --artifact=erp-to-warehouse-sync
+> /novais-digital:promote --to=pilot --artifact=erp-to-warehouse-sync
 ```
 
 6 gates verificados:
@@ -236,8 +236,8 @@ Operador roda localmente, **confirma que falham (RED)**, depois implementa, depo
 1. **G1 spec** — payload_schema declarado, idempotency_key presente
 2. **G2 acceptance criteria** — 3 critérios mensuráveis listados
 3. **G3 audit log schema** — tabela criada no warehouse
-4. **G4 forge-doctor consumer** — 0 FAIL
-5. **G5 eval** — `forge-test.yml` ativo no PR, idempotência testada (RED→GREEN)
+4. **G4 foundry-doctor consumer** — 0 FAIL
+5. **G5 eval** — `foundry-test.yml` ativo no PR, idempotência testada (RED→GREEN)
 6. **G6 CI/CD checklist** — `gate_6_status: pass`
 
 Aprovação cruzada: artifact-architect + promotion-officer assinam.
@@ -253,7 +253,7 @@ Daily checks:
 - Lag aceitável: `SELECT MAX(NOW() - synced_at) FROM synced_orders` ≤ 6h
 - Errors taxa: `SELECT SUM(errors_count) / SUM(rows_processed)` < 0.5%
 
-Reviewer DeepAgent mensal compara essas métricas com SLA contratado e gera relatório em `docs/forge/audits/2026-06.md`.
+Reviewer DeepAgent mensal compara essas métricas com SLA contratado e gera relatório em `docs/foundry/audits/2026-06.md`.
 
 ---
 
@@ -262,7 +262,7 @@ Reviewer DeepAgent mensal compara essas métricas com SLA contratado e gera rela
 Após 14 dias com gates verdes:
 
 ```bash
-> /acme:promote --to=canonical --artifact=erp-to-warehouse-sync
+> /novais-digital:promote --to=canonical --artifact=erp-to-warehouse-sync
 ```
 
 Promotion-officer + security-privacy-guardian assinam (PII em customer_id → LGPD review).
@@ -278,7 +278,7 @@ Promotion-officer + security-privacy-guardian assinam (PII em customer_id → LG
 3. **Audit log substitui telemetry LLM** — toda C6.platform requer entry por run, com retention conforme regulação
 4. **CI/CD continua obrigatório** — Gate 6 não é opcional para CANONICAL, mesmo sem IA
 5. **Reviewer mensal lê audit log, não outcomes classificados** — métricas são success_rate + idempotência + audit_completeness
-6. **Forge sabe lidar com isso sem IA** — F26 (Forge-9) formalizou interpretação ramificada de C1-C8
+6. **Foundry sabe lidar com isso sem IA** — F26 (Foundry-9) formalizou interpretação ramificada de C1-C8
 
 ---
 

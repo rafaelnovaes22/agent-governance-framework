@@ -1,8 +1,8 @@
 # Playground 05 — WireLog Analytics
 
-> **Nível**: Intermediário (requer familiaridade com Forge-21 e C6 bifurcado)
+> **Nível**: Intermediário (requer familiaridade com Foundry-21 e C6 bifurcado)
 > **Tempo estimado**: 15–20 minutos
-> **Forge version**: ≥ 0.22.0
+> **Foundry version**: ≥ 0.22.0
 
 ---
 
@@ -26,7 +26,7 @@ Agente de IA executa
        │        → para debugging, custo de inferência, evals
        │
        └─► WireLog (analytics_provider)
-             └─ evento de negócio: forge_outcome_delivered
+             └─ evento de negócio: foundry_outcome_delivered
                 → para funis de produto, auditoria de billing, desvio DB↔WireLog
 ```
 
@@ -45,9 +45,9 @@ Agente de IA executa
 
 ---
 
-## Configuração do projeto (docs/forge/project.json)
+## Configuração do projeto (docs/foundry/project.json)
 
-Ver [`docs/forge/project.json`](./docs/forge/project.json).
+Ver [`docs/foundry/project.json`](./docs/foundry/project.json).
 
 Campos chave:
 ```json
@@ -67,13 +67,13 @@ Ver [`events/sample-wirelog-events.jsonl`](./events/sample-wirelog-events.jsonl)
 
 O arquivo contém 10 eventos reais do ciclo de vida de um projeto `agentic_saas`:
 
-1. `forge_outcome_created` — outcome entra no pipeline
-2. `forge_outcome_delivered` — outcome entregue (com `trace_id` do LangSmith para cruzamento)
-3. `forge_outcome_billed` — billing confirmado
-4. `forge_eval_started` / `forge_eval_completed` — ciclo de eval
-5. `forge_promotion_requested` / `forge_promotion_approved` — transição SHADOW→ASSISTED
-6. `forge_gate_failed` — gate 4 (eval_suite_passing) falhou ao tentar ASSISTED→AUTONOMOUS
-7. `forge_reviewer_audit_started` / `forge_reviewer_audit_completed` — auditoria mensal
+1. `foundry_outcome_created` — outcome entra no pipeline
+2. `foundry_outcome_delivered` — outcome entregue (com `trace_id` do LangSmith para cruzamento)
+3. `foundry_outcome_billed` — billing confirmado
+4. `foundry_eval_started` / `foundry_eval_completed` — ciclo de eval
+5. `foundry_promotion_requested` / `foundry_promotion_approved` — transição SHADOW→ASSISTED
+6. `foundry_gate_failed` — gate 4 (eval_suite_passing) falhou ao tentar ASSISTED→AUTONOMOUS
+7. `foundry_reviewer_audit_started` / `foundry_reviewer_audit_completed` — auditoria mensal
 
 **Nota importante**: Todos os eventos usam `tenantIdHash` (sha256 do tenant_id real), nunca `tenantId` cru. O adapter bloqueia automaticamente campos proibidos (PII guard).
 
@@ -85,7 +85,7 @@ O campo `traceId` em eventos WireLog aponta para um trace no LangSmith:
 
 ```json
 {
-  "eventType": "forge_outcome_delivered",
+  "eventType": "foundry_outcome_delivered",
   "outcomeId": "outcome_0001",
   "traceId": "ls-trace-001abc"   ← mesmo ID que aparece no LangSmith
 }
@@ -112,14 +112,14 @@ As queries cobrem:
 
 ## Exercício prático
 
-1. **Leia** `events/sample-wirelog-events.jsonl` e identifique o evento `forge_gate_failed`
+1. **Leia** `events/sample-wirelog-events.jsonl` e identifique o evento `foundry_gate_failed`
    - Qual gate falhou? (`gate_4`)
    - Qual o error_code? (`eval_too_old`)
-   - O que deve ser feito? (rodar `/acme:eval` com data recente)
+   - O que deve ser feito? (rodar `/novais-digital:eval` com data recente)
 
 2. **Calcule** o desvio hipotético:
    - DB: 47 outcomes delivered no mês
-   - WireLog: 46 eventos `forge_outcome_delivered`
+   - WireLog: 46 eventos `foundry_outcome_delivered`
    - Desvio: `|47-46|/47 * 100 = 2.1%` → WARN (≤ 5%)
 
 3. **Verifique** que `sample-wirelog-events.jsonl` não contém campos proibidos:
@@ -141,7 +141,7 @@ Pergunta: "O custo de inferência está dentro do limite de 25%?"
 → LangSmith (custo de token) + DB outcomes (volume) + WireLog (billing confirmado)
 
 Pergunta: "Algum gate falhou nas últimas promoções?"
-→ WireLog (forge_gate_failed events)
+→ WireLog (foundry_gate_failed events)
 
 Pergunta: "O prompt drift causou regressão na eval?"
 → LangSmith (trace das evals) + evals/{id}/runs/ (relatório)

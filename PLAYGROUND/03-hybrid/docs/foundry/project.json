@@ -1,0 +1,59 @@
+{
+  "$schema": "../../../../templates/project.template.json",
+  "project_name": "playground-03-hybrid-platform",
+  "project_type": "hybrid",
+  "ai_enabled": "per_module",
+  "ai_providers": [
+    "anthropic-claude-opus-4.6"
+  ],
+  "telemetry": {
+    "structured_logs": {
+      "enabled": true,
+      "provider": "pino+sentry"
+    },
+    "audit_trail": {
+      "enabled": true,
+      "retention_days": 2555
+    },
+    "LANGSMITH": {
+      "enabled": true,
+      "scope": "ai_modules_only",
+      "project_id": "playground-hybrid-ai-modules"
+    }
+  },
+  "economics_model": "subscription_plus_addons",
+  "outcome_unit": "tenant_active_per_month_plus_per_analysis",
+  "outcome_price_brl": {
+    "platform_base": 1500.00,
+    "ai_analysis_addon": 50.00
+  },
+  "modules": [
+    {
+      "id": "core-billing",
+      "type": "platform_module",
+      "ai_enabled": false,
+      "criticality": "C",
+      "current_stage": "canonical",
+      "has_ui": true
+    },
+    {
+      "id": "core-dashboard",
+      "type": "platform_module",
+      "ai_enabled": false,
+      "criticality": "B",
+      "current_stage": "canonical",
+      "has_ui": true
+    },
+    {
+      "id": "ai-financial-analysis",
+      "type": "agentic_sku",
+      "ai_enabled": true,
+      "criticality": "B",
+      "current_stage": "shadow",
+      "has_ui": false
+    }
+  ],
+  "foundry_version_compatible": ">=0.10.0",
+  "consumer_declared_at": "2026-05-13",
+  "_comment": "Exemplo didático — não rodar em produção. Inspirado no Aicfo (FinTech B2B com módulo IA add-on)."
+}
