@@ -4,7 +4,7 @@
 > Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
 [![Version](https://img.shields.io/badge/version-0.22.0-blue)](./CHANGELOG.md)
-[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-red)](./LICENSE.md)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Phase](https://img.shields.io/badge/phase-Foundry--21-orange)](./docs/foundry/roadmap.md)
 [![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)
 [![Project Types](https://img.shields.io/badge/project__types-agentic__saas%20%7C%20platform%20%7C%20automation%20%7C%20hybrid-success)](./templates/project.template.json)
@@ -234,4 +234,4 @@ Versão atual em [`docs/foundry/manifest.json`](./docs/foundry/manifest.json) �
 
 Copyright (c) 2026 Rafael Novaes.
 
-Licenciado sob [PolyForm Noncommercial License 1.0.0](./LICENSE.md) — leitura, estudo e uso não comercial permitidos; uso comercial requer autorização expressa do autor.
+Licenciado sob [MIT License](./LICENSE) — © 2026 Rafael Novaes.
