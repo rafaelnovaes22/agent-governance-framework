@@ -1,9 +1,9 @@
 {
   "$schema": "https://novais-digital.com.br/foundry/validation-rules-v1.json",
-  "validation_rules_version": "0.5.0",
+  "validation_rules_version": "0.6.0",
   "constitution_version": "0.3.0",
 
-  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados. v0.5.0 (issue #1): grupo C4_eval_integrity adicionado — split público/privado de métricas + defesas anti reward hacking (ver docs/foundry/eval-integrity.md).",
+  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados. v0.5.0 (issue #1): grupo C4_eval_integrity adicionado — split público/privado de métricas + defesas anti reward hacking (ver docs/foundry/eval-integrity.md). v0.6.0: check C4.eval.6 — iteration journal replayável obrigatório no gate de promoção (ver docs/foundry/iteration-journal.md).",
 
   "project_config_loader": {
     "primary_path": "docs/foundry/project.json",
@@ -280,6 +280,20 @@
             "history_source": "eval run history (>= 5 runs)",
             "max_z_score": 3.0,
             "on_violation_require": "human_review_entry em subscriptions/{id}/promotions.md",
+            "applies_when": "always",
+            "severity": "WARN",
+            "severity_when_autonomous": "FAIL"
+          },
+          {
+            "id": "C4.eval.6",
+            "description": "Gate de promoção referencia iteration journal replayável: journal_ref existe, valida contra reviewer/iteration-journal-schema.json e best_node_id aponta para node não-buggy sem integrity_flags pendentes",
+            "validation": "journal_ref_check",
+            "log_path_pattern": "subscriptions/{id}/promotions.md",
+            "journal_path_pattern": "subscriptions/{id}/journal/{run_id}.json",
+            "schema_path": "reviewer/iteration-journal-schema.json",
+            "required_fields_in": "gate_results",
+            "required_fields": ["journal_ref", "best_node_id"],
+            "best_node_must_be": {"is_buggy": false, "integrity_flags": []},
             "applies_when": "always",
             "severity": "WARN",
             "severity_when_autonomous": "FAIL"

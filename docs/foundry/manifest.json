@@ -3,9 +3,9 @@
   "manifest_version": "0.22.1",
   "framework": {
     "name": "Novais Digital Foundry",
-    "version": "0.23.0",
+    "version": "0.24.0",
     "canonical": true,
-    "phase": "Eval integrity entregue (0.23.0): C4_eval_integrity em validation-rules v0.5.0, split público/privado no eval-case template, doc docs/foundry/eval-integrity.md (issue #1).",
+    "phase": "Iteration journal entregue (0.24.0): schema reviewer/iteration-journal-schema.json, check C4.eval.6 (rules v0.6.0), doc docs/foundry/iteration-journal.md — audit trail replayável portado do padrão Journal/Node do aideml.",
     "last_updated": "2026-07-22",
     "constitution_version": "0.4.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -431,12 +431,24 @@
           "id": "eval-integrity",
           "path": "docs/foundry/eval-integrity.md",
           "type": "documentation",
-          "version": "0.1.0",
-          "sha256": "bad1c1f2810f6b30",
+          "version": "0.1.1",
+          "sha256": "d25dd71be53f0657",
           "linked_principles": [
             "C4"
           ],
           "description": "Especificação do módulo de integridade de evals: split público/privado de métricas e defesa em 3 camadas contra reward hacking (instrutiva, hardcoded, estatística). Origem: issue #1, mecanismos do AIDE²/Weco."
+        },
+        {
+          "id": "iteration-journal",
+          "path": "docs/foundry/iteration-journal.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": "3ef7897ec917827c",
+          "linked_principles": [
+            "C4",
+            "C6"
+          ],
+          "description": "Especificação do iteration journal: audit trail replayável de iterações de agente (best path root→best_node_id, branches rejeitados visíveis). Destrava automação do C4.eval.5 (histórico de runs)."
         }
       ]
     },
@@ -1078,12 +1090,12 @@
         "id": "reviewer-validation-rules",
         "path": "reviewer/validation-rules.json",
         "type": "reviewer-asset",
-        "version": "0.5.0",
-        "sha256": "f4da617a15d8f437",
+        "version": "0.6.0",
+        "sha256": "56b00f1dbc08cdea",
         "audience": [
           "deep-agent"
         ],
-        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9) — v0.5.0 adiciona C4_eval_integrity (split público/privado + anti reward hacking, issue #1)"
+        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9) — v0.5.0 adiciona C4_eval_integrity (split público/privado + anti reward hacking, issue #1) — v0.6.0 adiciona C4.eval.6 (iteration journal replayável no gate de promoção)"
       },
       {
         "id": "reviewer-example-audit",
@@ -1096,6 +1108,22 @@
           "framework-maintainer"
         ],
         "description": "Exemplo sintético de output bem-feito"
+      },
+      {
+        "id": "reviewer-iteration-journal-schema",
+        "path": "reviewer/iteration-journal-schema.json",
+        "type": "reviewer-asset",
+        "version": "1.0.0",
+        "sha256": "fabe941b855e351c",
+        "audience": [
+          "deep-agent",
+          "human-developer"
+        ],
+        "linked_principles": [
+          "C4",
+          "C6"
+        ],
+        "description": "JSON Schema do iteration journal (árvore de nodes draft/debug/improve, métricas public/private, integrity_flags). Portado do padrão Journal/Node do aideml. Valida journal_ref de C4.eval.6."
       }
     ],
     "examples": [

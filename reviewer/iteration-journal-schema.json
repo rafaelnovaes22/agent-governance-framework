@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://novais-digital.com.br/foundry/iteration-journal-schema-v1.json",
+  "title": "Novais Digital Foundry — Iteration Journal Schema",
+  "description": "Audit trail replayável das iterações de um agente sobre um SKU/módulo. Árvore de nodes (draft/debug/improve) portada do padrão Journal/Node do aideml (WecoAI/aideml, aide/journal.py). Toda promoção referencia um journal via journal_ref no gate_results (check C4.eval.6). Serve também de storage de histórico de runs para o check estatístico C4.eval.5.",
+  "type": "object",
+  "required": ["journal_version", "sku_code", "run_id", "agent_id", "created_at", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "journal_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Versão do formato. Mudança de formato exige bump aqui e no $id."
+    },
+    "sku_code": {
+      "type": "string",
+      "minLength": 1,
+      "description": "SKU/módulo cujo agente está sendo iterado."
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identificador único desta sessão de iteração (ex: ULID/UUID)."
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Agente/versão sob iteração (ex: 'composer@0.4.2')."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 do início da sessão."
+    },
+    "best_node_id": {
+      "type": "string",
+      "description": "Node vencedor (maior métrica private entre nodes não-buggy). Preenchido ao fechar a sessão. O caminho root→best_node_id é o 'best path' replayado no gate de promoção."
+    },
+    "eval_suite_ref": {
+      "type": "string",
+      "description": "Path/ref da eval suite usada (para reproduzir os scores)."
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Append-only. Nodes ordenados por step; nunca editar ou remover node já gravado.",
+      "items": {
+        "type": "object",
+        "required": ["id", "step", "stage", "ctime", "plan", "change_ref", "is_buggy"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identificador único do node dentro do journal."
+          },
+          "step": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Índice sequencial de gravação (0-based, monotônico)."
+          },
+          "parent_id": {
+            "type": ["string", "null"],
+            "description": "Node do qual este deriva. null = draft inicial (raiz)."
+          },
+          "stage": {
+            "type": "string",
+            "enum": ["draft", "debug", "improve"],
+            "description": "draft = solução nova (sem parent); debug = correção de parent buggy; improve = melhoria de parent funcional. Regra do aideml: stage deriva do estado do parent."
+          },
+          "ctime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 da criação. Deve ser monotônico vs steps anteriores."
+          },
+          "plan": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Descrição em linguagem natural da mudança proposta (1 mudança atômica por node)."
+          },
+          "change_ref": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Referência auditável à mudança: commit sha, diff path ou prompt-version ref. Nunca embutir o artefato inteiro no journal."
+          },
+          "exec": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "exec_time_s": {"type": "number", "minimum": 0},
+              "exc_type": {"type": ["string", "null"], "description": "Tipo da exceção se a execução falhou."},
+              "term_out_ref": {"type": "string", "description": "Path/ref do log de execução (truncado)."}
+            }
+          },
+          "analysis": {
+            "type": "string",
+            "description": "Resumo empírico do resultado (2-3 frases) ou proposta de fix se buggy."
+          },
+          "is_buggy": {
+            "type": "boolean",
+            "description": "true se execução falhou, métrica ausente ou reviewer marcou bug. Node buggy nunca é elegível a best_node_id."
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "public": {"$ref": "#/$defs/metricValue"},
+              "private": {"$ref": "#/$defs/metricValue"}
+            },
+            "description": "Split público/privado (C4.eval.*). O valor private só é gravado pelo runner; nunca ecoado em prompt/contexto de agente (C4.eval.3)."
+          },
+          "integrity_flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["verbatim_answer_rejected", "missing_execution_evidence", "score_implausible", "holdout_leak_suspected"]
+            },
+            "description": "Flags gravadas pelos validators anti-gaming (C4.eval.4/C4.eval.5). Node com flag não é elegível a best_node_id sem revisão humana."
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "metricValue": {
+      "type": "object",
+      "required": ["value", "maximize"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "number"},
+        "maximize": {"type": "boolean", "description": "true = maior é melhor (accuracy); false = menor é melhor (custo, MSE)."},
+        "case_count": {"type": "integer", "minimum": 1, "description": "Quantos eval cases compuseram o valor."}
+      }
+    }
+  }
+}
