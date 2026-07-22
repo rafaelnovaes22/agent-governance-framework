@@ -6,8 +6,8 @@
     "version": "0.22.1",
     "canonical": true,
     "phase": "Foundry-21 entregue (0.22.0) + patch 0.22.1: drift residual de Langfuse em CONSTITUTION.md sanado (LangSmith canonical conforme F56).",
-    "last_updated": "2026-05-26",
-    "constitution_version": "0.3.0",
+    "last_updated": "2026-07-22",
+    "constitution_version": "0.4.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
     "supported_project_types": [
