@@ -452,7 +452,7 @@ bash scripts/foundry doctor
 
 ### Passo 4 — Abra issue
 ```
-https://github.com/novais-digital/agent-governance-framework/issues/new
+https://github.com/rafaelnovaes22/agent-governance-framework/issues/new
 ```
 
 Inclua:

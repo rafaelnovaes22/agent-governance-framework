@@ -11,7 +11,7 @@ triggers:
 requires:
   - gh CLI autenticado com repo+workflow scope
   - GH_TOKEN env var
-  - FOUNDRY_REPO env var (ex: novais-digital/agent-governance-framework)
+  - FOUNDRY_REPO env var (ex: rafaelnovaes22/agent-governance-framework)
   - TELEGRAM_CHAT_ID (para notificações)
 linked_principles:
   - C1  # learning vinculado a diagnostic real
@@ -36,7 +36,7 @@ foundry-headless callback
 2. assess_novelty()       — verifica se há algo novo (vs agent-memory atual)
 3. decide_persist()       — LLM decide se vale um PR (score ≥ 0.6)
 4. propose_pr()           — gh api PR com patches ao agent-memory.md
-5. notify_telegram()      — informa Rafael sobre o aprendizado
+5. notify_telegram()      — informa o operador sobre o aprendizado
 6. rate_limit_check()     — máx 1 PR de learning por consumer por dia
 ```
 
@@ -50,8 +50,8 @@ Payload esperado:
   "event": "foundry_run_completed",
   "timestamp": "2026-05-18T10:00:00Z",
   "run_id": "12345678",
-  "run_url": "https://github.com/novais-digital/agent-governance-framework/actions/runs/12345678",
-  "consumer": "school-platform",
+  "run_url": "https://github.com/rafaelnovaes22/agent-governance-framework/actions/runs/12345678",
+  "consumer": "edu-platform",
   "command": "/novais-digital:implement",
   "exit_code": 0,
   "learning_snapshot_path": "docs/learnings/2026-05/20260518T100000-12345.md",
@@ -108,7 +108,7 @@ def assess_novelty(snapshot: dict, current_memory_content: str) -> list[dict]:
 
 Fetch do agent-memory.md atual:
 ```bash
-gh api repos/novais-digital/agent-governance-framework/contents/docs/clients/{consumer}/agent-memory.md \
+gh api repos/rafaelnovaes22/agent-governance-framework/contents/docs/clients/{consumer}/agent-memory.md \
   --jq '.content' | base64 -d
 ```
 
@@ -190,7 +190,7 @@ def check_rate_limit(consumer: str) -> bool:
 
 ## Passo 5: notify_telegram()
 
-Formata e envia notificação ao Telegram do Rafael.
+Formata e envia notificação ao Telegram do operador.
 
 **Mensagem de sucesso:**
 ```
@@ -233,7 +233,7 @@ Variáveis de ambiente Hermes (Railway):
 ```env
 # Já definidas em templates/hermes/railway/env.example
 GH_TOKEN=ghp_...               # PAT com repo+workflow scope
-FOUNDRY_REPO=novais-digital/agent-governance-framework
+FOUNDRY_REPO=rafaelnovaes22/agent-governance-framework
 HERMES_WEBHOOK_SECRET=...      # HMAC secret compartilhado com foundry-headless.yml
 
 # Específicas do learning loop

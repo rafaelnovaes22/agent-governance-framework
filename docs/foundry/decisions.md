@@ -142,7 +142,7 @@ Decisões fundacionais do framework Novais Digital Foundry. Mudança em qualquer
 
 **Decisão**: ✅ **Integrar Hermes Agent (Nous Research, hospedado no Railway) ao Foundry via GitHub Actions executor, com Codex (OpenAI) como cérebro de roteamento.**
 
-**Motivação**: O operador principal (Rafael) precisa demandar construção e auditoria de projetos consumer a partir do Telegram (de qualquer lugar, PC desligado) e ter os Guardians/slash commands executando em paralelo em múltiplos repos. A máquina local Windows não pode ser o ponto único de execução de operações de longa duração.
+**Motivação**: O operador principal precisa demandar construção e auditoria de projetos consumer a partir do Telegram (de qualquer lugar, PC desligado) e ter os Guardians/slash commands executando em paralelo em múltiplos repos. A máquina local Windows não pode ser o ponto único de execução de operações de longa duração.
 
 **Alternativas consideradas e descartadas**:
 
@@ -229,7 +229,7 @@ Decisões fundacionais do framework Novais Digital Foundry. Mudança em qualquer
 
 **Decisão**: ✅ **O Foundry passa a suportar formalmente quatro `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) e o booleano `ai_enabled`, com matriz de interpretação por princípio**.
 
-**Motivação**: o framework foi forjado a partir do caso Novais Digital SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `school-platform` (sucessor de CAPSYSTEM): plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem LangSmith, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Foundry-Platform", duplicando manutenção; ou **(b)** generalizar o Foundry para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
+**Motivação**: o framework foi forjado a partir do caso Novais Digital SaaS² e até a v0.7.0 pressupunha que todo projeto consumidor entregava agentes de IA com governança de outcome cobrável. Em 2026-05-08 entrou em pauta o caso `edu-platform`: plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/Tele-Pesquisa/Jovens — sem prompts, sem LangSmith, sem custo de inferência. Aplicar regras LLM-centric a esse projeto produziria FAILs falsos no reviewer e pediria artefatos inexistentes. A escolha foi: **(a)** criar um framework irmão "Foundry-Platform", duplicando manutenção; ou **(b)** generalizar o Foundry para reconhecer múltiplos tipos de entrega. Optamos por (b) — preserva 8 princípios canônicos, evita fork, e ainda permite projetos `hybrid` (plataforma com 1-2 módulos agênticos).
 
 **Implicações arquiteturais**:
 
@@ -266,9 +266,9 @@ Decisões fundacionais do framework Novais Digital Foundry. Mudança em qualquer
 - 4 commands com bumps próprios (versão por command).
 
 **Pendências**:
-- Hooks (`unit-economics-recalc`, `LangSmith-trace-check`) ainda assumem `ai_enabled=true`. Refator condicional fica para Foundry-9.1 ou primeira auditoria real do `school-platform`. Hoje: o hook simplesmente não dispara em projeto platform pois os paths/patterns que ele monitora (prompts/LLM calls) não existem nesses projetos.
+- Hooks (`unit-economics-recalc`, `LangSmith-trace-check`) ainda assumem `ai_enabled=true`. Refator condicional fica para Foundry-9.1 ou primeira auditoria real do `edu-platform`. Hoje: o hook simplesmente não dispara em projeto platform pois os paths/patterns que ele monitora (prompts/LLM calls) não existem nesses projetos.
 - Reviewer-contract.md atualizado parcialmente; revisão completa quando primeiro projeto platform for auditado.
-- Skills DeepAgent (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas; conversão de skills para platform é Foundry-9.2 (não bloqueia adoção pelo `school-platform`).
+- Skills DeepAgent (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas; conversão de skills para platform é Foundry-9.2 (não bloqueia adoção pelo `edu-platform`).
 
 ---
 
@@ -403,7 +403,7 @@ A definir se eventos críticos disparam **automaticamente** ou apenas marcam ite
 
 **Status**: Pendente — pós Foundry-5
 
-**Projetos candidatos** (workspace Rafael):
+**Projetos candidatos** (workspace do mantenedor):
 - CarInsight (precisa avaliação)
 - FacilIAuto (precisa avaliação)
 - novais-digital (provavelmente não — landing page, não SaaS² agêntico)
@@ -618,7 +618,7 @@ reviewer/deepagents/skills/reviewer/foundry-auditor/
 
 **Status**: ✅ **Formalizado em 2026-05-06 — Foundry-6 infraestrutura entregue**
 
-**Contexto**: projeto consumidor SchoolPlatform/EDIX adotou **AIOS Server** (arXiv 2403.16971, `agiresearch/AIOS` v0.2.2) como kernel LLM OS para orquestrar 6 agentes especializados com contexto isolado em paralelo. Esta decisão foi formalizada como **Foundry-6** e precisou de suporte nativo nos artefatos do framework.
+**Contexto**: projeto consumidor EduPlatform adotou **AIOS Server** (arXiv 2403.16971, `agiresearch/AIOS` v0.2.2) como kernel LLM OS para orquestrar 6 agentes especializados com contexto isolado em paralelo. Esta decisão foi formalizada como **Foundry-6** e precisou de suporte nativo nos artefatos do framework.
 
 **O que é AIOS**: kernel LLM OS com scheduler, gerenciador de contexto e memória isolada por agente. Em vez de implementação módulo a módulo, 6 agentes (spec, schema, backend, frontend, test, review) executam o pipeline com contexto estritamente isolado.
 
@@ -646,16 +646,16 @@ reviewer/deepagents/skills/reviewer/foundry-auditor/
 
 **Status**: ✅ **Formalizado em 2026-05-07 — Foundry-7 entregue**
 
-**Contexto**: Foundry-6 (v0.5.0) entregou os slash commands AIOS (`/novais-digital:aios-init`, `/novais-digital:aios-run`, `/novais-digital:aios-status`) e o padrão de telemetria, mas o **boilerplate dos agentes ficou inline no `aios-init.md`** e cobria apenas 3 dos 6 agentes (spec/backend/frontend). Cada projeto consumidor que adotasse AIOS tinha que gerar seus agentes do zero ou copiar do SchoolPlatform — onde o código está cravado em "EDIX" (viola C7/C8).
+**Contexto**: Foundry-6 (v0.5.0) entregou os slash commands AIOS (`/novais-digital:aios-init`, `/novais-digital:aios-run`, `/novais-digital:aios-status`) e o padrão de telemetria, mas o **boilerplate dos agentes ficou inline no `aios-init.md`** e cobria apenas 3 dos 6 agentes (spec/backend/frontend). Cada projeto consumidor que adotasse AIOS tinha que gerar seus agentes do zero ou copiar do EduPlatform — onde o código está cravado em "AcmeEdu" (viola C7/C8).
 
 **Problema concreto**: o usuário pediu "que cada novo projeto cliente criado possa utilizá-los" e a forma só-comando-inline não escala — qualquer evolução nos agentes teria que ser duplicada manualmente em cada consumidor.
 
 **Decisão**: extrair os 6 agentes (`spec`, `backend`, `frontend`, `schema`, `test`, `review`) como **templates físicos canônicos** em `templates/aios/`, com placeholders bem definidos e SYSTEM_PROMPTs neutros (sem hardcode de cliente/stack/framework).
 
-**Diferença-chave vs. SchoolPlatform**:
+**Diferença-chave vs. EduPlatform**:
 - `schema_agent` é **stack-agnostic**: lê `aios/config.yaml → stack.database` e gera schema na stack declarada; se vazia, propõe 1-3 stacks com tradeoffs e pede decisão humana antes do schema definitivo
 - `backend_agent`, `frontend_agent`, `test_agent` leem `stack.{backend,frontend,tests}` da config — não cravam Next.js/Prisma/Vitest
-- `orchestrator.py` lê `modules:` da config (em vez de lista hardcoded de 15 módulos do SchoolPlatform)
+- `orchestrator.py` lê `modules:` da config (em vez de lista hardcoded de 15 módulos do EduPlatform)
 - Todos têm bloco LangSmith + `_MockTrace` obrigatório (C6)
 - `tenantId` sempre via `task_input["tenant_id"]` (C8)
 
@@ -671,7 +671,7 @@ reviewer/deepagents/skills/reviewer/foundry-auditor/
 **Decisão de versionamento**: Foundry-7 é nova onda → MINOR bump (v0.5.0 → v0.6.0). Não viola Constitution.
 
 **Artefatos Foundry-7 entregues**:
-- F7.1 — `templates/aios/README.md` (documentação dos placeholders, tabela de diferenças vs. SchoolPlatform)
+- F7.1 — `templates/aios/README.md` (documentação dos placeholders, tabela de diferenças vs. EduPlatform)
 - F7.2 — `templates/aios/orchestrator.py.template` + `templates/aios/config.yaml.template`
 - F7.3 — 6 agentes em `templates/aios/agents/{spec,backend,frontend,schema,test,review}_agent/{entry.py.template, config.json.template}`
 - F7.4 — `/novais-digital:aios-init` v0.2.0 (copia de templates físicos; cobre 6 agentes; cria orchestrator/config quando ausentes)
@@ -823,7 +823,7 @@ reviewer/deepagents/skills/reviewer/foundry-auditor/
 
 **Status**: ✅ **Formalizado em 2026-05-13 — Foundry-11 entregue**
 
-**Contexto**: Após Foundry-9 (delivery-type agnostic) e Foundry-10 (AIOS TDD-first), o framework passou a suportar 4 `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) com interpretação local de C1-C8 via `docs/foundry/project.json`. Porém, cada projeto consumidor (Novais Digital SaaS², Aicfo, SchoolPlatform, Novais Digital Social) precisava manter manualmente seu próprio `CLAUDE.md` instruindo o Claude Code sobre qual pipeline usar, qual Guardian invocar, qual lifecycle aplicar. Isso gerou três problemas concretos:
+**Contexto**: Após Foundry-9 (delivery-type agnostic) e Foundry-10 (AIOS TDD-first), o framework passou a suportar 4 `project_type` (`agentic_saas`, `platform`, `automation`, `hybrid`) com interpretação local de C1-C8 via `docs/foundry/project.json`. Porém, cada projeto consumidor (Novais Digital SaaS², Aicfo, EduPlatform, Novais Digital Social) precisava manter manualmente seu próprio `CLAUDE.md` instruindo o Claude Code sobre qual pipeline usar, qual Guardian invocar, qual lifecycle aplicar. Isso gerou três problemas concretos:
 
 1. **Inconsistência entre consumidores** — cada projeto descrevia o pipeline `/novais-digital:*` à sua maneira; alguns esqueciam de mencionar `po-guardian`, outros não documentavam interpretação local de C3.
 2. **Drift do framework** — quando Foundry-10 adicionou gates TDD, projetos consumidores antigos não atualizaram seus CLAUDE.md, e o Claude Code operava como se ainda fosse Foundry-8 nesses repos.
@@ -1016,7 +1016,7 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 
    Exemplos cobertos:
    - **01-agentic-saas-agent** — Carrossel Agent (inspirado Novais Digital Social): pipeline SHADOW→ASSISTED→AUTONOMOUS, eval-suite LLM-as-judge, unit-economics em tokens, lifecycle 3 estágios.
-   - **02-platform-module** — Módulo Faturamento (inspirado SchoolPlatform): pipeline draft→staging→pilot→canonical, acceptance gate operacional (sem LLM), delivery-economics (infra+suporte), TDD-first Tier C.
+   - **02-platform-module** — Módulo Faturamento (inspirado EduPlatform): pipeline draft→staging→pilot→canonical, acceptance gate operacional (sem LLM), delivery-economics (infra+suporte), TDD-first Tier C.
    - **03-hybrid** — Plataforma com Módulo IA (inspirado Aicfo): mistura platform core + agentic_sku, interpretação C1-C8 por módulo, ADR obrigatório para adicionar módulo IA.
 
 2. **`COMMON_ERRORS.md`** — top 10 erros consolidados em formato copy-paste:
@@ -1143,7 +1143,7 @@ CORE (governança, não muda)    → Constitution + Guardians + Hooks + Template
 | 0.2.0 | 2026-04-30 | F13-F16 adicionadas | Generalização da Constitution + estrutura examples/ + versionamento + distribuição |
 | 0.4.0 | 2026-05-01 | F19-F21 adicionadas | Foundry-5: estratégia de playbooks + reavaliação de deploy global e plugin |
 | 0.4.1 | 2026-05-04 | F22 adicionada; sincronização de metadados | Auditoria interna pré-CI detectou 6 divergências acumuladas |
-| 0.5.0 | 2026-05-06 | F23 adicionada; Foundry-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor SchoolPlatform/EDIX |
+| 0.5.0 | 2026-05-06 | F23 adicionada; Foundry-6 AIOS infraestrutura entregue | Adoção de AIOS Server pelo projeto consumidor EduPlatform |
 | 0.6.0 | 2026-05-07 | F24 adicionada; Foundry-7 AIOS templates portáveis entregues | 6 agentes canônicos em templates/aios/ para serem reusados por todos os projetos consumidores; schema_agent stack-agnostic |
 | 0.7.0 | 2026-05-07 | F25 adicionada; Foundry-8 CI/CD esteira completa entregue | Gate 6 obrigatório para AUTONOMOUS; 4 templates CI/CD; Wave 6 no tasks; promotion-officer atualizado |
 | 0.9.0 | 2026-05-12 | F26-bis adicionada (originalmente F26 — renomeada em v0.13.0); Foundry-10 AIOS TDD-first entregue | test_agent com modos red/verify + arquivos físicos; orchestrator reordenado para TDD; novo workflow foundry-test (unit/integration/e2e + coverage gate); gate G6 no validate; cicd-checklist com seção 3 (testes funcionais) |

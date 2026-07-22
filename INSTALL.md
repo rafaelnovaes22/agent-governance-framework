@@ -30,7 +30,7 @@
 ### 1. Clonar o Foundry canônico
 
 ```bash
-git clone git@github.com:novais-digital/agent-governance-framework.git ~/Projetos/agent-governance-framework
+git clone git@github.com:rafaelnovaes22/agent-governance-framework.git ~/Projetos/agent-governance-framework
 ```
 
 ### 2. Ir até o projeto consumidor
@@ -199,7 +199,7 @@ Esperado — `sha256` no manifest é calculado em normalização LF (Linux). Em 
 
 ## Suporte
 
-- 📋 Bugs: GitHub do `agent-governance-framework` (privado, `novais-digital/agent-governance-framework`)
+- 📋 Bugs: GitHub do `agent-governance-framework` (`rafaelnovaes22/agent-governance-framework`)
 - 📚 Doc operacional pós-instalação: [`templates/master-prompt.md`](./templates/master-prompt.md)
 - 🎓 Aprendizado por exemplos: [`PLAYGROUND/`](./PLAYGROUND/)
 - 🆘 Erros comuns: [`COMMON_ERRORS.md`](./COMMON_ERRORS.md)

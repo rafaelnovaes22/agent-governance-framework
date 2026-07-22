@@ -132,7 +132,7 @@ MAJOR bump quebra contrato e força ação no consumidor. **Raríssimo** — só
 2. **Se MAJOR for inevitável**, abra issue com header `[MAJOR proposal]` contendo:
    - Princípio afetado (C1-C8) ou contrato quebrado
    - Justificativa econômica/técnica
-   - Lista de consumidores conhecidos impactados (Novais Digital Social, Aicfo, SchoolPlatform, etc.)
+   - Lista de consumidores conhecidos impactados (Novais Digital Social, Aicfo, EduPlatform, etc.)
    - Estimativa de esforço de migração POR consumidor
    - Plano de deprecation path se aplicável
 

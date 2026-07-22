@@ -15,7 +15,7 @@ owners:
   po_guardian: ""
   sku_architect: ""
 # Foundry-6 — AIOS Server (preencher apenas se o projeto consumidor usa AIOS como camada de implementação)
-aios_tier: ""              # A (autônomo) | B (iterativo) | C (Rafael-dirige) | "" (sem AIOS)
+aios_tier: ""              # A (autônomo) | B (iterativo) | C (operador-dirige) | "" (sem AIOS)
 aios_context_boundaries:
   spec_agent: ""           # o que o Spec Agent pode ler (ex: "docs/specs/{module}.md apenas")
   backend_agent: ""        # ex: "spec do módulo + schema — sem outros módulos"

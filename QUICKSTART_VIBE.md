@@ -255,7 +255,7 @@ Digite:
 ## 8. 🚀 Próximos passos
 
 ### Agora mesmo (5 min):
-1. Abra o Claude Code no projeto que você usa (Novais Digital Social, Aicfo ou SchoolPlatform)
+1. Abra o Claude Code no projeto que você usa (Novais Digital Social, Aicfo ou EduPlatform)
 2. Digite: *"Olá, estou no modo vibe. Me mostra o que posso pedir."*
 3. O agente vai listar as 5 coisas mais comuns
 

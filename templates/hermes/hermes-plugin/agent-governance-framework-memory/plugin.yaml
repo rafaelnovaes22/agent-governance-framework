@@ -13,7 +13,7 @@ linked_principles:
 # Configuração
 config:
   gh_token_env: GH_TOKEN           # PAT com escopo repo
-  foundry_repo_env: FOUNDRY_REPO       # ex: novais-digital/agent-governance-framework
+  foundry_repo_env: FOUNDRY_REPO       # ex: rafaelnovaes22/agent-governance-framework
   clients_base_path: docs/clients  # base path dos clients no repo
 
 # Tools expostas ao Hermes/Codex
@@ -25,7 +25,7 @@ tools:
     parameters:
       project_id:
         type: string
-        description: "ID do consumer (ex: school-platform, aicfo)"
+        description: "ID do consumer (ex: edu-platform, aicfo)"
         required: true
       query:
         type: string

@@ -132,7 +132,7 @@ total_waves: 5
 
 - **Skill/tool**: `/novais-digital:aios-run --module {módulo} --step build` (ou `python aios/orchestrator.py build --module {módulo}`)
 - **Output**: `docs/specs/_backend_{módulo}.md` + `docs/specs/_frontend_{módulo}.md`
-- **Gate de pronto**: Rafael revisa e aprova `_backend_{módulo}.md` e `_frontend_{módulo}.md` (gate humano C4 via `/novais-digital:aios-run`)
+- **Gate de pronto**: o operador revisa e aprova `_backend_{módulo}.md` e `_frontend_{módulo}.md` (gate humano C4 via `/novais-digital:aios-run`)
 - **Depends on**: T2-AIOS-1
 - **Tier**: 3
 - **Trace required**: true
@@ -141,14 +141,14 @@ total_waves: 5
 
 - **Skill/tool**: `/novais-digital:aios-run --module {módulo} --step test` + `--step review` (ou `python aios/orchestrator.py test --module {módulo} && python aios/orchestrator.py review --module {módulo}`)
 - **Output**: `docs/specs/_tests_{módulo}.md` + `docs/specs/_review_{módulo}.md`
-- **Gate de pronto**: `_review_{módulo}.md` existe e **não contém** a string "BLOCKER" — verificado por Rafael
+- **Gate de pronto**: `_review_{módulo}.md` existe e **não contém** a string "BLOCKER" — verificado pelo operador
 - **Depends on**: T2-AIOS-2
 - **Tier**: 3
 - **Trace required**: true
 
 ### T2-AIOS-4 — Mover código aprovado para src/
 
-- **Skill/tool**: Rafael move manualmente após revisar `_review_{módulo}.md`
+- **Skill/tool**: o operador move manualmente após revisar `_review_{módulo}.md`
 - **Output**: `src/{módulo}/` com código aprovado commitado
 - **Gate de pronto**: `src/{módulo}/` existe com commit `feat({módulo}): código aprovado pós-review AIOS`
 - **Depends on**: T2-AIOS-3

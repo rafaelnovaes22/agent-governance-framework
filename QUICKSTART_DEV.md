@@ -40,7 +40,7 @@ agent-governance-framework/
 
 ```bash
 # Clonar
-git clone https://github.com/novais-digital/agent-governance-framework.git
+git clone https://github.com/rafaelnovaes22/agent-governance-framework.git
 cd agent-governance-framework
 
 # Validar instalação

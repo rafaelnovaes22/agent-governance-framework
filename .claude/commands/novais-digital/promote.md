@@ -226,7 +226,7 @@ total_transitions: 3
   - c3_unit_economics: { passed: true, status: viable, recalc_required: false }
   - c4_sla_pre_contracted: { passed: true, signature_hash: 8b2c... }
   - eval_suite_passing: { passed: true, run: 2026-05-10-eval-a3f9.md, pass_rate: 0.91 }
-  - human_approval: { passed: true, po: rafael (8b...), promo_officer: ana (4e...) }
+  - human_approval: { passed: true, po: operador (8b...), promo_officer: ana (4e...) }
 - shadow_report: runs/<>/shadow/report-<>-2026-05-12.md
 - recommendation: promote_to_assisted
 - approved_at: 2026-05-12T14:33

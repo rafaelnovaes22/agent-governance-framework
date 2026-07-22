@@ -6,7 +6,7 @@
 
 ## 📋 Contexto
 
-**Caso real inspirador:** SchoolPlatform (sucessor de CAPSYSTEM) — plataforma SaaS/operacional para gestão educacional.
+**Caso real inspirador:** EduPlatform — plataforma SaaS/operacional para gestão educacional.
 
 **Stack:**
 - Next.js 14 + TypeScript

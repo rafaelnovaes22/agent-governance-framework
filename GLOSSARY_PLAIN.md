@@ -100,7 +100,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ### **Foundry**
 **O que é**: o framework (estrutura de regras + scripts + agentes auxiliares) que torna seu projeto auditável e cobrável.
 **Por que importa**: é o que você está usando agora. Sem ele, cada projeto seria do zero.
-**Equivalente técnico**: Novais Digital Foundry — github.com/novais-digital/agent-governance-framework.
+**Equivalente técnico**: Novais Digital Foundry — github.com/rafaelnovaes22/agent-governance-framework.
 
 ### **Foundry-router**
 **O que é**: um agente que escuta você falar normalmente em português ("quero diagnosticar o cliente X") e descobre qual comando técnico chamar.
@@ -214,7 +214,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 **Equivalente técnico**: lifecycle_stage = pilot.
 
 ### **Platform**
-**O que é**: software comum (sem IA), tipo plataforma SaaS de gestão. SchoolPlatform é assim.
+**O que é**: software comum (sem IA), tipo plataforma SaaS de gestão. EduPlatform é assim.
 **Por que importa**: Foundry sabe lidar com isso — não exige LLM, eval, prompts.
 **Equivalente técnico**: project_type = platform, ai_enabled = false.
 
@@ -225,7 +225,7 @@ Procure a palavra (Ctrl+F) ou role lendo. Cada entrada tem 3 partes:
 ### **Project Type**
 **O que é**: tipo de projeto. Tem 4:
 - `agentic_saas` — entrega agentes IA (Novais Digital Social)
-- `platform` — entrega software SaaS (SchoolPlatform)
+- `platform` — entrega software SaaS (EduPlatform)
 - `automation` — entrega job/script RPA
 - `hybrid` — mistura (Aicfo)
 **Por que importa**: declarar isso no `project.json` faz o Foundry se adaptar ao caso.

@@ -369,4 +369,4 @@ Você criou um agente IA com:
 
 ---
 
-**Próximo exemplo:** [`../02-platform-module/`](../02-platform-module/) — módulo CRUD sem IA (SchoolPlatform style).
+**Próximo exemplo:** [`../02-platform-module/`](../02-platform-module/) — módulo CRUD sem IA (EduPlatform style).

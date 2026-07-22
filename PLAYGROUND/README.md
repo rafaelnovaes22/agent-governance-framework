@@ -9,7 +9,7 @@
 | Pasta | project_type | ai_enabled | Caso real inspirador |
 |-------|:------------:|:----------:|---------------------|
 | [`01-agentic-saas-agent/`](./01-agentic-saas-agent/) | `agentic_saas` | ✅ true | Novais Digital Social — Carrossel Agent |
-| [`02-platform-module/`](./02-platform-module/) | `platform` | ❌ false | SchoolPlatform — Módulo de Faturamento |
+| [`02-platform-module/`](./02-platform-module/) | `platform` | ❌ false | EduPlatform — Módulo de Faturamento |
 | [`03-hybrid/`](./03-hybrid/) | `hybrid` | ✅ true (módulo IA) | Aicfo — Análise Financeira |
 | [`04-automation/`](./04-automation/) | `automation` | ❌ false | Job RPA — sync ERP→Warehouse |
 

@@ -18,7 +18,7 @@ linked_principles:
 
 Quando o usuário pede **status, overview ou "tudo ok?"** sem precisar executar nenhuma lógica do Foundry. Exemplos:
 
-- "Como está o SchoolPlatform?"
+- "Como está o EduPlatform?"
 - "Status geral de todos os projetos"
 - "Tudo ok com o Aicfo?"
 - "Qual versão do Foundry está nos consumers?"
@@ -32,15 +32,15 @@ Para qualquer coisa que precise **executar** um pipeline (audit, eval, pre-merge
 ### 1. Manifest do Foundry canônico (versão atual, última atualização)
 
 ```bash
-gh api repos/novais-digital/agent-governance-framework/contents/docs/foundry/manifest.json \
+gh api repos/rafaelnovaes22/agent-governance-framework/contents/docs/foundry/manifest.json \
   --jq '.content | @base64d | fromjson | {version: .framework.version, last_updated: .framework.last_updated, phase: .framework.phase}'
 ```
 
 ### 2. Estado de um consumer específico
 
 ```bash
-# SchoolPlatform
-gh api repos/novais-digital/school-platform/contents/docs/foundry/project.json \
+# EduPlatform
+gh api repos/your-org/edu-platform/contents/docs/foundry/project.json \
   --jq '.content | @base64d | fromjson | {project_type, ai_enabled, last_synced_at: .framework.last_synced_at, framework_version_required: .framework.framework_version_required}' \
   2>/dev/null || echo '{"error": "project.json não encontrado"}'
 ```
@@ -48,7 +48,7 @@ gh api repos/novais-digital/school-platform/contents/docs/foundry/project.json \
 ### 3. Loop por todos os consumers (status consolidado)
 
 ```bash
-for CONSUMER in school-platform aicfo clickup-automation marketing-ai-agents; do
+for CONSUMER in edu-platform aicfo clickup-automation marketing-ai-agents; do
   echo "=== $CONSUMER ==="
   gh api "repos/novais-digital/$CONSUMER/contents/docs/foundry/project.json" \
     --jq '.content | @base64d | fromjson | {project_type, ai_enabled, framework_version_required: .framework.framework_version_required, last_synced_at: .framework.last_synced_at}' \
@@ -59,10 +59,10 @@ done
 ### 4. Verificar drift de versão (consumer vs canônico)
 
 ```bash
-CANON_VERSION=$(gh api repos/novais-digital/agent-governance-framework/contents/docs/foundry/manifest.json \
+CANON_VERSION=$(gh api repos/rafaelnovaes22/agent-governance-framework/contents/docs/foundry/manifest.json \
   --jq '.content | @base64d | fromjson | .framework.version')
 
-for CONSUMER in school-platform aicfo clickup-automation; do
+for CONSUMER in edu-platform aicfo clickup-automation; do
   REQUIRED=$(gh api "repos/novais-digital/$CONSUMER/contents/docs/foundry/project.json" \
     --jq '.content | @base64d | fromjson | .framework.framework_version_required' 2>/dev/null || echo "N/A")
   
@@ -78,7 +78,7 @@ done
 
 ```bash
 gh run list \
-  --repo novais-digital/agent-governance-framework \
+  --repo rafaelnovaes22/agent-governance-framework \
   --workflow foundry-headless.yml \
   --limit 10 \
   --json status,conclusion,displayTitle,createdAt,url \
@@ -97,7 +97,7 @@ Após rodar os comandos acima, sintetize no Telegram:
 Foundry canônico: v[VERSION] (atualizado [DATA])
 
 Consumers:
-• SchoolPlatform — [project_type] | sync v[VERSION] | [DATA]
+• EduPlatform — [project_type] | sync v[VERSION] | [DATA]
 • Aicfo     — [project_type] | sync v[VERSION] | [DATA]
 • ClickUp    — [project_type] | sync v[VERSION] | [DATA]
 

@@ -262,8 +262,8 @@ generated_at: <>
 |---|---|---|---|
 | {módulo} | A/B/C | {complexidade, risco, domínio} | spec → backend + frontend → test → review |
 
-**Observação sobre Tier C**: módulos Tier C são implementados diretamente por Rafael
-com assistência dos agentes. O AIOS orquestra mas Rafael revisa cada step inline.
+**Observação sobre Tier C**: módulos Tier C são implementados diretamente pelo operador
+com assistência dos agentes. O AIOS orquestra mas o operador revisa cada step inline.
 
 **C7 — Portabilidade**: os SYSTEM_PROMPTs de cada agente funcionam como prompts standalone
 em Claude Code — sem dependência do kernel AIOS. Kernel offline ≠ agente inutilizável.
@@ -274,7 +274,7 @@ no SYSTEM_PROMPT. Agente genérico → configuração via input, não via códig
 **Próximo passo**:
 - Tier A/B: `python aios/orchestrator.py pipeline --module {módulo}`
   (ou via `/novais-digital:aios-run --module {módulo}`)
-- Tier C: `python aios/orchestrator.py spec --module {módulo}` e iterar com Rafael
+- Tier C: `python aios/orchestrator.py spec --module {módulo}` e iterar com o operador
   (ou via `/novais-digital:aios-run --module {módulo} --step spec`)
 ```
 

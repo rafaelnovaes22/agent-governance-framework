@@ -6,7 +6,7 @@
 # Princípios: C7 (agnóstico), C8 (sem tenant hardcode), C6 (rastreável via session_id)
 #
 # Como preencher:
-#   - project_name: nome legível do projeto (ex: "SchoolPlatform Platform")
+#   - project_name: nome legível do projeto (ex: "EduPlatform Platform")
 #   - delivery_type: agentic | platform | automation | hybrid
 #   - primary_outcome: retirar do diagnostic.md do cliente
 #   - communication_style: formal | técnico | conciso | informal

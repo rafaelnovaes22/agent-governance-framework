@@ -1,7 +1,7 @@
 # PLAYGROUND/04-automation — Job RPA determinístico (sync ERP → Warehouse)
 
 > Exemplo didático do Foundry para `project_type: automation`, `ai_enabled: false`.
-> Inspirado em casos reais de integração operacional (CAPSYSTEM/SchoolPlatform operacional, sem IA).
+> Inspirado em casos reais de integração operacional (EduPlatform operacional, sem IA).
 
 ---
 

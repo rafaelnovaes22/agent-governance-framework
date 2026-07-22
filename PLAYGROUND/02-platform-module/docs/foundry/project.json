@@ -29,5 +29,5 @@
   ],
   "foundry_version_compatible": ">=0.10.0",
   "consumer_declared_at": "2026-05-13",
-  "_comment": "Exemplo didático — não rodar em produção. Inspirado em SchoolPlatform (substituto de CAPSYSTEM)."
+  "_comment": "Exemplo didático — não rodar em produção. Inspirado em EduPlatform."
 }

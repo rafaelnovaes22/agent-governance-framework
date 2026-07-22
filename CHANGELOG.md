@@ -588,7 +588,7 @@ Prompt do reviewer v0.3.0 cobria apenas Foundry-9. Auditorias mensais geradas co
   - `walkthrough.md` — passo a passo do pipeline (~25 min): diagnose → spec → plan + ADR → tasks → implement (AIOS TDD-first) → eval (20+ cases LLM-as-judge) → promote SHADOW → ASSISTED → AUTONOMOUS
   - `docs/foundry/project.json` — manifest real (`project_type=agentic_saas`, `ai_enabled=true`)
 
-- **`PLAYGROUND/02-platform-module/`** (Módulo Faturamento, inspirado SchoolPlatform):
+- **`PLAYGROUND/02-platform-module/`** (Módulo Faturamento, inspirado EduPlatform):
   - `README.md` — diferenças críticas vs agentic (C3 audita infra; C4 acceptance gate; lifecycle draft→canonical)
   - `walkthrough.md` (~20 min) — pipeline platform com delivery-economics, audit-trail-check, acceptance-report assinado pelo decisor cliente
   - `docs/foundry/project.json` — manifest real (`platform`, `ai_enabled=false`, criticality=C para módulo financeiro)
@@ -757,7 +757,7 @@ Cobertura:
 ### Próximas evoluções previstas (Foundry-11.x)
 
 - `foundry-router` subagent que lê input em linguagem natural ("crie um post sobre X") e dispara automaticamente o pipeline correto, eliminando necessidade do operador conhecer slash commands.
-- Adoção real por Novais Digital Social, Aicfo e SchoolPlatform — cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local.
+- Adoção real por Novais Digital Social, Aicfo e EduPlatform — cada um copia/referencia `master-prompt.md` em seu CLAUDE.md local.
 
 ### Versionamento
 
@@ -865,7 +865,7 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 
 **Conceito introduzido — `project_type` × `ai_enabled`:**
 
-- `project_type` ∈ `agentic_saas` (default histórico) | `platform` (SaaS/operacional, ex: school-platform/CAPSYSTEM) | `automation` (jobs/RPA) | `hybrid` (plataforma com módulos agênticos)
+- `project_type` ∈ `agentic_saas` (default histórico) | `platform` (SaaS/operacional, ex: edu-platform) | `automation` (jobs/RPA) | `hybrid` (plataforma com módulos agênticos)
 - `ai_enabled` (boolean) — quando `false`, o reviewer **não** marca FAIL por ausência de LLM/Langfuse/prompts; usa-se audit log + structured logging em vez disso
 
 **Novo template `templates/project.template.json`** — fonte canônica de declaração do projeto consumidor; copiado para `docs/foundry/project.json` no consumidor; lido pelo reviewer DeepAgent e pelos commands antes de qualquer check. Backwards compat: ausência → defaults legados (`agentic_saas` + `ai_enabled=true`).
@@ -914,7 +914,7 @@ spec → schema → test(red) → build(back+front em paralelo) → test(verify)
 
 **Decisão fundacional:**
 
-- F26 (NOVO) — Foundry delivery-type agnostic: motivação (caso `school-platform`), implicações arquiteturais, SemVer, pendências.
+- F26 (NOVO) — Foundry delivery-type agnostic: motivação (caso `edu-platform`), implicações arquiteturais, SemVer, pendências.
 
 ### Backwards compatibility — preservada
 
@@ -929,14 +929,14 @@ O reviewer registra em `audit_metadata.limitations_encountered` quando aplica de
 ### Pendências (Foundry-9.x)
 
 - **Hooks** (`unit-economics-recalc`, `langfuse-trace-check`) ainda assumem `ai_enabled=true`. Em projeto platform, simplesmente não disparam (paths/patterns LLM ausentes). Refator condicional explícito → Foundry-9.1.
-- **Skills DeepAgent** (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas. Conversão para platform → Foundry-9.2 (não bloqueia adoção pelo `school-platform`).
-- **Primeira auditoria real** de projeto platform (`school-platform`) será o teste de stress da v0.8.0.
+- **Skills DeepAgent** (`reviewer/deepagents/skills/`) seguem cobrindo agentic_saas. Conversão para platform → Foundry-9.2 (não bloqueia adoção pelo `edu-platform`).
+- **Primeira auditoria real** de projeto platform (`edu-platform`) será o teste de stress da v0.8.0.
 
 ### Migração para projetos consumidores
 
 **Projetos `agentic_saas` existentes**: nada a fazer. Defaults legados garantem compat.
 
-**Projetos `platform` (incluindo `school-platform`)**:
+**Projetos `platform` (incluindo `edu-platform`)**:
 
 1. Copiar `templates/project.template.json` → `docs/foundry/project.json` no repo do consumidor
 2. Preencher: `project.type=platform`, `ai_enabled=false`, `economics.model=platform_margin`, `telemetry.audit_log_provider`, `telemetry.structured_logging_provider`, `telemetry.error_tracking_provider`
@@ -997,11 +997,11 @@ O reviewer registra em `audit_metadata.limitations_encountered` quando aplica de
 
 ### Added (Foundry-7 — AIOS agentes portáveis em templates físicos canônicos)
 
-**6 agentes AIOS extraídos como templates canônicos versionados na Foundry — qualquer novo projeto consumidor recebe os agentes prontos via `/novais-digital:aios-init` (sem hardcode de cliente, sem dependência da implementação de referência SchoolPlatform/EDIX):**
+**6 agentes AIOS extraídos como templates canônicos versionados na Foundry — qualquer novo projeto consumidor recebe os agentes prontos via `/novais-digital:aios-init` (sem hardcode de cliente, sem dependência da implementação de referência EduPlatform):**
 
 **Novo diretório `templates/aios/`:**
 
-- `templates/aios/README.md` — documentação dos placeholders (`{PROJECT_NAME}`, `{MODULE}`, `{TIER}`, `{STACK_*}`), estrutura física e tabela de diferenças vs. SchoolPlatform/EDIX
+- `templates/aios/README.md` — documentação dos placeholders (`{PROJECT_NAME}`, `{MODULE}`, `{TIER}`, `{STACK_*}`), estrutura física e tabela de diferenças vs. EduPlatform
 - `templates/aios/orchestrator.py.template` — pipeline multiagente que lê `aios/config.yaml → modules:` (sem hardcode de lista de módulos), com gates humanos C4 obrigatórios em pipeline completo
 - `templates/aios/config.yaml.template` — config canônica AIOS com novos blocos `project.*` (name, tenant_field) e `stack.*` (backend, frontend, database, tests) + `modules:` array
 
@@ -1070,11 +1070,11 @@ Cada `entry.py.template` inclui obrigatoriamente:
 
 **Template atualizado:**
 
-- `templates/platform-sku-spec.template.md` — campos `aios_tier` (A=autônomo, B=iterativo, C=Rafael-dirige) e `aios_context_boundaries` (spec_agent/backend_agent/frontend_agent) adicionados ao frontmatter após `owners:`. Defaults vazios — opt-in apenas se projeto consumidor usa AIOS
+- `templates/platform-sku-spec.template.md` — campos `aios_tier` (A=autônomo, B=iterativo, C=operador-dirige) e `aios_context_boundaries` (spec_agent/backend_agent/frontend_agent) adicionados ao frontmatter após `owners:`. Defaults vazios — opt-in apenas se projeto consumidor usa AIOS
 
 **Decisão registrada (F23):**
 
-- `docs/foundry/decisions.md` — F23 documenta adoção de AIOS pelo projeto consumidor SchoolPlatform/EDIX e o **mapeamento com a Constitution sem alterar princípios**: Tier A/B/C ↔ C5; `send_request()` + Langfuse ↔ C6; SYSTEM_PROMPTs standalone ↔ C7; `tenantId` em `task_input` ↔ C8
+- `docs/foundry/decisions.md` — F23 documenta adoção de AIOS pelo projeto consumidor EduPlatform e o **mapeamento com a Constitution sem alterar princípios**: Tier A/B/C ↔ C5; `send_request()` + Langfuse ↔ C6; SYSTEM_PROMPTs standalone ↔ C7; `tenantId` em `task_input` ↔ C8
 
 ### Changed
 

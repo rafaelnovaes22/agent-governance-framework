@@ -36,7 +36,7 @@ Particularidades técnicas das integrações deste projeto.
 Como o cliente prefere que o trabalho seja feito.
 
 <!-- Exemplo:
-§ [confidence:local] [2026-05-18] [run:local] Rafael prefere commits pequenos e atômicos, um por feature
+§ [confidence:local] [2026-05-18] [run:local] O operador prefere commits pequenos e atômicos, um por feature
 § [confidence:shadow] [2026-05-19] [run:gh-1100] PRs devem ter descrição em português e test plan explícito
 -->
 

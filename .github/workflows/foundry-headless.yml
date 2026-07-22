@@ -8,12 +8,12 @@
 #
 # Inputs:
 #   command    → slash command a executar (ex: "/novais-digital:audit-monthly")
-#   consumers  → CSV de repos consumer (ex: "school-platform,aicfo,clickup_novais")
+#   consumers  → CSV de repos consumer (ex: "edu-platform,aicfo,clickup_novais")
 #   args       → argumentos adicionais (ex: "--month 2026-05")
 #   caller_id  → Telegram chat_id (audit trail C6)
 #   caller_intent → intent original em linguagem natural (audit trail)
 #
-# Secrets necessários no repo novais-digital/agent-governance-framework:
+# Secrets necessários no repo rafaelnovaes22/agent-governance-framework:
 #   ANTHROPIC_API_KEY          — Claude Code CLI
 #   GH_TOKEN                   — checkout de repos privados (PAT com repo + workflow scope)
 #   HERMES_WEBHOOK_URL         — endpoint /foundry/callback no Hermes Railway (opcional)
@@ -32,7 +32,7 @@ on:
         required: true
         type: string
       consumers:
-        description: 'Consumer repos CSV (ex: school-platform,aicfo,clickup_novais)'
+        description: 'Consumer repos CSV (ex: edu-platform,aicfo,clickup_novais)'
         required: true
         type: string
       args:
@@ -112,7 +112,7 @@ jobs:
       - name: Checkout agent-governance-framework (canônico — agents/commands/skills)
         uses: actions/checkout@v4
         with:
-          repository: novais-digital/agent-governance-framework
+          repository: rafaelnovaes22/agent-governance-framework
           token: ${{ secrets.GH_TOKEN || github.token }}
           path: foundry
 

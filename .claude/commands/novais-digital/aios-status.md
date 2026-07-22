@@ -42,7 +42,7 @@ Kernel: ✅ online (http://localhost:8000)
 |-------------|------|------|---------|----------|--------|--------|---------------------|
 | cadastros   | A    | ✅   | ✅      | ✅       | ✅     | ✅     | ✅ mover para src/  |
 | jovens      | B    | ✅   | ⏳      | ⏳       | —      | —      | aguardando build    |
-| cnab        | C    | —    | —       | —        | —      | —      | Rafael dirige       |
+| cnab        | C    | —    | —       | —        | —      | —      | operador dirige       |
 
 Legenda: ✅ gerado | ⏳ em progresso | ❌ com blocker | — não iniciado
 ```
@@ -68,7 +68,7 @@ Para cada módulo listado em `aios/orchestrator.py:MODULES_ORDER`:
 | Review existe e sem "BLOCKER" | "✅ mover para src/" |
 | Review existe com "BLOCKER" | "❌ ver _review_{module}.md" |
 | Algum artefato ⏳ (em progresso) | "aguardando {step}" |
-| Nenhum artefato iniciado, tier C | "Rafael dirige" |
+| Nenhum artefato iniciado, tier C | "operador dirige" |
 | Nenhum artefato iniciado, tier A/B | "não iniciado" |
 
 ## Quando usar
@@ -112,7 +112,7 @@ generated_at: <>
 - [x] Kernel check com timeout de 3s (nunca trava a sessão por kernel offline)
 - [x] Fallback filesystem funciona sem orchestrator (comando útil mesmo sem kernel)
 - [x] Blocker detection: "BLOCKER" em review → ❌ na tabela
-- [x] Tier C exibido como "Rafael dirige" (não como "não iniciado")
+- [x] Tier C exibido como "operador dirige" (não como "não iniciado")
 - [x] Comando read-only — zero arquivos criados ou modificados
 
 ## Tabela anti-rationalization
@@ -122,7 +122,7 @@ generated_at: <>
 | Bloquear se kernel offline | Status é informativo — kernel offline não impede leitura de artefatos | Health check com timeout 3s; exibir ❌ e continuar com filesystem |
 | Usar apenas orchestrator.py como fonte | orchestrator pode estar offline ou desatualizado | Fallback filesystem como fonte autoritativa para artefatos gerados |
 | Marcar como "pronto" sem checar BLOCKER | Review com BLOCKER ainda não está aprovado para mover para src/ | Grep explícito por "BLOCKER" no arquivo de review |
-| Ocultar módulos Tier C | Rafael precisa ver o panorama completo para tomar decisões | Tier C aparece na tabela com status específico "Rafael dirige" |
+| Ocultar módulos Tier C | o operador precisa ver o panorama completo para tomar decisões | Tier C aparece na tabela com status específico "operador dirige" |
 
 ## Saída de erro estruturada
 

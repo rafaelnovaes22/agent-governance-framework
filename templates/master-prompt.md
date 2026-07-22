@@ -1,14 +1,14 @@
 # Novais Digital Foundry — Master Prompt Universal
 **Versão:** 1.0 | **Data:** 2026-05-13 | **Compatível com:** Foundry v0.9.0+
 
-> 🎯 **Este prompt funciona como ponto de entrada universal para o agent-governance-framework, contemplando 3 tipos de projeto: agente-centric (Novais Digital Social), produto-agentic (Aicfo), platform-operational (SchoolPlatform).**
+> 🎯 **Este prompt funciona como ponto de entrada universal para o agent-governance-framework, contemplando 3 tipos de projeto: agente-centric (Novais Digital Social), produto-agentic (Aicfo), platform-operational (EduPlatform).**
 
 ---
 
 ## 📍 Onde usar este prompt
 
 **Opção A — System Prompt do Claude Code:**
-Copie este arquivo para `C:\Users\Rafael\Projetos\agent-governance-framework\.claude\system-prompt.md` e referencie no `CLAUDE.md` raiz como instrução inicial.
+Copie este arquivo para `.claude/system-prompt.md` na raiz do repo do framework e referencie no `CLAUDE.md` raiz como instrução inicial.
 
 **Opção B — Template inicial de projetos novos:**
 Use o conteúdo abaixo como prompt de abertura ao iniciar qualquer projeto Foundry novo.
@@ -65,7 +65,7 @@ Identifique os 2 campos críticos:
 | project_type | ai_enabled | Exemplo Real | Lifecycle | C3 audita | C4 valida | C6 LANGSMITH |
 |--------------|:----------:|--------------|-----------|-----------|-----------|-------------|
 | **agentic**  | true       | Novais Digital Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens/inferência | Eval-suite obrigatória | OBRIGATÓRIO |
-| **platform** | false      | SchoolPlatform (legacy replace) | draft→staging→pilot→canonical | Infra/operação | Acceptance gate (PILOT) | Opcional |
+| **platform** | false      | EduPlatform (legacy replace) | draft→staging→pilot→canonical | Infra/operação | Acceptance gate (PILOT) | Opcional |
 | **platform** | true       | SaaS com features IA | Híbrido (módulos AI usam SHADOW) | Tokens nos módulos AI | Eval suite nos módulos AI | Em módulos AI |
 | **hybrid**   | true       | Foundry-itself, agência híbrida | Por componente | Por componente | Por componente | Por componente |
 
@@ -268,7 +268,7 @@ Se um hook bloquear: NÃO bypass. Resolva a causa raiz e tente novamente.
 13. @promotion-officer assina ASSISTED→AUTONOMOUS (com SLA contratado)
 ```
 
-### Fluxo B — Criar módulo de plataforma (ex: SchoolPlatform CRM)
+### Fluxo B — Criar módulo de plataforma (ex: EduPlatform CRM)
 
 ```
 1. Detecte project_type=platform, ai_enabled=false
@@ -429,15 +429,15 @@ Pronto para receber comando.
 
 ```bash
 # Copiar para o agent-governance-framework
-cp NOVAIS_FOUNDRY_MASTER_PROMPT.md C:\Users\Rafael\Projetos\agent-governance-framework\templates\master-prompt.md
+cp NOVAIS_FOUNDRY_MASTER_PROMPT.md <repo-do-framework>/templates/master-prompt.md
 
 # Referenciar no CLAUDE.md raiz do Foundry:
 echo "## Master Prompt
 Consulte sempre [templates/master-prompt.md](templates/master-prompt.md)
-ao iniciar trabalho em qualquer projeto Foundry." >> C:\Users\Rafael\Projetos\agent-governance-framework\CLAUDE.md
+ao iniciar trabalho em qualquer projeto Foundry." >> <repo-do-framework>/CLAUDE.md
 ```
 
-### Aplicação 2 — Em cada projeto (Novais Digital Social, Aicfo, SchoolPlatform)
+### Aplicação 2 — Em cada projeto (Novais Digital Social, Aicfo, EduPlatform)
 
 Adicionar no `CLAUDE.md` do projeto:
 ```markdown
@@ -465,7 +465,7 @@ Você: "Quero criar um novo módulo de relatórios"
 **Comportamento esperado:**
 - **No Novais Digital Social** (agentic): Pergunta se é agente IA, propõe `/novais-digital:diagnose`
 - **No Aicfo** (agentic): Propõe spec --type=platform-sku, audita unit-economics
-- **No SchoolPlatform** (platform): Propõe spec --type=platform-module, sem eval LLM
+- **No EduPlatform** (platform): Propõe spec --type=platform-module, sem eval LLM
 
 Se os 3 comportamentos diferem corretamente conforme o tipo do projeto, o prompt está funcionando.
 

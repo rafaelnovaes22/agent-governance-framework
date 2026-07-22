@@ -55,7 +55,7 @@ Hermes Learning Loop (Railway/Codex)
      2. assess_novelty()   — compara com agent-memory atual
      3. decide_persist()   — Codex decide o que vale persistir
      4. propose_pr()       — gh api PR com novos fatos
-     5. notify_telegram()  — avisa Rafael
+     5. notify_telegram()  — avisa o operador
      
 PR merged
   └─ agent-memory.md atualizado
@@ -147,7 +147,7 @@ Sem esta etapa, o loop funciona de forma **semi-automática**: snapshots são ge
 ```
 § [] [] [run:] O projeto usa TypeScript       ← genérico + sem metadados
 § [confidence:local] [2026-05-18] [run:local] Email do admin é admin@example.com  ← PII!
-§ [confidence:shadow] [2026-05-18] [run:gh-1] if (client === 'school-platform') usar rota /api/v2  ← tenant hardcode!
+§ [confidence:shadow] [2026-05-18] [run:gh-1] if (client === 'edu-platform') usar rota /api/v2  ← tenant hardcode!
 ```
 
 ## Compliance C1-C8

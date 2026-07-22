@@ -31,7 +31,7 @@ A partir da v0.2.0 deste comando (Foundry v0.6.0+) o boilerplate **não é mais 
 ```yaml
 module: <kebab-case>           # nome do módulo
 # opcionais
-tier: A | B | C                # A=autônomo, B=iterativo, C=Rafael-dirige (default B)
+tier: A | B | C                # A=autônomo, B=iterativo, C=operador-dirige (default B)
 project_root: <path>           # raiz do projeto consumidor (default: cwd)
 force: false                   # sobrescreve aios/agents/{module}_*/ existentes
 ```

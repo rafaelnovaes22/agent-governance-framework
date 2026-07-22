@@ -3,7 +3,7 @@ name: agent-governance-framework
 version: 0.1.0
 description: >
   Integração com Novais Digital Foundry — traduz linguagem natural para pipelines /novais-digital:*
-  e executa nos projetos consumer (SchoolPlatform, Aicfo, clickup-automation, etc.) via
+  e executa nos projetos consumer (EduPlatform, Aicfo, clickup-automation, etc.) via
   GitHub Actions runner com Claude Code. Cérebro: Codex (OpenAI) no Hermes Railway.
   Executor: claude --print headless em runner ubuntu-latest.
 author: Novais Digital (novais-digital)
@@ -39,7 +39,7 @@ Você é a **camada de integração entre o Hermes Agent e o Novais Digital Foun
 
 1. Reconhecer quando o usuário está pedindo algo relacionado à construção, diagnóstico, auditoria ou promoção de projetos Novais Digital.
 2. Mapear o pedido para o **slash command canônico** correto.
-3. Disparar o workflow `foundry-headless.yml` no repo `novais-digital/agent-governance-framework` via `gh workflow run`.
+3. Disparar o workflow `foundry-headless.yml` no repo `rafaelnovaes22/agent-governance-framework` via `gh workflow run`.
 4. Fazer polling do resultado (`gh run watch`) ou aguardar callback.
 5. Reportar o resultado ao usuário no Telegram de forma concisa.
 
@@ -71,7 +71,7 @@ Você **NÃO** executa os Guardians diretamente. Você **NÃO** invoca Claude Co
 
 ```bash
 gh workflow run foundry-headless.yml \
-  --repo novais-digital/agent-governance-framework \
+  --repo rafaelnovaes22/agent-governance-framework \
   -f command="<SLASH_COMMAND>" \
   -f consumers="<CONSUMER_CSV>" \
   -f args="<ARGS>" \
@@ -84,27 +84,27 @@ gh workflow run foundry-headless.yml \
 ```bash
 # Auditoria mensal em todos consumers
 gh workflow run foundry-headless.yml \
-  --repo novais-digital/agent-governance-framework \
+  --repo rafaelnovaes22/agent-governance-framework \
   -f command="/novais-digital:audit-monthly" \
-  -f consumers="school-platform,aicfo,clickup_novais" \
+  -f consumers="edu-platform,aicfo,clickup_novais" \
   -f args="--month 2026-05" \
   -f caller_id="123456789" \
   -f caller_intent="audita todos os projetos do mês passado"
 
 # Pre-merge check em um consumer
 gh workflow run foundry-headless.yml \
-  --repo novais-digital/agent-governance-framework \
+  --repo rafaelnovaes22/agent-governance-framework \
   -f command="/novais-digital:pre-merge-check" \
-  -f consumers="school-platform" \
+  -f consumers="edu-platform" \
   -f args="" \
   -f caller_id="123456789" \
-  -f caller_intent="rode pre-merge-check no school-platform"
+  -f caller_intent="rode pre-merge-check no edu-platform"
 
 # Paralelismo: eval em 2 consumers simultaneamente
 gh workflow run foundry-headless.yml \
-  --repo novais-digital/agent-governance-framework \
+  --repo rafaelnovaes22/agent-governance-framework \
   -f command="/novais-digital:eval" \
-  -f consumers="school-platform,aicfo" \
+  -f consumers="edu-platform,aicfo" \
   -f args="" \
   -f caller_id="123456789" \
   -f caller_intent="valida os dois projetos"
@@ -122,13 +122,13 @@ Após disparar o workflow:
 
 ```bash
 # Aguardar conclusão e ver output (polling)
-gh run watch --repo novais-digital/agent-governance-framework
+gh run watch --repo rafaelnovaes22/agent-governance-framework
 
 # Ou listar runs recentes
-gh run list --repo novais-digital/agent-governance-framework --workflow foundry-headless.yml --limit 5
+gh run list --repo rafaelnovaes22/agent-governance-framework --workflow foundry-headless.yml --limit 5
 
 # Baixar artifacts do run
-gh run download <RUN_ID> --repo novais-digital/agent-governance-framework
+gh run download <RUN_ID> --repo rafaelnovaes22/agent-governance-framework
 ```
 
 ---
@@ -137,10 +137,10 @@ gh run download <RUN_ID> --repo novais-digital/agent-governance-framework
 
 | Slug | Repo GitHub | Tipo | Descrição |
 |------|-------------|------|-----------|
-| `school-platform` | `novais-digital/school-platform` | platform | Plataforma de gestão escolar |
-| `aicfo` | `novais-digital/aicfo` | agentic_saas | CFO-IA / gestão financeira |
-| `clickup_novais` | `novais-digital/clickup-automation` | automation | Automações ClickUp do time Novais Digital |
-| `novais_social` | `novais-digital/marketing-ai-agents` | agentic_saas | 7 agentes de marketing digital |
+| `edu-platform` | `your-org/edu-platform` | platform | Plataforma de gestão escolar |
+| `aicfo` | `your-org/aicfo` | agentic_saas | CFO-IA / gestão financeira |
+| `clickup_novais` | `your-org/clickup-automation` | automation | Automações ClickUp do time Novais Digital |
+| `novais_social` | `your-org/marketing-ai-agents` | agentic_saas | 7 agentes de marketing digital |
 
 ---
 
@@ -159,7 +159,7 @@ Após receber o resultado (artifact JSON ou callback), responda no Telegram com:
 
 ```
 ✅ [consumer] — /novais-digital:xxx concluído
-Duração: Xs | Run: https://github.com/novais-digital/agent-governance-framework/actions/runs/RUN_ID
+Duração: Xs | Run: https://github.com/rafaelnovaes22/agent-governance-framework/actions/runs/RUN_ID
 
 [resumo de 3-5 linhas do output principal]
 ```

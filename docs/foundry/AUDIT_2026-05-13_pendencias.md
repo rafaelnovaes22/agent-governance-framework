@@ -20,7 +20,7 @@ Resumo em números: **6 P0** (bloqueadores reais), **9 P1** (degradam UX), **8 P
 
 1. **Foundry-13 — Consumer-mode hardening** (~3-4 dias): resolve P0/P1 que bloqueiam adoção (foundry-doctor `--consumer`, sync script foundry→consumidor, correção de F26 duplicado + metadados obsoletos, fixes de descrições no manifest). **Sem novas capabilities** — apenas torna o framework "consumível" sem fricção de mantenedor.
 2. **Foundry-14 — Surface Layer Fase 3** (~3-5 dias): entrega `foundry-router` subagent + persona auto-detect + GLOSSARY_PLAIN standalone + PLAYGROUND/04-automation. Completa promessa de UX feita em Foundry-11/12.
-3. **Foundry-15 — Real-world validation onda 1** (~5-7 dias): adoção formal por Aicfo e SchoolPlatform + primeira auditoria mensal real do `school-platform` (F9.13) + primeiro playbook vertical do Novais Digital Social pós-AUTONOMOUS.
+3. **Foundry-15 — Real-world validation onda 1** (~5-7 dias): adoção formal por Aicfo e EduPlatform + primeira auditoria mensal real do `edu-platform` (F9.13) + primeiro playbook vertical do Novais Digital Social pós-AUTONOMOUS.
 4. **Foundry-16+ longer-term**: plugin marketplace (reaval F21), publicação npm/pip, multi-language reviewer (Anthropic + OpenAI + Gemini).
 
 ---
@@ -38,10 +38,10 @@ Resumo em números: **6 P0** (bloqueadores reais), **9 P1** (degradam UX), **8 P
 
 ## Próximo passo
 
-**Decisão pendente do mantenedor (rafael@novais-digital)**:
+**Decisão pendente do mantenedor**:
 - Aprovar/ajustar agrupamento Foundry-13/14/15
 - Decidir tratamento de F26 duplicado (manter ambos + adicionar `(a)`/`(b)` ou renomear segundo como F26-bis)
-- Priorizar entre Foundry-13 (consumer hardening) e Foundry-14 (Surface Fase 3) — opinião do auditor: **Foundry-13 primeiro**, porque sem ele a adoção de Aicfo/SchoolPlatform vai sangrar.
+- Priorizar entre Foundry-13 (consumer hardening) e Foundry-14 (Surface Fase 3) — opinião do auditor: **Foundry-13 primeiro**, porque sem ele a adoção de Aicfo/EduPlatform vai sangrar.
 
 ---
 
@@ -65,7 +65,7 @@ Total: **23 pendências**. P0 = 6 bloqueadores reais, P1 = 9 importantes, P2 = 8
 - **Nome**: Modo consumidor do foundry-doctor (suprime falsos órfãos)
 - **Por que importa**: Em Novais Digital Social hoje, `foundry-doctor` gera ~65 warnings de "artefato órfão" (porque manifest local não duplica entries do framework) + 2 FAILs sobre `reviewer/` ausente. Operador novo vê tela vermelha logo na primeira execução e desconfia do framework inteiro.
 - **Esforço**: 4-6h (adicionar flag `--consumer`/auto-detect via ausência de `docs/foundry/` próprio do framework, condicionar checks C6/reviewer)
-- **Bloqueia**: adoção fluida por Aicfo, SchoolPlatform, futuros consumidores
+- **Bloqueia**: adoção fluida por Aicfo, EduPlatform, futuros consumidores
 - **Tipo**: bug (regressão de UX em consumidores)
 
 ### F31 — Resolver F26 duplicado em decisions.md
@@ -136,9 +136,9 @@ Total: **23 pendências**. P0 = 6 bloqueadores reais, P1 = 9 importantes, P2 = 8
 - **Por que importa**: F3.6 pendente; template existe (`adr-reviewer-runtime.template.md`) mas nenhum consumidor assinou. Sem ADR-002, reviewer mensal não roda.
 - **Esforço**: 1 dia (decidir local — GitHub Actions vs Render workers vs Modal; documentar custo/latência; assinar)
 - **Bloqueia**: primeira auditoria mensal real (F9.13)
-- **Tipo**: doc (responsabilidade do consumidor — Novais Digital Social ou SchoolPlatform)
+- **Tipo**: doc (responsabilidade do consumidor — Novais Digital Social ou EduPlatform)
 
-### F40 — Primeira auditoria mensal real (`school-platform` platform)
+### F40 — Primeira auditoria mensal real (`edu-platform` platform)
 - **Nome**: F9.13 — stress test da v0.8.x em projeto `platform`
 - **Por que importa**: Foundry-9 generalizou para platform mas nunca foi exercitada com auditoria real. Bugs prováveis no ramo `applies_when: ai_enabled=false`.
 - **Esforço**: 0.5 dia (rodar reviewer) + 0.5-1 dia (corrigir bugs detectados)
@@ -354,8 +354,8 @@ Itens marcados ⏳ em `docs/foundry/roadmap.md`, classificados:
 | F5.1 (playbook real) | Playbook vertical real do primeiro cliente | Depende de AUTONOMOUS — F38 |
 | F5.3 (retro real) | Retrospectiva do primeiro SKU | Depende de AUTONOMOUS |
 | F8 critério ⏳ | Projeto consumidor implementando Wave 6 com Gate 6 | Depende de SKU em ASSISTED |
-| F9.13 | Primeira auditoria mensal real de `school-platform` | **Bloqueador real** — F40 |
-| F11.6, F11.7 | Adoção Aicfo/SchoolPlatform + foundry-router | Renomeados para F34 (router) e dependência de Foundry-15 |
+| F9.13 | Primeira auditoria mensal real de `edu-platform` | **Bloqueador real** — F40 |
+| F11.6, F11.7 | Adoção Aicfo/EduPlatform + foundry-router | Renomeados para F34 (router) e dependência de Foundry-15 |
 | F12.13-F12.16 | Fase 3 completa | Renomeados F34, F35, F36, F45 |
 
 ## 🗑️ Pode ser deletado (não mais relevante)
@@ -368,7 +368,7 @@ Itens marcados ⏳ em `docs/foundry/roadmap.md`, classificados:
 
 | ID | Item | Mudança |
 |---|---|---|
-| F11.6 | "Adoção pelos 3 consumidores" | Hoje 1/3 adotou (Novais Digital Social). Escopo reduz para Aicfo + SchoolPlatform apenas. |
+| F11.6 | "Adoção pelos 3 consumidores" | Hoje 1/3 adotou (Novais Digital Social). Escopo reduz para Aicfo + EduPlatform apenas. |
 | F12.16 | "PLAYGROUND 04 automation" | Continua válido mas agora urgência maior — F36 |
 
 ---
@@ -392,7 +392,7 @@ Status: master-prompt referenciado, framework operacional. Pendências:
 
 **Bloqueado por**: F30 (foundry-doctor --consumer), F32 (sync) preferível mas não obrigatório
 
-## SchoolPlatform — ⏳ Não adotou
+## EduPlatform — ⏳ Não adotou
 
 **Esforço para adotar**: ~1 dia
 - Copiar artefatos canônicos
@@ -404,7 +404,7 @@ Status: master-prompt referenciado, framework operacional. Pendências:
 
 ## Primeira auditoria mensal real
 
-**Esforço**: 1-2 dias (assumindo SchoolPlatform ou Novais Digital Social adotaram)
+**Esforço**: 1-2 dias (assumindo EduPlatform ou Novais Digital Social adotaram)
 **Bloqueado por**: F39 (ADR-002 reviewer runtime) + adoção formal
 
 ---
@@ -480,10 +480,10 @@ Status: master-prompt referenciado, framework operacional. Pendências:
 **Objetivo**: validar framework em produção com >1 consumidor + primeira auditoria real platform.
 
 **Entregáveis**:
-- F39 — ADR-002 assinada (responsabilidade SchoolPlatform ou Novais Digital Social) — 1d
-- F40 — Primeira auditoria mensal real do `school-platform` (F9.13) — 0.5d
+- F39 — ADR-002 assinada (responsabilidade EduPlatform ou Novais Digital Social) — 1d
+- F40 — Primeira auditoria mensal real do `edu-platform` (F9.13) — 0.5d
 - Aicfo adoção formal (master-prompt + project.json) — 0.5d (no Aicfo)
-- SchoolPlatform adoção formal — 1d (no SchoolPlatform)
+- EduPlatform adoção formal — 1d (no EduPlatform)
 - F38 — Primeiro playbook vertical real (depende de cliente 1 em AUTONOMOUS) — 2-3d
 - Retrospectiva real — 1d
 - F43 — Schema validation para templates/aios/*/config.json — 0.5d

@@ -39,7 +39,7 @@ O que este projeto faz de diferente do skill canônico.
 {adaptations}
 ```
 
-<!-- Exemplo para diagnostic-runner no projeto SchoolPlatform:
+<!-- Exemplo para diagnostic-runner no projeto EduPlatform:
 - Sempre incluir seção "Módulos Railway" no diagnostic (plataforma usa Railway exclusivamente)
 - Verificar se `fly.toml` existe (legado de migração Fly→Railway) — se sim, marcar como OBSOLETO
 - Volume estimado de usuários: 500-2000 MAU (tier pequeno para fins de economics)
@@ -67,7 +67,7 @@ Casos de eval adicionais que o eval-engineer guardian deve incluir para este pro
 ```
 
 <!-- Exemplo:
-{"input": "Usuário cancela assinatura durante período de trial", "expected": "Webhook Stripe `customer.subscription.deleted` processado, acesso revogado em ≤5min", "category": "billing_lifecycle", "source": "client_specific", "project": "school-platform"}
+{"input": "Usuário cancela assinatura durante período de trial", "expected": "Webhook Stripe `customer.subscription.deleted` processado, acesso revogado em ≤5min", "category": "billing_lifecycle", "source": "client_specific", "project": "edu-platform"}
 -->
 
 ## Padrões de integração

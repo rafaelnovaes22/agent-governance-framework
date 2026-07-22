@@ -109,13 +109,13 @@ version: "0.1.0"
 ## 5. Bootstrap automatizado
 
 ### Pré-requisitos
-- API token ClickUp com permissão de criar Spaces/Listas no workspace `9011695857` (já existente)
+- API token ClickUp com permissão de criar Spaces/Listas no workspace `{WORKSPACE_ID}` (já existente)
 - Cliente API ClickUp (`src/clickup/client.ts` já implementado)
 
 ### Comando
 
 ```bash
-npm run clickup:bootstrap -- --workspace=9011695857 --blueprint=docs/clickup-blueprint.md
+npm run clickup:bootstrap -- --workspace={WORKSPACE_ID} --blueprint=docs/clickup-blueprint.md
 ```
 
 (Script ainda não implementado — entrega em Foundry-3 — `scripts/clickup-bootstrap.ts`).
@@ -164,7 +164,7 @@ Além dos checks C1-C8 padrão, reviewer audita:
 
 | Atributo | Valor |
 |---|---|
-| **Workspace ID** | `9011695857` |
+| **Workspace ID** | `{WORKSPACE_ID}` |
 | **URL** | (ClickUp interno) |
 | **Estado as-is** | A mapear antes de aplicar bootstrap |
 | **Estrutura legacy** | PMO clássico (Charter/WBS/RACI) — em sunset por D3 |

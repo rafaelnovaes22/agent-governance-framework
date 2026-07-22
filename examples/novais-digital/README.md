@@ -85,6 +85,6 @@ Outros projetos podem usar este diretório como **referência prática** de:
 
 Este caso real é mantido em [`github.com/rafaelnovaes22/novais-digital-governanca-ia`](https://github.com/rafaelnovaes22/novais-digital-governanca-ia) (privado).
 
-O Foundry é mantido em [`github.com/rafaelnovaes22/agent-governance-framework`](https://github.com/rafaelnovaes22/agent-governance-framework) (privado).
+O Foundry é mantido em [`github.com/rafaelnovaes22/agent-governance-framework`](https://github.com/rafaelnovaes22/agent-governance-framework).
 
 A relação entre eles: `agent-governance-framework` é a **origem canônica** do framework; `novais-digital-governanca-ia` é o **primeiro consumidor real**.

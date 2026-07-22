@@ -26,7 +26,7 @@ A v0.3.0 desacopla a Constitution do pressuposto de "agente de IA". O Foundry pa
 | `project_type` | O que é | Exemplos |
 |---|---|---|
 | `agentic_saas` | Centrado em agentes de IA com governança de outcome cobrável (default histórico do Foundry). | Novais Digital Fin, SKUs SaaS² |
-| `platform` | Plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/etc. Outcome = ação operacional verificável (tela/API/dado persistido). IA pode estar ausente ou pontual. | SchoolPlatform, sucessor de CAPSYSTEM |
+| `platform` | Plataforma SaaS/operacional com módulos CRUD/CRM/financeiro/etc. Outcome = ação operacional verificável (tela/API/dado persistido). IA pode estar ausente ou pontual. | EduPlatform |
 | `automation` | Automações operacionais determinísticas (jobs, workers, integrações, RPA). Outcome = execução verificável; IA opcional. | Pipelines internos, ETL governado |
 | `hybrid` | Plataforma com módulos agênticos. Convive `ai_enabled=true` em alguns módulos, `false` em outros. | SaaS com 1-2 módulos IA |
 

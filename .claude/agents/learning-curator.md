@@ -84,7 +84,7 @@ Exemplos mal formados (rejeitar):
 ```
 § [confidence:local] [] [run:] O projeto usa React  ← genérico demais, sem run_id
 § [confidence:shadow] [2026-05-18] [run:gh-1234] Email do usuário é fulano@example.com  ← PII!
-§ [confidence:shadow] [2026-05-18] [run:gh-1234] if (tenant === 'school-platform') usar porta 3001  ← tenant hardcode!
+§ [confidence:shadow] [2026-05-18] [run:gh-1234] if (tenant === 'edu-platform') usar porta 3001  ← tenant hardcode!
 ```
 
 ### Passo 4: Mapear para seções corretas
@@ -102,7 +102,7 @@ Exemplos mal formados (rejeitar):
 
 ### Passo 5: Produzir proposta de patch
 
-Formato de saída para o operador (Rafael) ou para o Hermes Learning Loop:
+Formato de saída para o operador ou para o Hermes Learning Loop:
 
 ```markdown
 ## Learning Curator — Proposta de patch
