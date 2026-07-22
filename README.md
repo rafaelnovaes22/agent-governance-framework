@@ -3,7 +3,7 @@
 > Framework de governança para projetos que entregam **outcome cobrável** — agentes de IA, plataformas SaaS/operacionais, ou automações.
 > Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
 
-[![Version](https://img.shields.io/badge/version-0.22.1-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.0-blue)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-red)](./LICENSE.md)
 [![Phase](https://img.shields.io/badge/phase-Foundry--21-orange)](./docs/foundry/roadmap.md)
 [![Reviewer](https://img.shields.io/badge/reviewer-DeepAgent%20%2F%20GPT--5.5-purple)](./reviewer/)

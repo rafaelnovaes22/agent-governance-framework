@@ -492,7 +492,7 @@ else
     const artifacts=(m.integrations&&m.integrations.hermes&&m.integrations.hermes.artifacts)||[];
     for(const a of artifacts){
       if(!fs.existsSync(a.path)){console.log('WARN:integrations.hermes: '+a.path+' no manifest mas ausente no filesystem');continue;}
-      const content=fs.readFileSync(a.path);
+      const content=fs.readFileSync(a.path,'utf8').replace(/\r\n/g,'\n');
       const sha=crypto.createHash('sha256').update(content).digest('hex').slice(0,16);
       if(!a.sha256||a.sha256==='null'||a.sha256==='0000000000000000') {
         console.log('WARN:'+a.path+' — sha256 não declarado no manifest (recalcule com sha256sum)');

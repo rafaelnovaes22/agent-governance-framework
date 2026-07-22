@@ -3,9 +3,9 @@
   "manifest_version": "0.22.1",
   "framework": {
     "name": "Novais Digital Foundry",
-    "version": "0.22.1",
+    "version": "0.23.0",
     "canonical": true,
-    "phase": "Foundry-21 entregue (0.22.0) + patch 0.22.1: drift residual de Langfuse em CONSTITUTION.md sanado (LangSmith canonical conforme F56).",
+    "phase": "Eval integrity entregue (0.23.0): C4_eval_integrity em validation-rules v0.5.0, split público/privado no eval-case template, doc docs/foundry/eval-integrity.md (issue #1).",
     "last_updated": "2026-07-22",
     "constitution_version": "0.4.0",
     "constitution_path": ".claude/CONSTITUTION.md",
@@ -426,6 +426,17 @@
             "C7"
           ],
           "description": "Auditoria de pendências do framework após adoção real por Novais Digital Social (2026-05-13). 23 pendências catalogadas (6 P0 + 9 P1 + 8 P2); origina Foundry-13/14/15 e cataloga F30-F52."
+        },
+        {
+          "id": "eval-integrity",
+          "path": "docs/foundry/eval-integrity.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": "bad1c1f2810f6b30",
+          "linked_principles": [
+            "C4"
+          ],
+          "description": "Especificação do módulo de integridade de evals: split público/privado de métricas e defesa em 3 camadas contra reward hacking (instrutiva, hardcoded, estatística). Origem: issue #1, mecanismos do AIDE²/Weco."
         }
       ]
     },
@@ -506,12 +517,12 @@
         "id": "template-eval-case",
         "path": "templates/eval-case.template.md",
         "type": "template",
-        "version": "0.1.0",
-        "sha256": "b9a98d6a2f027917",
+        "version": "0.2.0",
+        "sha256": "b41d864ae886110a",
         "linked_principles": [
           "C4"
         ],
-        "description": "Caso de eval suite por SKU/produto"
+        "description": "Caso de eval suite por SKU/produto — v0.2.0 adiciona frontmatter visibility (split público/privado, C4.eval.*)"
       },
       {
         "id": "template-unit-economics",
@@ -736,7 +747,11 @@
         "type": "template",
         "version": "1.0.0",
         "sha256": null,
-        "linked_principles": ["C6", "C7", "C8"],
+        "linked_principles": [
+          "C6",
+          "C7",
+          "C8"
+        ],
         "use_case": "analytics-provider-event-schema",
         "description": "Foundry-21 — Schema canônico de 14 eventos WireLog para analytics_provider (eventos de negócio/outcomes). Regras PII/LGPD, campos obrigatórios/proibidos, 3 exemplos JSON, queries de auditoria mensal. Complementa LangSmith (llm_trace_provider) sem substituí-lo.",
         "introduced_in": "Foundry-21 (v0.22.0)"
@@ -747,7 +762,11 @@
         "type": "template",
         "version": "1.0.0",
         "sha256": null,
-        "linked_principles": ["C6", "C7", "C8"],
+        "linked_principles": [
+          "C6",
+          "C7",
+          "C8"
+        ],
         "use_case": "analytics-adapter-typescript",
         "description": "Foundry-21 — Adapter TypeScript portável para WireLog. API: trackFoundryEvent, identifyFoundryActor, flushFoundryAnalytics + helpers de conveniência. No-op silencioso sem WIRELOG_SECRET_KEY. PII guard automático. Instalar em src/observability/ ou src/infra/ (C7 compliance).",
         "introduced_in": "Foundry-21 (v0.22.0)"
@@ -758,7 +777,11 @@
         "type": "template",
         "version": "1.0.0",
         "sha256": null,
-        "linked_principles": ["C6", "C7", "C8"],
+        "linked_principles": [
+          "C6",
+          "C7",
+          "C8"
+        ],
         "use_case": "analytics-adapter-python",
         "description": "Foundry-21 — Adapter Python portável para WireLog. API: track_foundry_event, identify_foundry_actor, flush_foundry_analytics + helpers de conveniência. No-op silencioso sem WIRELOG_SECRET_KEY. PII guard automático. Instalar em src/observability/ ou src/infra/ (C7 compliance).",
         "introduced_in": "Foundry-21 (v0.22.0)"
@@ -1055,12 +1078,12 @@
         "id": "reviewer-validation-rules",
         "path": "reviewer/validation-rules.json",
         "type": "reviewer-asset",
-        "version": "0.3.0",
-        "sha256": "2a0e4550b19f313b",
+        "version": "0.5.0",
+        "sha256": "f4da617a15d8f437",
         "audience": [
           "deep-agent"
         ],
-        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9)"
+        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9) — v0.5.0 adiciona C4_eval_integrity (split público/privado + anti reward hacking, issue #1)"
       },
       {
         "id": "reviewer-example-audit",
@@ -2394,7 +2417,7 @@
           "path": ".github/workflows/foundry-headless.yml",
           "type": "github-workflow",
           "version": "0.1.0",
-          "sha256": "20c136f51ef23249",
+          "sha256": "b79ad2fe644f0342",
           "description": "Workflow dispatchable — recebe command/consumers/args de Hermes e executa claude --print em matrix multi-consumer",
           "linked_principles": [
             "C1",
@@ -2406,7 +2429,7 @@
           "path": "templates/hermes/foundry.skill.md",
           "type": "hermes-skill",
           "version": "0.1.0",
-          "sha256": "249971e78178ca59",
+          "sha256": "271e96f45442e0a2",
           "description": "Skill agentskills.io para o Hermes/Codex: catálogo de 9 intents, mapping intent → gh workflow run, política de allowlist",
           "linked_principles": [
             "C1",
@@ -2417,7 +2440,7 @@
           "path": "templates/hermes/status-fast.md",
           "type": "hermes-skill",
           "version": "0.1.0",
-          "sha256": "3b7c04b85af94296",
+          "sha256": "d7fa6ca0f41bb2eb",
           "description": "Caminho rápido para intent #9 status via gh api REST — sem disparar runner, latência < 5s",
           "linked_principles": [
             "C6"
@@ -2427,7 +2450,7 @@
           "path": "templates/hermes/railway/env.example",
           "type": "config-template",
           "version": "0.1.0",
-          "sha256": "2b581b84274aaec6",
+          "sha256": "aec7030130e95e57",
           "description": "Variáveis de ambiente a configurar no Railway dashboard do serviço Hermes",
           "linked_principles": [
             "C1"
@@ -2437,7 +2460,7 @@
           "path": "docs/foundry/hermes-integration.md",
           "type": "documentation",
           "version": "0.1.0",
-          "sha256": "53adc534e995df23",
+          "sha256": "a670e39a277807f4",
           "description": "Manual canônico de instalação e operação da integração Hermes + Foundry",
           "linked_principles": [
             "C1",

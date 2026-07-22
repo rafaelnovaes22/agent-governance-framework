@@ -9,6 +9,22 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.23.0] — 2026-07-22
+
+### Added (Eval integrity — split público/privado + anti reward hacking)
+
+**Novo grupo de checks `C4_eval_integrity` (C4.eval.1–5) em `reviewer/validation-rules.json` v0.5.0**, inspirado nos mecanismos de integridade de avaliação do AIDE² (Weco). Origem: issue #1.
+
+- **`templates/eval-case.template.md` v0.2.0**: frontmatter ganha `visibility: public|private`. Casos `private` são hold-out; somente a métrica deles conta para gates de promoção SHADOW → ASSISTED → AUTONOMOUS. Mínimo 20% da suite private (C4.eval.1, WARN; FAIL em AUTONOMOUS).
+- **Gate de promoção** deve registrar `private_metric` + `private_case_count` em `gate_results` (C4.eval.2, FAIL). Vazamento de resultado private em prompt/contexto de agente é FAIL (C4.eval.3).
+- **Validators anti-gaming hardcoded** no runner de eval: rejeição de output verbatim do gabarito e de métrica sem evidência de execução (C4.eval.4, WARN).
+- **Plausibilidade estatística**: salto de score > 3 desvios-padrão vs histórico exige revisão humana registrada antes de promover (C4.eval.5, WARN; FAIL em AUTONOMOUS).
+- **Novo doc**: `docs/foundry/eval-integrity.md` (racional, tabela de severidades, trabalho futuro: storage de histórico de runs + journal em árvore estilo aideml como audit trail).
+
+Referências: https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement e https://github.com/WecoAI/aideml
+
+---
+
 ## [0.22.1] — 2026-05-26
 
 ### Fixed (patch — drift residual de Langfuse)

@@ -1,9 +1,9 @@
 {
   "$schema": "https://novais-digital.com.br/foundry/validation-rules-v1.json",
-  "validation_rules_version": "0.4.0",
+  "validation_rules_version": "0.5.0",
   "constitution_version": "0.3.0",
 
-  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados.",
+  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados. v0.5.0 (issue #1): grupo C4_eval_integrity adicionado — split público/privado de métricas + defesas anti reward hacking (ver docs/foundry/eval-integrity.md).",
 
   "project_config_loader": {
     "primary_path": "docs/foundry/project.json",
@@ -214,6 +214,75 @@
             "description": "Eval suite passing antes de toda promoção",
             "validation": "eval_threshold_met",
             "before_promotion": true
+          }
+        ]
+      },
+
+      "C4_eval_integrity": {
+        "principle": "C4",
+        "name": "Eval integrity — split público/privado + anti reward hacking",
+        "_doc": "Inspirado nos mecanismos de integridade de avaliação do AIDE² (Weco). Três camadas: instrutiva (prompt), hardcoded (validators determinísticos) e estatística (plausibilidade de score). Detalhe em docs/foundry/eval-integrity.md.",
+        "checks": [
+          {
+            "id": "C4.eval.1",
+            "description": "Eval suite declara split público/privado: >= 20% dos casos com visibility=private no frontmatter",
+            "validation": "frontmatter_ratio_check",
+            "scope_glob": ["evals/**/*.md", "docs/evals/**/*.md"],
+            "field": "visibility",
+            "value": "private",
+            "min_ratio": 0.20,
+            "applies_when": "always",
+            "severity": "WARN",
+            "severity_when_autonomous": "FAIL"
+          },
+          {
+            "id": "C4.eval.2",
+            "description": "Gate de promoção usa exclusivamente a métrica dos casos private (gate_results referencia private_metric)",
+            "validation": "audit_log_field_check",
+            "log_path_pattern": "subscriptions/{id}/promotions.md",
+            "required_fields_in": "gate_results",
+            "required_fields": ["private_metric", "private_case_count"],
+            "applies_when": "always",
+            "severity": "FAIL"
+          },
+          {
+            "id": "C4.eval.3",
+            "description": "Resultados de casos private nunca aparecem em prompt/contexto de agente (vazamento do hold-out)",
+            "validation": "regex_search",
+            "scope_glob": ["src/**/*.{ts,js,py}", ".claude/**/*.md", "templates/**/*.md"],
+            "forbidden_patterns": [
+              "private_metric.*prompt",
+              "visibility:\\s*['\"]?private['\"]?.*(context|prompt|feedback)"
+            ],
+            "applies_when": "always",
+            "severity": "FAIL"
+          },
+          {
+            "id": "C4.eval.4",
+            "description": "Runner de eval tem validators anti-gaming hardcoded: rejeita output idêntico ao gabarito e métrica reportada sem execução correspondente",
+            "validation": "regex_lint",
+            "scope_glob": ["src/**/eval*.{ts,js,py}", "scripts/**/eval*.{ts,js,py}"],
+            "must_have_near_eval_scoring": [
+              "verbatim_answer_check",
+              "rejectVerbatimAnswer",
+              "reject_verbatim",
+              "execution_evidence_check",
+              "requireExecutionEvidence"
+            ],
+            "max_distance_lines": 30,
+            "applies_when": "always",
+            "severity": "WARN"
+          },
+          {
+            "id": "C4.eval.5",
+            "description": "Salto de score estatisticamente implausível (> 3 desvios-padrão vs histórico de runs) exige revisão humana registrada antes de promover",
+            "validation": "score_plausibility_check",
+            "history_source": "eval run history (>= 5 runs)",
+            "max_z_score": 3.0,
+            "on_violation_require": "human_review_entry em subscriptions/{id}/promotions.md",
+            "applies_when": "always",
+            "severity": "WARN",
+            "severity_when_autonomous": "FAIL"
           }
         ]
       },
