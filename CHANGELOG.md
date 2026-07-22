@@ -9,6 +9,21 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.24.0] — 2026-07-22
+
+### Added (Iteration journal — audit trail replayável)
+
+**Padrão `Journal`/`Node` do aideml portado como formato de audit trail das iterações de agente.** Completa o trabalho futuro de v0.23.0 (eval integrity).
+
+- **`reviewer/iteration-journal-schema.json` v1.0.0** (novo): árvore append-only de nodes `draft`/`debug`/`improve`, cada node com `plan`, `change_ref` (commit/diff, nunca artefato embutido), métricas com split `public`/`private` e `integrity_flags` dos validators anti-gaming.
+- **`C4.eval.6`** em `validation-rules.json` v0.6.0: `gate_results` da promoção deve referenciar `journal_ref` + `best_node_id`; best node precisa ser não-buggy e sem flags pendentes (WARN; FAIL em AUTONOMOUS). Caminho root → best replayável, com branches rejeitados visíveis.
+- **`docs/foundry/iteration-journal.md`** (novo): especificação, convenção de path `subscriptions/{id}/journal/{run_id}.json`, regras de integridade (append-only, ctime monotônico) e como o journal destrava a automação do `C4.eval.5` (a série `metrics.private.value` dos journals anteriores é o histórico de runs que faltava).
+- `docs/foundry/eval-integrity.md` v0.1.1: seção de trabalho futuro atualizada (entregue).
+
+Referência: https://github.com/WecoAI/aideml (`aide/journal.py`, `aide/agent.py`).
+
+---
+
 ## [0.23.0] — 2026-07-22
 
 ### Added (Eval integrity — split público/privado + anti reward hacking)

@@ -65,8 +65,7 @@ Salto de score acima de 3 desvios-padrão contra o histórico de runs (mínimo 5
 
 ## Trabalho futuro
 
-- Storage de histórico de runs padronizado (pré-requisito para automatizar C4.eval.5 de verdade).
-- Journal em árvore das iterações do agente (padrão `Journal`/`Node` do [aideml](https://github.com/WecoAI/aideml), `aide/journal.py`) como formato de audit trail replayável: toda promoção mostra o caminho completo, incluindo branches rejeitados.
+~~Storage de histórico de runs + journal em árvore~~ → **entregue**: ver `docs/foundry/iteration-journal.md` (schema em `reviewer/iteration-journal-schema.json`, check `C4.eval.6`). O journal é o storage de histórico que destrava a automação do `C4.eval.5`.
 
 ## Referências
 

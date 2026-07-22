@@ -142,7 +142,7 @@
     ]
   },
   "_comment": "Novais Digital Foundry layer (versioned). Per-developer overrides go in settings.local.json (gitignored).",
-  "_foundry_version": "0.23.0",
+  "_foundry_version": "0.24.0",
   "_constitution_version": "0.4.0",
   "_foundry_features": {
     "skills_path": ".claude/skills/{L0,L1,L2}/",
