@@ -3,10 +3,10 @@
   "manifest_version": "0.22.1",
   "framework": {
     "name": "Novais Digital Foundry",
-    "version": "0.22.1",
+    "version": "0.23.0",
     "canonical": true,
-    "phase": "Foundry-21 entregue (0.22.0) + patch 0.22.1: drift residual de Langfuse em CONSTITUTION.md sanado (LangSmith canonical conforme F56).",
-    "last_updated": "2026-07-22",
+    "phase": "Eval integrity (0.23.0): anti reward hacking em 3 camadas + split public/private de eval cases (issue #1, padrões AIDE²/aideml).",
+    "last_updated": "2026-07-23",
     "constitution_version": "0.4.0",
     "constitution_path": ".claude/CONSTITUTION.md",
     "constitution_sha256": null,
@@ -328,6 +328,23 @@
       ],
       "foundry_docs": [
         {
+          "id": "eval-integrity",
+          "path": "docs/foundry/eval-integrity.md",
+          "type": "documentation",
+          "version": "0.1.0",
+          "sha256": null,
+          "audience": [
+            "human-developer",
+            "deep-agent",
+            "framework-maintainer"
+          ],
+          "linked_principles": [
+            "C4",
+            "C6"
+          ],
+          "description": "Eval integrity anti reward hacking em 3 camadas (instrutiva, determinística C4.integrity.*, estatística max_positive_delta_pp) + split public/private de eval cases. Padrões extraídos do AIDE²/aideml (issue #1)."
+        },
+        {
           "id": "foundry-readme",
           "path": "docs/foundry/README.md",
           "type": "documentation",
@@ -506,12 +523,12 @@
         "id": "template-eval-case",
         "path": "templates/eval-case.template.md",
         "type": "template",
-        "version": "0.1.0",
-        "sha256": "b9a98d6a2f027917",
+        "version": "0.2.0",
+        "sha256": null,
         "linked_principles": [
           "C4"
         ],
-        "description": "Caso de eval suite por SKU/produto"
+        "description": "Caso de eval suite por SKU/produto. v0.2.0: campo visibility (public/private) no frontmatter para eval integrity (C4.integrity.*)"
       },
       {
         "id": "template-unit-economics",
@@ -1055,12 +1072,12 @@
         "id": "reviewer-validation-rules",
         "path": "reviewer/validation-rules.json",
         "type": "reviewer-asset",
-        "version": "0.3.0",
-        "sha256": "2a0e4550b19f313b",
+        "version": "0.5.0",
+        "sha256": null,
         "audience": [
           "deep-agent"
         ],
-        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9)"
+        "description": "Validation rules machine-readable para os 8 princípios — v0.3.0 estruturado em seções {common, agentic_saas, platform, automation, hybrid} com applies_when condicional (Foundry-9); v0.5.0 adiciona eval integrity (C4.integrity.*, metric_visibility_required em C4.ai.3, max_positive_delta_pp em drift)"
       },
       {
         "id": "reviewer-example-audit",

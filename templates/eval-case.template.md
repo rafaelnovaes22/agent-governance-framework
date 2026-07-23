@@ -8,12 +8,15 @@ created_at: "{{ YYYY-MM-DD }}"
 source: "{{ real-tenant / synthetic / edge-case / regression }}"
 tenant_anonymized: true
 priority: "{{ P0 / P1 / P2 }}"
+visibility: "{{ public / private }}"
 tags: ["{{ tag1 }}", "{{ tag2 }}"]
 ---
 
 # Eval Case {{ case_id }}
 
 > Caso de eval suite para o SKU `{{ sku_code }}`. Roda automaticamente em `npm run eval:{{ sku_code }}` e em `/novais-digital:eval`.
+>
+> **Visibility** (`C4.integrity.*`): casos `public` dão feedback de iteração ao agente; casos `private` são hold-out, nunca entram em prompt/contexto e são os únicos que contam para gates de promoção (SHADOW → ASSISTED → AUTONOMOUS). Ver `docs/foundry/eval-integrity.md`.
 
 ---
 

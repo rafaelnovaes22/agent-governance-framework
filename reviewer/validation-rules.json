@@ -1,9 +1,9 @@
 {
   "$schema": "https://novais-digital.com.br/foundry/validation-rules-v1.json",
-  "validation_rules_version": "0.4.0",
+  "validation_rules_version": "0.5.0",
   "constitution_version": "0.3.0",
 
-  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados.",
+  "_doc": "Validation rules estruturadas em três camadas: 'common' (sempre aplica), 'agentic_saas' / 'platform' / 'automation' (aplicam conforme project.type em docs/foundry/project.json do consumidor) e 'hybrid' (combina platform + checks por módulo conforme module.ai_enabled). Cada check tem campo 'applies_when' que o reviewer avalia contra project.json. Quando project.json ausente, defaults legados: project_type=agentic_saas + ai_enabled=true (compat v0.2.0). v0.4.0 (Foundry-21): C6 bifurcado em llm_trace_provider + analytics_provider (WireLog); checks C6.analytics.* adicionados. v0.5.0: eval integrity (C4.integrity.*, visibility public/private em eval cases, max_positive_delta_pp em drift) conforme docs/foundry/eval-integrity.md.",
 
   "project_config_loader": {
     "primary_path": "docs/foundry/project.json",
@@ -211,9 +211,53 @@
           },
           {
             "id": "C4.ai.3",
-            "description": "Eval suite passing antes de toda promoção",
+            "description": "Eval suite passing antes de toda promoção; o gate considera APENAS casos com visibility=private (casos public dão feedback de iteração, não promovem)",
             "validation": "eval_threshold_met",
-            "before_promotion": true
+            "before_promotion": true,
+            "metric_visibility_required": "private"
+          }
+        ]
+      },
+
+      "C4_eval_integrity": {
+        "principle": "C4",
+        "name": "Eval integrity — anti reward hacking (3 camadas)",
+        "_doc": "Padrão extraído do AIDE²/aideml (Weco): camada 1 (instrutiva) vive nos prompts dos agents e não é validável aqui; camada 2 são os checks determinísticos abaixo; camada 3 é estatística (drift_thresholds.quality.max_positive_delta_pp). Racional completo em docs/foundry/eval-integrity.md.",
+        "checks": [
+          {
+            "id": "C4.integrity.1",
+            "description": "Todo eval case declara visibility no frontmatter e a suite mantém no mínimo 30% de casos private",
+            "validation": "frontmatter_field_exists",
+            "field": "visibility",
+            "valid_values": ["public", "private"],
+            "scope_glob": ["evals/**/*.md", "docs/evals/**/*.md", "tests/evals/**/*.md"],
+            "min_private_ratio": 0.3,
+            "applies_when": "always",
+            "severity": "FAIL"
+          },
+          {
+            "id": "C4.integrity.2",
+            "description": "Casos private são hold-out real: case_id não pode aparecer em prompts, skills ou código de produção",
+            "validation": "cross_reference_absence",
+            "source_frontmatter_filter": {"visibility": "private"},
+            "source_glob": ["evals/**/*.md", "docs/evals/**/*.md", "tests/evals/**/*.md"],
+            "match_on": "case_id",
+            "forbidden_reference_in": [".claude/skills/**/*.md", ".claude/agents/**/*.md", "src/**/*.{ts,js,py}"],
+            "applies_when": "always",
+            "severity": "FAIL"
+          },
+          {
+            "id": "C4.integrity.3",
+            "description": "Código de produção não hardcoda gabarito de eval (output esperado, case_id ou bypass de scorer)",
+            "validation": "regex_search",
+            "scope_glob": ["src/**/*.{ts,js,py}"],
+            "forbidden_patterns": [
+              "expected_outcome_status",
+              "case_id\\s*[=!]==?\\s*['\"]",
+              "if.*eval.*(mode|run).*return\\s+['\"]?(DELIVERED|PASS)"
+            ],
+            "applies_when": "always",
+            "severity": "FAIL"
           }
         ]
       },
@@ -533,6 +577,8 @@
       "metric_when_ai": "accuracy_pct_by_artifact",
       "metric_when_no_ai": "acceptance_pass_rate_by_module",
       "max_negative_delta_pp": 5.0,
+      "max_positive_delta_pp": 10.0,
+      "_doc_positive_delta": "Camada estatística anti reward hacking (eval integrity): salto de melhoria acima de max_positive_delta_pp mês a mês sem mudança declarada (spec/prompt/modelo em CHANGELOG do consumidor) é implausível. Gera WARN e exige revisão humana antes de qualquer promoção no período.",
       "comparison": "month_over_month"
     },
     "cost": {

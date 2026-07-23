@@ -9,6 +9,25 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [0.23.0] — 2026-07-23
+
+### Added (minor — eval integrity, issue #1)
+
+Módulo de eval integrity anti reward hacking, padrões extraídos do AIDE² (Weco) e do agente open source WecoAI/aideml. Racional completo em `docs/foundry/eval-integrity.md` (novo).
+
+**`reviewer/validation-rules.json` (v0.5.0)**:
+- Grupo novo `C4_eval_integrity` (seção `agentic_saas`) com 3 checks determinísticos: `C4.integrity.1` (todo eval case declara `visibility: public|private`; mínimo 30% private na suite), `C4.integrity.2` (casos private são hold-out real: `case_id` proibido em prompts/skills/código), `C4.integrity.3` (código de produção não hardcoda gabarito de eval).
+- `C4.ai.3` agora exige `metric_visibility_required: private`: apenas casos private contam para gates de promoção SHADOW→ASSISTED→AUTONOMOUS; casos public são feedback de iteração.
+- `drift_thresholds.quality.max_positive_delta_pp` (10 pp): salto de melhoria implausível mês a mês sem mudança declarada gera WARN + revisão humana antes de promover (camada estatística, espelho do `max_negative_delta_pp`).
+
+**`templates/eval-case.template.md` (v0.2.0)**: campo `visibility` no frontmatter + nota de semântica public/private.
+
+**Sem impacto em Constitution**: C1-C8 intactos; tudo é reforço de enforcement sob C4/C6.
+
+**Consumidores**: eval suites existentes precisam declarar `visibility` nos casos (default sugerido: public) e criar hold-out private antes da próxima promoção.
+
+---
+
 ## [0.22.1] — 2026-05-26
 
 ### Fixed (patch — drift residual de Langfuse)
