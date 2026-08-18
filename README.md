@@ -1,7 +1,9 @@
 # Novais Digital Foundry
 
-> Framework de governança para projetos que entregam **outcome cobrável** — agentes de IA, plataformas SaaS/operacionais, ou automações.
-> Replicável por **devs (Claude Code)**, **DeepAgents (GPT-5.5)** e outros agentes autônomos.
+> Read this in [Portuguese](README.pt-BR.md).
+
+> A governance framework for projects that deliver a **billable outcome**: AI agents, SaaS and operational platforms, or automations.
+> Reproducible by **human devs (Claude Code)**, by **autonomous reviewers (DeepAgents / GPT-5.5)** and by other agent harnesses.
 
 [![Version](https://img.shields.io/badge/version-0.24.0-blue)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-red)](./LICENSE.md)
@@ -11,139 +13,139 @@
 
 ---
 
-## O que o Foundry resolve
+## The problem it solves
 
-Construir agentes de IA que **entregam outcome cobrável** (lead qualificado, ticket resolvido, análise gerada, etc.) tem armadilhas que matam projetos silenciosamente:
+Building AI agents that deliver a **billable outcome** (a qualified lead, a resolved ticket, a generated analysis) has failure modes that kill projects quietly:
 
-- Spec sem cláusula contratual → disputa eterna sobre "o que conta"
-- Custo de inferência > preço do outcome → margem negativa em volume
-- Promoção de "demo" pra "produção" sem eval → drift de qualidade não detectado
-- Customização heroica por cliente → não escala, vira agência
-- Sem telemetria → impossível auditar
+- A spec with no contractual clause, which turns into an endless dispute about what counts as delivered
+- Inference cost above the price of the outcome, which means negative margin at volume
+- Promotion from demo to production with no evals, so quality drift goes undetected
+- Heroic per-customer customization, which does not scale and turns the company into an agency
+- No telemetry, so nothing can be audited
 
-Foundry resolve isso com:
+Foundry answers that with:
 
-1. **Constitution versionada** (8 princípios, [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md))
-2. **Templates fundamentais** (spec, ADR, eval-case, unit-economics, lifecycle, audit) — [`templates/`](./templates/)
-3. **Manifest auditável** machine-readable — [`docs/foundry/manifest.json`](./docs/foundry/manifest.json)
-4. **Reviewer externo independente** (DeepAgent / GPT-5.5) com contrato formal — [`reviewer/`](./reviewer/)
-5. **9 hooks runtime ativos** com bypass auditado (PreToolUse x4, PostToolUse x3, Stop x2) — [`hooks/`](./hooks/)
-6. **12 slash commands** do pipeline diagnose → promote → audit — [`.claude/commands/`](./.claude/commands/)
-7. **10 subagents Guardian** (4 Opus + 4 Sonnet + 2 cross-LLM) — [`.claude/agents/`](./.claude/agents/)
-8. **9 skills** em 3 tiers (L0/L1/L2) com helper pattern BMAD — [`.claude/skills/`](./.claude/skills/)
+1. A **versioned constitution** (8 principles, [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md))
+2. **Core templates** (spec, ADR, eval case, unit economics, lifecycle, audit) in [`templates/`](./templates/)
+3. A machine-readable **auditable manifest**, [`docs/foundry/manifest.json`](./docs/foundry/manifest.json)
+4. An **independent external reviewer** (DeepAgent / GPT-5.5) with a formal contract, [`reviewer/`](./reviewer/)
+5. **9 active runtime hooks** with audited bypass (PreToolUse x4, PostToolUse x3, Stop x2), [`hooks/`](./hooks/)
+6. **12 slash commands** covering the diagnose → promote → audit pipeline, [`.claude/commands/`](./.claude/commands/)
+7. **10 Guardian subagents** (4 Opus + 4 Sonnet + 2 cross-LLM), [`.claude/agents/`](./.claude/agents/)
+8. **9 skills** in 3 tiers (L0/L1/L2) using the BMAD helper pattern, [`.claude/skills/`](./.claude/skills/)
 
 ---
 
-## Audiência: 3 tipos de consumidor
+## Three kinds of consumer
 
-Foundry é projetado para 3 tipos de usuário, cada um com seu próprio guia:
+Foundry is designed for three audiences, each with its own entry point:
 
-| Consumidor | Entry point | O que faz |
+| Consumer | Entry point | What they do |
 |---|---|---|
-| 👤 **Dev humano** com Claude Code | [`QUICKSTART.md`](./QUICKSTART.md) → [`INSTALL.md`](./INSTALL.md) | Instala em projeto novo ou existente; usa skills/commands no editor |
-| 🤖 **DeepAgent / GPT-5.5** (reviewer autônomo) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) → [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) | Lê manifest, valida princípios, emite relatório mensal |
-| 🛠️ **Mantenedor do Foundry** (evoluir o framework) | [`CONTRIBUTING.md`](./CONTRIBUTING.md) → [`CLAUDE.md`](./CLAUDE.md) | Adiciona skills/commands/templates ao framework |
+| 👤 **Human dev** using Claude Code | [`QUICKSTART.md`](./QUICKSTART.md) then [`INSTALL.md`](./INSTALL.md) | Installs it in a new or existing project; uses skills and commands in the editor |
+| 🤖 **DeepAgent / GPT-5.5** (autonomous reviewer) | [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md) then [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) | Reads the manifest, validates the principles, emits the monthly report |
+| 🛠️ **Foundry maintainer** | [`CONTRIBUTING.md`](./CONTRIBUTING.md) then [`CLAUDE.md`](./CLAUDE.md) | Adds skills, commands and templates to the framework |
 
 ---
 
-## O que NÃO é
+## What it is not
 
-- ❌ Não é starter kit genérico Claude Code (existem dezenas)
-- ❌ Não é metodologia de processo (a metodologia vive em quem opera o Foundry — ver `examples/novais-digital/`)
-- ❌ Não é SDK de agentes (LangGraph, CrewAI, AutoGen cumprem esse papel)
-- ❌ Não é plataforma — é um conjunto de **conventions + automations** sobre Claude Code
+- Not a generic Claude Code starter kit (there are dozens)
+- Not a process methodology (the methodology lives with whoever operates the Foundry, see `examples/novais-digital/`)
+- Not an agent SDK (LangGraph, CrewAI and AutoGen already fill that role)
+- Not a platform. It is a set of **conventions plus automations** on top of Claude Code
 
-Detalhes em [`docs/foundry/out-of-scope.md`](./docs/foundry/out-of-scope.md).
-
----
-
-## Os 8 princípios da Constitution
-
-Versionados em [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md):
-
-1. **C1** — Diagnose-before-design
-2. **C2** — Outcome-first, never tech-first
-3. **C3** — Cost ≤ 25% of price
-4. **C4** — SHADOW antes de cobrar
-5. **C5** — Three-tier context (Strategic / Tactical / Operational)
-6. **C6** — Telemetry-by-default (bifurcado em v0.22.0: `llm_trace_provider` LangSmith + `analytics_provider` WireLog)
-7. **C7** — Portability over lock-in
-8. **C8** — Anti-customização heroica
-
-Princípios genéricos. Extensões específicas por domínio vivem em `examples/{domínio}/constitution-extension.md`.
+Details in [`docs/foundry/out-of-scope.md`](./docs/foundry/out-of-scope.md).
 
 ---
 
-## Status atual
+## The 8 constitutional principles
 
-| Onda | Status | Entregue |
+Versioned in [`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md):
+
+1. **C1** Diagnose before design
+2. **C2** Outcome first, never tech first
+3. **C3** Cost at or below 25% of price
+4. **C4** SHADOW mode before billing
+5. **C5** Three-tier context (strategic / tactical / operational)
+6. **C6** Telemetry by default (split in v0.22.0 into `llm_trace_provider` LangSmith and `analytics_provider` WireLog)
+7. **C7** Portability over lock-in
+8. **C8** No heroic customization
+
+These are generic. Domain-specific extensions live in `examples/{domain}/constitution-extension.md`.
+
+---
+
+## Current status
+
+| Wave | Status | Delivered |
 |---|---|---|
-| **Foundry-0** Fundação | ✅ Concluída | Constitution, settings, manifest, 12 templates, multi-consumer docs, reviewer enablement, examples/novais-digital |
-| **Foundry-1** Skills L0/L1/L2 | ✅ Concluída | 9 skills genéricas (3 L0 + 3 L1 + 3 L2) com helper pattern BMAD documentado |
-| **Foundry-2** Slash commands | ✅ Concluída | 12 commands do pipeline diagnose → promote → audit → playbook-extract |
-| **Foundry-3** Subagents Guardian + Reviewer | ✅ Concluída | 10 agents (8 Guardians + 2 cross-LLM) + infraestrutura DeepAgent reviewer |
-| **Foundry-4** Hooks runtime | ✅ Concluída (v0.3.0) | 9 hooks ativos, bypass auditado, skill-security-scan standalone |
-| **Foundry-5** Playbooks verticais (infraestrutura) | ✅ Entregue (v0.4.0) | Templates playbook + retrospectiva, /novais-digital:playbook-extract; conteúdo real aguarda AUTONOMOUS |
+| **Foundry-0** Foundation | ✅ Done | Constitution, settings, manifest, 12 templates, multi-consumer docs, reviewer enablement, examples/novais-digital |
+| **Foundry-1** L0/L1/L2 skills | ✅ Done | 9 generic skills (3 L0 + 3 L1 + 3 L2) with the BMAD helper pattern documented |
+| **Foundry-2** Slash commands | ✅ Done | 12 commands covering diagnose → promote → audit → playbook-extract |
+| **Foundry-3** Guardian subagents + reviewer | ✅ Done | 10 agents (8 Guardians + 2 cross-LLM) plus the DeepAgent reviewer infrastructure |
+| **Foundry-4** Runtime hooks | ✅ Done (v0.3.0) | 9 active hooks, audited bypass, standalone skill security scan |
+| **Foundry-5** Vertical playbooks (infrastructure) | ✅ Delivered (v0.4.0) | Playbook and retrospective templates, `/novais-digital:playbook-extract`; real content waits for the first AUTONOMOUS SKU |
 
-**Pendências do consumidor:** ADR-002 do reviewer, primeira auditoria mensal de teste, primeiro SKU em AUTONOMOUS para gerar playbook real.
+**Open items on the consumer side:** reviewer ADR-002, the first trial monthly audit, and the first SKU reaching AUTONOMOUS so a real playbook can be extracted.
 
-Roadmap completo em [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md).
+Full roadmap in [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md).
 
 ---
 
-## Estrutura do repositório
+## Repository layout
 
 ```
 agent-governance-framework/
-├── README.md                        ← este arquivo
-├── QUICKSTART.md                    ← instalar em 5 min
-├── ARCHITECTURE.md                  ← visão da estrutura e fluxos
-├── INSTALL.md                       ← instalação manual detalhada
-├── CONTRIBUTING.md                  ← como evoluir o framework
-├── DEEPAGENT_GUIDE.md               ← como agent autônomo navega o Foundry
-├── GLOSSARY.md                      ← vocabulário compartilhado
-├── CLAUDE.md                        ← meta-doc para devs do framework
-├── CLAUDE.md.template               ← template para projeto consumidor
-├── CHANGELOG.md                     ← histórico de versões
+├── README.md                        ← this file
+├── QUICKSTART.md                    ← install in 5 minutes
+├── ARCHITECTURE.md                  ← structure and flows
+├── INSTALL.md                       ← detailed manual install
+├── CONTRIBUTING.md                  ← how to evolve the framework
+├── DEEPAGENT_GUIDE.md               ← how an autonomous agent navigates the Foundry
+├── GLOSSARY.md                      ← shared vocabulary
+├── CLAUDE.md                        ← meta-doc for framework devs
+├── CLAUDE.md.template               ← template for a consumer project
+├── CHANGELOG.md                     ← version history
 │
 ├── .claude/
-│   ├── CONSTITUTION.md              ← 8 princípios (genéricos)
-│   ├── settings.json                ← permissões + hooks (Foundry layer)
-│   ├── skills/                      ← 9 skills genéricas em 3 tiers
+│   ├── CONSTITUTION.md              ← the 8 generic principles
+│   ├── settings.json                ← permissions and hooks (Foundry layer)
+│   ├── skills/                      ← 9 generic skills in 3 tiers
 │   │   ├── L0/  (company-dna, icp-loader, offerings-loader)
 │   │   ├── L1/  (baseline-cost-builder, diagnostic-runner, process-mapper)
 │   │   └── L2/  (artifact-prompt-builder, eval-case-author, shadow-mode-runner)
-│   ├── agents/                      ← 10 subagents Guardian + cross-LLM
+│   ├── agents/                      ← 10 Guardian and cross-LLM subagents
 │   │   ├── po-guardian.md, artifact-architect.md, unit-economist.md
 │   │   ├── promotion-officer.md, eval-engineer.md, tenant-context-curator.md
 │   │   ├── observability-guardian.md, security-privacy-guardian.md
 │   │   └── code-reviewer-claude.md, code-reviewer-cross.md
-│   └── commands/novais-digital/             ← 12 slash commands do pipeline
+│   └── commands/novais-digital/     ← the 12 pipeline slash commands
 │       ├── diagnose.md, spec.md, unit-economics.md, sla-threshold.md
 │       ├── plan.md, tasks.md, implement.md
 │       ├── eval.md, promote.md, audit-monthly.md
 │       ├── pre-merge-check.md, playbook-extract.md
 │
-├── hooks/                           ← 9 hooks runtime + script CI
+├── hooks/                           ← 9 runtime hooks plus the CI script
 │   ├── pre-tool-use/   (outcome-clause-guard, adr-approval-gate, secret-scan, any-type-guard)
 │   ├── post-tool-use/  (llm-trace-check/langfuse-trace-check legacy, unit-economics-recalc, manifest-sync)
 │   ├── stop/           (5-gates-summary, eval-suite-fresh)
-│   └── scripts/        (skill-security-scan.sh — standalone CI)
+│   └── scripts/        (skill-security-scan.sh, standalone CI)
 │
-├── docs/foundry/                      ← documentação interna do framework
+├── docs/foundry/                    ← internal framework documentation
 │   ├── README.md                    ← overview
-│   ├── decisions.md                 ← F1-F21 + extensões
-│   ├── roadmap.md                   ← 5 ondas
-│   ├── reviewer-contract.md         ← contrato com reviewer
-│   ├── manifest.json                ← inventory machine-readable
-│   ├── out-of-scope.md              ← o que NÃO entra
-│   ├── helper-pattern.md            ← helper pattern BMAD (L0, cache)
-│   ├── bypass-log/                  ← registro de bypasses de hooks
-│   └── session-gate-reports/        ← relatórios automáticos ao fim de sessão
+│   ├── decisions.md                 ← F1 to F21 plus extensions
+│   ├── roadmap.md                   ← the 5 waves
+│   ├── reviewer-contract.md         ← contract with the reviewer
+│   ├── manifest.json                ← machine-readable inventory
+│   ├── out-of-scope.md              ← what stays out
+│   ├── helper-pattern.md            ← BMAD helper pattern (L0, cache)
+│   ├── bypass-log/                  ← record of hook bypasses
+│   └── session-gate-reports/        ← automatic end-of-session reports
 │
-├── templates/                       ← 12 templates fundamentais (genéricos)
+├── templates/                       ← 12 core generic templates
 │   ├── adr.template.md
-│   ├── adr-reviewer-runtime.template.md  ← ADR-002 para consumidor
+│   ├── adr-reviewer-runtime.template.md  ← ADR-002 for the consumer
 │   ├── platform-sku-spec.template.md
 │   ├── product-spec.template.md
 │   ├── diagnostic-spec.template.md
@@ -152,25 +154,25 @@ agent-governance-framework/
 │   ├── lifecycle-stage.template.md
 │   ├── monthly-audit.template.md
 │   ├── clickup-blueprint.template.md
-│   ├── playbook.template.md         ← blocos verticais reutilizáveis (Foundry-5)
-│   └── retrospective.template.md    ← retrospectiva por SKU pós-AUTONOMOUS
+│   ├── playbook.template.md         ← reusable vertical blocks (Foundry-5)
+│   └── retrospective.template.md    ← per-SKU retrospective after AUTONOMOUS
 │
-├── reviewer/                        ← enablement do DeepAgent reviewer
-│   ├── README.md                    ← índice e ordem de leitura
+├── reviewer/                        ← DeepAgent reviewer enablement
+│   ├── README.md                    ← index and reading order
 │   ├── prompt.template.md           ← system prompt
-│   ├── output-schema.json           ← JSON schema do relatório
-│   ├── validation-rules.json        ← checks machine-readable
-│   ├── example-audit.md             ← exemplo de relatório
-│   └── deepagents/                  ← 10 SKILL.md convertidos para DeepAgents CLI
+│   ├── output-schema.json           ← JSON schema of the report
+│   ├── validation-rules.json        ← machine-readable checks
+│   ├── example-audit.md             ← sample report
+│   └── deepagents/                  ← 10 SKILL.md files converted for the DeepAgents CLI
 │       ├── README.md
 │       ├── conversion-log.md
 │       └── skills/
 │
-├── docs/playbooks/                  ← playbooks verticais (pós cliente 1 AUTONOMOUS)
-├── docs/retrospectives/             ← retrospectivas por SKU
+├── docs/playbooks/                  ← vertical playbooks (after the first AUTONOMOUS customer)
+├── docs/retrospectives/             ← per-SKU retrospectives
 │
-└── examples/                        ← casos de uso reais como referência
-    └── novais-digital/                      ← caso Novais Digital (criadora do Foundry)
+└── examples/                        ← real use cases used as reference
+    └── novais-digital/              ← the Novais Digital case (the Foundry's own operator)
         ├── README.md
         ├── methodology/
         ├── portfolio.md
@@ -183,55 +185,55 @@ agent-governance-framework/
 
 ---
 
-## Como começar
+## Getting started
 
-### Sou dev. Quero usar Foundry num projeto novo.
+### I am a dev and want to use Foundry in a new project
 
 ```bash
 git clone https://github.com/rafaelnovaes22/agent-governance-framework.git
-cd /caminho/do/seu/projeto
-# segue passos em INSTALL.md
+cd /path/to/your/project
+# follow the steps in INSTALL.md
 
-# Após instalar, valide a consistência do framework:
+# after installing, validate framework consistency:
 bash scripts/foundry-doctor.sh
 ```
 
-Consulta também [`QUICKSTART.md`](./QUICKSTART.md) e [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+See also [`QUICKSTART.md`](./QUICKSTART.md) and [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
-### Sou DeepAgent. Quero auditar um projeto que usa Foundry.
+### I am a DeepAgent and want to audit a project that uses Foundry
 
-1. Lê [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) e carrega como system prompt
-2. Recebe `manifest.json` do projeto consumidor como input
-3. Roda os checks definidos em [`reviewer/validation-rules.json`](./reviewer/validation-rules.json)
-4. Emite relatório seguindo [`reviewer/output-schema.json`](./reviewer/output-schema.json)
-5. Detalhe completo em [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md)
+1. Read [`reviewer/prompt.template.md`](./reviewer/prompt.template.md) and load it as the system prompt
+2. Take the consumer project's `manifest.json` as input
+3. Run the checks defined in [`reviewer/validation-rules.json`](./reviewer/validation-rules.json)
+4. Emit the report following [`reviewer/output-schema.json`](./reviewer/output-schema.json)
+5. Full detail in [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md)
 
-### Sou mantenedor. Quero evoluir o Foundry.
+### I am a maintainer and want to evolve Foundry
 
-[`CONTRIBUTING.md`](./CONTRIBUTING.md) descreve o processo (issue → branch → PR → versionamento).
-
----
-
-## Versionamento
-
-SemVer estrito:
-
-- **MAJOR** — quebra de Constitution (princípio removido/reformulado)
-- **MINOR** — onda Foundry concluída (nova capability)
-- **PATCH** — correção de template/doc/hook sem mudar contrato
-
-Versão atual em [`docs/foundry/manifest.json`](./docs/foundry/manifest.json) → `framework.version`.
+[`CONTRIBUTING.md`](./CONTRIBUTING.md) describes the process (issue → branch → PR → versioning).
 
 ---
 
-## Filosofia em uma frase
+## Versioning
 
-> Cada agente de IA novo em produção herda automaticamente diagnóstico estruturado, spec contratual de outcome, gate de unit economics, threshold de SLA e promoção SHADOW→AUTONOMOUS — com auditoria externa independente por DeepAgent.
+Strict SemVer:
+
+- **MAJOR**: a constitutional break (a principle removed or reworded)
+- **MINOR**: a completed Foundry wave (a new capability)
+- **PATCH**: a template, doc or hook fix that does not change a contract
+
+Current version in [`docs/foundry/manifest.json`](./docs/foundry/manifest.json) under `framework.version`.
 
 ---
 
-## Licença
+## The philosophy in one sentence
+
+> Every new AI agent in production automatically inherits a structured diagnosis, a contractual outcome spec, a unit economics gate, an SLA threshold and SHADOW to AUTONOMOUS promotion, with an independent external audit performed by a DeepAgent.
+
+---
+
+## License
 
 Copyright (c) 2026 Rafael Novaes.
 
-Licenciado sob [PolyForm Noncommercial License 1.0.0](./LICENSE.md) — leitura, estudo e uso não comercial permitidos; uso comercial requer autorização expressa do autor.
+Licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE.md): reading, study and non-commercial use are allowed; commercial use requires express authorization from the author.
