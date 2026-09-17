@@ -953,7 +953,7 @@
       ]
     },
     "templates_cicd": {
-      "_status": "Foundry-8 + Foundry-10 — 5 templates de CI/CD (v0.9.0). validate ganha gate G6 (TDD-RED phase check); novo foundry-test.yml roda unit/integration/e2e com coverage gate por tier e DB ephemeral; cicd-checklist atualizado (39 itens, 29 🔴).",
+      "_status": "Foundry-8 + Foundry-10 — 6 templates de CI/CD (v0.9.0 + PR template). validate ganha gate G6 (TDD-RED phase check); novo foundry-test.yml roda unit/integration/e2e com coverage gate por tier e DB ephemeral; cicd-checklist atualizado (39 itens, 29 🔴); github-pr-template com Declaração MI obrigatória.",
       "root": "templates/cicd/",
       "linked_principles": [
         "C1",
@@ -1032,6 +1032,19 @@
           ],
           "use_case": "gate-6-evidence",
           "description": "Checklist platform-agnostic com 39 itens (29 🔴, 10 🟡) — nova seção 3 'Testes funcionais do projeto cliente' (Foundry v0.9.0+) com 11 itens 🔴 cobrindo workflow foundry-test, coverage gate, integration sem mocks, e2e UI, Tier C bloqueante. Campo gate_6_status lido pelo promotion-officer."
+        },
+        {
+          "id": "template-cicd-pr",
+          "path": "templates/cicd/github-pr-template.template.md",
+          "type": "template",
+          "version": "0.1.0",
+          "sha256": "19e5ea34ed6364fb",
+          "linked_principles": [
+            "C4",
+            "C6"
+          ],
+          "use_case": "pr-description",
+          "description": "Template de PR para consumidores (copiar para .github/pull_request_template.md). Seção Declaração MI obrigatória: revelei, verifiquei, responsabilizo-me. Alimenta a auditoria do reviewer."
         }
       ]
     },
@@ -1983,15 +1996,17 @@
           "description": "Read-only consolidação de 5 gates (C7 imports, C8 hardcode, C6 observe, manifest sync, eval green) — go/no-go para CI/pre-commit. Exit code 0/1/2 conforme overall."
         }
       ],
-      "_status": "Foundry-2+5+6+7 — 15 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1 + aios 3/3 (aios-init v0.2.0 copia de templates físicos a partir de Foundry-7).",
+      "_status": "Foundry-2+5+6+7 — 15 commands: spec_economics 4/4 + implementation 3/3 + validation 4/4 + playbooks 1/1 + aios 3/3 (aios-init v0.3.0 pensar primeiro, aios-run v0.2.0 passo 0 hipótese).",
       "aios": [
         {
           "id": "command-aios-init",
           "path": ".claude/commands/novais-digital/aios-init.md",
           "type": "slash-command",
-          "version": "0.2.0",
-          "sha256": "8a517474636c7d7e",
+          "version": "0.3.0",
+          "sha256": "ebb765017349b072",
           "linked_principles": [
+            "C1",
+            "C2",
             "C5",
             "C6",
             "C7",
@@ -1999,22 +2014,23 @@
           ],
           "invokes_skills": [],
           "trace_required": false,
-          "description": "Scaffolda aios/agents/{module}/ COPIANDO de templates/aios/ (Foundry-7). Cobre 6 agentes (3 especializados + 3 compartilhados criados se ausentes). Gera orchestrator/config quando ausentes. Gate: 7 checks antes de copiar qualquer arquivo."
+          "description": "Scaffolda aios/agents/{module}/ COPIANDO de templates/aios/ (Foundry-7). v0.3.0 pensar primeiro: input hypothesis obrigatório (5 campos humanos), Passo 0 grava aios/hypotheses/{module}.md. Gate: 8 checks antes de copiar qualquer arquivo."
         },
         {
           "id": "command-aios-run",
           "path": ".claude/commands/novais-digital/aios-run.md",
           "type": "slash-command",
-          "version": "0.1.0",
-          "sha256": "bd280b51b61cd5b6",
+          "version": "0.2.0",
+          "sha256": "9661c7c17bb85d00",
           "linked_principles": [
+            "C1",
             "C4",
             "C6",
             "C7"
           ],
           "invokes_skills": [],
           "trace_required": true,
-          "description": "Wrapper para python aios/orchestrator.py pipeline. Health check, execução com gates humanos C4 obrigatórios, telemetria C6. Não re-executa automaticamente após gate rejeitado."
+          "description": "Wrapper para python aios/orchestrator.py pipeline. v0.2.0 passo 0 verifica aios/hypotheses/{module}.md (hypothesis_not_found bloqueia). Health check, gates humanos C4 obrigatórios, telemetria C6. Não re-executa automaticamente após gate rejeitado."
         },
         {
           "id": "command-aios-status",

@@ -9,6 +9,17 @@ Formato segue [Keep a Changelog](https://keepachangelog.com/) e versionamento [S
 
 ---
 
+## [Unreleased]
+
+### Added (Pensar primeiro + Declaração MI — Tembine)
+
+- **`/novais-digital:aios-init` v0.3.0**: input `hypothesis` obrigatório com 5 campos humanos (problem, metric, sample, success, stop). Passo 0 grava `aios/hypotheses/{module}.md` (autor + data); hipótese existente nunca é sobrescrita em silêncio. Novo erro `hypothesis_missing`. Sem hipótese, nada é criado.
+- **`/novais-digital:aios-run` v0.2.0**: passo 0 verifica `aios/hypotheses/{module}.md` antes de qualquer chamada ao orchestrator. Novo erro `hypothesis_not_found` bloqueia o pipeline.
+- **`templates/cicd/github-pr-template.template.md` v0.1.0** (novo): template de PR para consumidores com seção Declaração MI obrigatória (revelei, verifiquei, responsabilizo-me). Copiar para `.github/pull_request_template.md`.
+- Migração: módulos AIOS existentes sem `aios/hypotheses/{module}.md` passam a falhar no run com `hypothesis_not_found`; registrar a hipótese via re-run do init com os 5 campos.
+
+---
+
 ## [0.24.0] — 2026-07-22
 
 ### Added (Iteration journal — audit trail replayável)

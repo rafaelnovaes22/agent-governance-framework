@@ -5,14 +5,15 @@ allowed-tools: [Write, Bash, Read, Edit]
 arguments:
   required:
     - module
+    - hypothesis
   optional:
     - tier
     - project_root
     - force
-foundry_command_version: 0.2.0
-linked_principles: [C5, C6, C7, C8]
+foundry_command_version: 0.3.0
+linked_principles: [C1, C2, C5, C6, C7, C8]
 invokes_skills: []
-output_artifact: aios/agents/{module}_spec_agent/ + aios/agents/{module}_backend_agent/ + aios/agents/{module}_frontend_agent/ + (aios/agents/{schema|test|review}_agent/ se ausentes)
+output_artifact: aios/hypotheses/{module}.md + aios/agents/{module}_spec_agent/ + aios/agents/{module}_backend_agent/ + aios/agents/{module}_frontend_agent/ + (aios/agents/{schema|test|review}_agent/ se ausentes)
 trace_required: false
 ---
 
@@ -30,11 +31,21 @@ A partir da v0.2.0 deste comando (Foundry v0.6.0+) o boilerplate **não é mais 
 
 ```yaml
 module: <kebab-case>           # nome do módulo
+hypothesis:                    # formulação HUMANA do problema (C1/C2) — sem isso, nada é criado
+  problem: <1-3 frases>        # quem tem o problema, o que foi observado
+  metric: <nome + cálculo>      # métrica que prova o resultado
+  sample: <amostra>             # onde a métrica é medida
+  success: <alvo>               # número ou estado que define sucesso
+  stop: <condição de pausa>     # quando parar ou descartar
 # opcionais
 tier: A | B | C                # A=autônomo, B=iterativo, C=operador-dirige (default B)
 project_root: <path>           # raiz do projeto consumidor (default: cwd)
 force: false                   # sobrescreve aios/agents/{module}_*/ existentes
 ```
+
+> Pensar primeiro (Tembine: revelar antes de gerar). A hipótese é escrita pelo
+> operador humano, nunca gerada pelo agente para si mesmo. Sem os 5 campos
+> preenchidos, o comando retorna `hypothesis_missing` e não cria nenhum arquivo.
 
 ## Onde os templates vivem
 
@@ -63,6 +74,7 @@ ${FOUNDRY_ROOT}/templates/aios/
 Antes de copiar qualquer arquivo, verificar **todos** os checks:
 
 ```
+0. `hypothesis` presente com os 5 campos preenchidos (problem, metric, sample, success, stop) — hard gate "pensar primeiro" (C1/C2)
 1. docs/specs/{module}.md existe (spec gerada via /novais-digital:spec)
 2. ${FOUNDRY_ROOT} resolvido e templates/aios/ acessível
 3. aios/config.yaml existe — se ausente, copiar de templates/aios/config.yaml.template e PARAR
@@ -76,6 +88,23 @@ Antes de copiar qualquer arquivo, verificar **todos** os checks:
 Se qualquer check obrigatório falhar: **parar e orientar com instrução específica de correção.** Não criar nenhum arquivo.
 
 ## Sequência de cópia
+
+### Passo 0 — hipótese humana registrada
+
+Escreve `aios/hypotheses/{module}.md` com os 5 campos do input, mais autor e data:
+
+```
+# Hipótese — {module}
+
+- **Problema**: {hypothesis.problem}
+- **Métrica**: {hypothesis.metric}
+- **Amostra**: {hypothesis.sample}
+- **Sucesso**: {hypothesis.success}
+- **Parada**: {hypothesis.stop}
+- **Autor**: {operador humano} — {YYYY-MM-DD}
+```
+
+Se o arquivo já existir e `force` não for `true`: mantém o existente (hipótese humana nunca é sobrescrita em silêncio) e registra `hypothesis_kept: true` no output.
 
 ### Passo 1 — agentes especializados por módulo
 
@@ -130,6 +159,8 @@ command: /novais-digital:aios-init
 status: ok | partial | error
 module: <>
 tier: A | B | C
+hypothesis_file: aios/hypotheses/{module}.md
+hypothesis_kept: true | false   # true se o arquivo já existia e foi preservado
 project_root: <abs_path>
 foundry_root: <abs_path>
 agents_created:
@@ -145,6 +176,7 @@ agents_seeded:
 config_updated: true | false
 orchestrator_created: true | false
 checks_passed:
+  hypothesis_complete: true
   spec_exists: true
   foundry_root_resolved: true
   config_exists: true
@@ -157,6 +189,7 @@ next_step: "/novais-digital:aios-run --module {module} --step spec"
 
 ## Verification gate
 
+- [x] `aios/hypotheses/{module}.md` existe com os 5 campos + autor + data antes de copiar qualquer arquivo
 - [x] `docs/specs/{module}.md` existe antes de copiar qualquer arquivo
 - [x] `${FOUNDRY_ROOT}/templates/aios/` resolvido e acessível
 - [x] `aios/config.yaml` existe e tem `project.name` preenchido (não ainda `{PROJECT_NAME}`)
@@ -176,6 +209,7 @@ next_step: "/novais-digital:aios-run --module {module} --step spec"
 | Sobrescrever agentes compartilhados existentes | Apaga customização local feita pelo consumidor | Passo 2 só cria se ausente; nunca sobrescreve |
 | Atualizar `aios/config.yaml` em outros campos além de `modules:` | Pode apagar configurações reais (api_key, log path) | Apenas appende em `modules:`; preserva o resto |
 | Pular o gate de spec existente | Agentes sem spec geram lixo irrecuperável | Check 1 é hard gate — parar se spec não existe |
+| Gerar a hipótese com o próprio agente | Quem aprendeu foi a máquina, não o operador — viola "pensar primeiro" | Hipótese vem do input humano; check 0 é hard gate — parar se incompleta |
 | Pular instrumentação LANGSMITH no boilerplate | Sem trace = outcome não auditável (C6) | Templates já incluem; o command só copia, não modifica |
 
 ## Saída de erro estruturada
@@ -188,6 +222,7 @@ hint: <ação específica>
 ```
 
 `error` ∈
+- `hypothesis_missing` — informar os 5 campos (problem, metric, sample, success, stop); nada foi criado
 - `spec_not_found` — criar spec via `/novais-digital:spec`
 - `foundry_root_not_found` — definir `NOVAIS_FOUNDRY_ROOT` ou clonar `foundry/` no projeto
 - `aios_config_not_found` — copiei `templates/aios/config.yaml.template` para `aios/config.yaml`; preencha `project.name` e `stack.*` antes de re-rodar
@@ -203,3 +238,4 @@ hint: <ação específica>
 |---|---|---|
 | 0.1.0 | 2026-05-06 | Versão inicial — Foundry-6 AIOS init com boilerplate inline |
 | 0.2.0 | 2026-05-07 | **Foundry-7**: passa a copiar dos templates físicos em `templates/aios/`; cobre 6 agentes (adiciona schema/test/review compartilhados); orchestrator + config gerados quando ausentes; schema_agent é stack-agnostic |
+| 0.3.0 | 2026-09-17 | **Pensar primeiro**: input `hypothesis` obrigatório (5 campos humanos); Passo 0 grava `aios/hypotheses/{module}.md`; `/novais-digital:aios-run` bloqueia sem esse arquivo (`hypothesis_not_found`) |
