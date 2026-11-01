@@ -1,0 +1,239 @@
+# agent-governance-framework — Guia para Claude Code
+
+> Este é o **repositório do framework Novais Digital Foundry**.
+> Trabalho aqui é **EVOLUIR o framework**, não operar a Novais Digital.
+
+---
+
+## Contexto: você está no repo errado para...
+
+- ❌ Implementar SKUs SaaS² da Novais Digital → use `novais-digital-governanca-ia`
+- ❌ Operar pipeline de outcomes → use `novais-digital-governanca-ia`
+- ❌ Editar metodologia Novais Digital SaaS² → editar nos `metodologia*.md` de `novais-digital-governanca-ia`
+
+Você está no lugar certo para...
+
+- ✅ Adicionar/refinar princípios da Constitution (exige ADR)
+- ✅ Criar skills L0/L1/L2 (Foundry-1)
+- ✅ Criar slash commands (Foundry-2)
+- ✅ Criar subagents Guardian (Foundry-3)
+- ✅ Criar hooks runtime (Foundry-4)
+- ✅ Atualizar templates fundamentais
+- ✅ Implementar reviewer DeepAgents/GPT-5.5
+
+---
+
+## Antes de qualquer coisa: leia a Constitution
+
+[`.claude/CONSTITUTION.md`](./.claude/CONSTITUTION.md)
+
+Os 8 princípios C1–C8 são **não-negociáveis** e orientam todo desenvolvimento do framework. Mudança em qualquer princípio exige:
+
+1. ADR justificando (em projeto consumidor — neste repo, registrar em `docs/foundry/decisions.md`)
+2. Bump MAJOR de versão
+3. Atualização do `manifest.json`
+4. Comunicação ao reviewer DeepAgents (atualizar prompt)
+5. Entrada no `CHANGELOG.md`
+
+---
+
+## Documentos canônicos
+
+- [`README.md`](./README.md) — Overview e onboarding
+- [`INSTALL.md`](./INSTALL.md) — Como instalar em projeto consumidor
+- [`CHANGELOG.md`](./CHANGELOG.md) — Histórico de versões
+- [`docs/foundry/README.md`](./docs/foundry/README.md) — Overview interno
+- [`docs/foundry/decisions.md`](./docs/foundry/decisions.md) — Decisões F1-F12
+- [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md) — 5 ondas
+- [`docs/foundry/reviewer-contract.md`](./docs/foundry/reviewer-contract.md) — Contrato do reviewer
+- [`docs/foundry/manifest.json`](./docs/foundry/manifest.json) — Inventory
+- [`docs/foundry/out-of-scope.md`](./docs/foundry/out-of-scope.md) — O que NÃO entra
+- [`templates/master-prompt.md`](./templates/master-prompt.md) — **Master Prompt universal** (orquestrador para projetos consumidores)
+
+---
+
+## Master Prompt para projetos consumidores
+
+[`templates/master-prompt.md`](./templates/master-prompt.md) é o **prompt de orquestração canônico** que projetos consumidores devem instalar para operar sob o Foundry.
+
+Ele cobre os 3 tipos de projeto suportados (F26):
+
+| Tipo | Exemplo Real | Lifecycle | C3/C4/C6 |
+|------|--------------|-----------|----------|
+| `agentic` + `ai_enabled:true` | Novais Digital Social, Aicfo | SHADOW→ASSISTED→AUTONOMOUS | Tokens, eval LLM, LangSmith |
+| `platform` + `ai_enabled:false` | EduPlatform | draft→staging→pilot→canonical | Infra, acceptance, logs |
+| `platform` + `ai_enabled:true` ou `hybrid` | SaaS com features IA | Por módulo | Combinado |
+
+**Como projetos consumidores usam:**
+
+1. Copiam `templates/master-prompt.md` para sua raiz como `MASTER_PROMPT.md` ou referenciam no `CLAUDE.md` local
+2. Claude Code carrega o prompt como system context
+3. Detecção automática de tipo via `docs/foundry/manifest.json` (`project_type` + `ai_enabled`)
+4. Roteamento adaptativo: comandos, Guardians, hooks aplicados conforme tipo
+5. Output padronizado em 5 seções (Diagnóstico, Rota, Riscos, Próximo passo, Outputs)
+
+**Quando evoluir o master-prompt:**
+
+- Nova capability suportada pelo Foundry (novo `project_type`, novo `lifecycle_stage`)
+- Novo Guardian adicionado (`.claude/agents/`)
+- Nova convenção de roteamento (`/novais-digital:*` command novo)
+- Mudança na Constitution (raríssimo)
+
+Mudanças no master-prompt seguem versionamento PATCH (sem afetar Constitution) ou MINOR (se adiciona capability nova).
+
+---
+
+## Convenções do framework
+
+### Naming
+
+- Slash commands: `/novais-digital:{verbo}` (ex: `/novais-digital:diagnose`)
+- Skills: kebab-case com tier no path (`.claude/skills/L1/diagnostic-runner.md`)
+- Agents/Guardians: kebab-case (`po-guardian.md`, `sku-architect.md`)
+- Hooks IDs: kebab-case (`outcome-clause-guard`, `manifest-sync`)
+- Templates: `{name}.template.md` em `templates/`
+
+### Versionamento (SemVer)
+
+- **MAJOR** — quebra Constitution
+- **MINOR** — onda Foundry concluída
+- **PATCH** — correções sem mudar contrato
+
+Versão atual está em `docs/foundry/manifest.json` → `framework.version` e refletida em `CHANGELOG.md`.
+
+### Manifest
+
+Toda adição/remoção de artefato deve atualizar `docs/foundry/manifest.json`:
+
+- Novo arquivo → adicionar entrada com `path`, `type`, `version`, `sha256`, `description`, `linked_principles`
+- Hash: `sha256sum <arquivo> | cut -c1-16` (primeiros 16 hex)
+- Arquivos com line endings inconsistentes (Windows CRLF) podem ter hash diferente — normalizar para LF antes de hash final
+
+### Estrutura simétrica com consumidor
+
+Repo segue **estrutura simétrica** ao projeto consumidor:
+
+```
+agent-governance-framework/                    projeto-consumidor/
+├── .claude/                     ├── .claude/
+│   ├── CONSTITUTION.md          │   ├── CONSTITUTION.md  (cópia canônica)
+│   └── settings.json            │   ├── settings.json    (cópia canônica)
+│                                │   └── settings.local.json (NÃO toca - dev override)
+├── templates/                   ├── templates/           (cópia canônica)
+├── docs/foundry/                  ├── docs/foundry/          (cópia canônica)
+└── CLAUDE.md.template           └── CLAUDE.md            (adaptado do template)
+```
+
+Isso facilita sync (`cp -r`) entre origem canônica e cópias nos projetos consumidores.
+
+---
+
+## Como adicionar um novo componente
+
+### Adicionar nova skill (Foundry-1)
+
+1. Criar `.claude/skills/L{0|1|2}/{nome}.md` com frontmatter padrão
+2. Adicionar entrada em `manifest.json` → `artifacts.skills.L{tier}`
+3. Atualizar `roadmap.md` marcando task como concluída
+4. Bump PATCH e atualizar `CHANGELOG.md`
+
+### Adicionar novo slash command (Foundry-2)
+
+1. Criar `.claude/commands/novais-digital/{verbo}.md` com:
+   - Frontmatter (description, allowed-tools)
+   - Verification gate explícito
+   - Output structured
+2. Adicionar entrada em `manifest.json` → `artifacts.commands`
+3. Atualizar `roadmap.md` + `CHANGELOG.md`
+
+### Adicionar novo subagent Guardian (Foundry-3)
+
+1. Criar `.claude/agents/{nome}.md` com:
+   - Frontmatter (model, description, tools)
+   - Persona e responsabilidades
+   - Smart routing declarado (Opus/Sonnet/Haiku)
+2. Adicionar entrada em `manifest.json` → `artifacts.agents`
+3. Atualizar `roadmap.md` + `CHANGELOG.md`
+
+### Adicionar novo hook (Foundry-4)
+
+1. Editar `.claude/settings.json` → `hooks.{PreToolUse|PostToolUse|Stop}`
+2. Adicionar implementação (script bash/node) — local TBD em ADR-002+
+3. Adicionar entrada em `manifest.json` → `artifacts.hooks`
+4. Atualizar `roadmap.md` + `CHANGELOG.md`
+
+### Mudar Constitution (raro!)
+
+1. Abrir issue propondo mudança com justificativa
+2. Atualizar `decisions.md` registrando histórico
+3. Bump MAJOR de versão
+4. Atualizar `manifest.json` → `framework.constitution_version`
+5. Atualizar `CHANGELOG.md` com seção `### Breaking Changes`
+6. Atualizar prompt do reviewer (DeepAgents)
+
+---
+
+## Reviewer interno (durante desenvolvimento do framework)
+
+Enquanto o reviewer DeepAgents/GPT-5.5 não está implementado (chega em Foundry-3), use o próprio Claude Code como reviewer interno:
+
+- PR pequeno (≤ 5 arquivos por mudança)
+- Auto-review com `/review` antes de pedir review humano
+- Validar `manifest.json` parse JSON: `node -e "JSON.parse(require('fs').readFileSync('docs/foundry/manifest.json'))"`
+- Validar links markdown manualmente em PRs novos
+
+---
+
+## Operações que exigem confirmação humana
+
+Mesmo nos limites do `.claude/settings.json` deny list, **sempre** confirme antes de:
+
+- Editar `.claude/CONSTITUTION.md` (precisa nova ADR)
+- Bump MAJOR de versão
+- Push para `master` (preferir branch + PR)
+- Adicionar ou remover entrada em `manifest.json` → `principles[]`
+- Mudar contrato do reviewer (`reviewer-contract.md`)
+
+Operações livres: edição de skills, commands, templates, doc, hooks experimentais em branch.
+
+---
+
+## Comandos úteis
+
+```bash
+# Validação completa do framework (JSON, paths, versões, hooks, órfãos)
+bash scripts/foundry-doctor.sh
+
+# Validar apenas manifest JSON
+node -e "console.log(JSON.parse(require('fs').readFileSync('docs/foundry/manifest.json','utf8')).framework.version)"
+
+# Recalcular hash de um arquivo
+sha256sum docs/foundry/manifest.json | cut -c1-16
+
+# Listar todos os artefatos
+find . -type f -not -path './.git/*' -not -path './node_modules/*' | sort
+
+# Diff vs último commit
+git diff HEAD --stat
+```
+
+---
+
+## Status atual
+
+- ✅ Foundry-0 entregue (v0.1.0 + reposicionamento v0.2.0)
+- ✅ Foundry-1 genéricas concluídas: **9/9 skills** (3 L0 + 3 L1 + 3 L2) com helper pattern documentado
+- ✅ Foundry-2 concluída: **11/11 slash commands** (spec/economics 4 + implementation 3 + validation 4); pipeline end-to-end de `/diagnose` a `/audit-monthly`
+- ✅ Foundry-3 concluída: **reviewer DeepAgent (10 SKILL.md) + 8 Guardians + 2 cross-LLM reviewers** (F17/F18); ADR-002 template entregue
+- ✅ Foundry-4 concluída (v0.3.0): **9 hooks ativos** (PreToolUse x4, PostToolUse x3, Stop x2), bypass auditado, `skill-security-scan.sh`, `bypass-log/`
+- ✅ Foundry-5 infraestrutura entregue (v0.4.0): **templates playbook + retrospectiva**, `/novais-digital:playbook-extract`, `docs/playbooks/`, F19-F21 em decisions.md
+- ✅ Doc sync + validador CI (v0.4.1): `scripts/foundry-doctor.sh` (7 checks), `reviewer/README.md`, sincronização de metadados, F22 em decisions.md
+- ✅ Foundry-6 entregue (v0.5.0): **3 commands AIOS** (init/run/status) + telemetry pattern + `aios_tier` em spec template, F23 em decisions.md
+- ✅ Foundry-7 entregue (v0.6.0): **6 agentes AIOS portáveis em `templates/aios/`** (spec/backend/frontend especializados + schema/test/review compartilhados, `schema_agent` stack-agnostic), `/novais-digital:aios-init` v0.2.0 copia de templates físicos, F24 em decisions.md
+- ✅ Foundry-8 entregue (v0.7.0): **4 templates CI/CD em `templates/cicd/`** (github-actions-validate/eval/audit + cicd-checklist), **Gate 6 CI/CD obrigatório** no `/novais-digital:promote` para `assisted_to_autonomous`, Wave 6 no `/novais-digital:tasks` (T6.1–T6.5), F25 em decisions.md
+- ✅ Foundry-9 entregue (v0.8.x): delivery-type agnostic para `agentic_saas`, `platform`, `automation` e `hybrid`; `project.template.json`; specs/economics/commands/reviewer ramificados por `project_type` e `ai_enabled`; F26 em decisions.md
+- ✅ Foundry-10 entregue (v0.9.0): AIOS TDD-first; `test_agent` com modos `red`/`verify`; orchestrator reordenado spec → schema → test(red) → build → test(verify) → review; workflow `foundry-test`; gate G6 `tdd-red-phase-check` no validate
+- ⏳ Pendências do consumidor: ADR-002 efetiva + primeira auditoria mensal de teste + primeiro SKU/módulo em AUTONOMOUS/CANONICAL para gerar playbook real
+- ⏳ Resíduo Foundry-1 (opcional): 4 skills Novais-específicas em `examples/novais-digital/skills/`
+
+Veja [`docs/foundry/roadmap.md`](./docs/foundry/roadmap.md) para detalhes.

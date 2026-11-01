@@ -1,0 +1,121 @@
+{
+  "timestamp": "2026-09-04T02:37:14.195Z",
+  "total": 5,
+  "passed": 5,
+  "pass_rate": 1,
+  "threshold": 1,
+  "primary_family": "openai",
+  "judge_family": "anthropic",
+  "results": [
+    {
+      "id": "agf-smoke-01",
+      "category": "smoke",
+      "pass": true,
+      "golden": {
+        "pass": true
+      },
+      "judge": {
+        "judge_model": "claude-simulated-heuristic-v1",
+        "judge_family": "anthropic",
+        "primary_family": "openai",
+        "verdict": "PASSA",
+        "simulated": true,
+        "judged_at": "2026-09-04T02:37:14.194Z"
+      },
+      "provenance": {
+        "source": "docs/foundry/manifest.json",
+        "author": "foundry-team",
+        "created_at": "2026-09-03",
+        "dataset_version": "1.0.0"
+      }
+    },
+    {
+      "id": "agf-smoke-02",
+      "category": "smoke",
+      "pass": true,
+      "golden": {
+        "pass": true
+      },
+      "judge": {
+        "judge_model": "claude-simulated-heuristic-v1",
+        "judge_family": "anthropic",
+        "primary_family": "openai",
+        "verdict": "PASSA",
+        "simulated": true,
+        "judged_at": "2026-09-04T02:37:14.194Z"
+      },
+      "provenance": {
+        "source": "hooks/scripts/skill-security-scan.sh",
+        "author": "foundry-team",
+        "created_at": "2026-09-03",
+        "dataset_version": "1.0.0"
+      }
+    },
+    {
+      "id": "agf-smoke-03",
+      "category": "smoke",
+      "pass": true,
+      "golden": {
+        "pass": true
+      },
+      "judge": {
+        "judge_model": "claude-simulated-heuristic-v1",
+        "judge_family": "anthropic",
+        "primary_family": "openai",
+        "verdict": "PASSA",
+        "simulated": true,
+        "judged_at": "2026-09-04T02:37:14.194Z"
+      },
+      "provenance": {
+        "source": ".claude/CONSTITUTION.md",
+        "author": "foundry-team",
+        "created_at": "2026-09-03",
+        "dataset_version": "1.0.0"
+      }
+    },
+    {
+      "id": "agf-smoke-04",
+      "category": "smoke",
+      "pass": true,
+      "golden": {
+        "pass": true
+      },
+      "judge": {
+        "judge_model": "claude-simulated-heuristic-v1",
+        "judge_family": "anthropic",
+        "primary_family": "openai",
+        "verdict": "PASSA",
+        "simulated": true,
+        "judged_at": "2026-09-04T02:37:14.194Z"
+      },
+      "provenance": {
+        "source": ".claude/CONSTITUTION.md#C5",
+        "author": "foundry-team",
+        "created_at": "2026-09-03",
+        "dataset_version": "1.0.0"
+      }
+    },
+    {
+      "id": "agf-smoke-05",
+      "category": "smoke",
+      "pass": true,
+      "golden": {
+        "pass": true
+      },
+      "judge": {
+        "judge_model": "claude-simulated-heuristic-v1",
+        "judge_family": "anthropic",
+        "primary_family": "openai",
+        "verdict": "PASSA",
+        "simulated": true,
+        "judged_at": "2026-09-04T02:37:14.194Z"
+      },
+      "provenance": {
+        "source": ".claude/CONSTITUTION.md#C7",
+        "author": "foundry-team",
+        "created_at": "2026-09-03",
+        "dataset_version": "1.0.0"
+      }
+    }
+  ]
+}

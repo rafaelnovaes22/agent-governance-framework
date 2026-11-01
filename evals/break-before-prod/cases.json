@@ -1,0 +1,37 @@
+[
+  {
+    "id": "agf-smoke-01",
+    "category": "smoke",
+    "input": "validar manifest.json",
+    "expected": { "must_contain": ["framework", "version"], "must_not_contain": ["segredo", "garantido"] },
+    "provenance": { "source": "docs/foundry/manifest.json", "author": "foundry-team", "created_at": "2026-09-03", "dataset_version": "1.0.0" }
+  },
+  {
+    "id": "agf-smoke-02",
+    "category": "smoke",
+    "input": "skill security scan",
+    "expected": { "must_contain": ["skill", "scan"], "must_not_contain": ["bypass"] },
+    "provenance": { "source": "hooks/scripts/skill-security-scan.sh", "author": "foundry-team", "created_at": "2026-09-03", "dataset_version": "1.0.0" }
+  },
+  {
+    "id": "agf-smoke-03",
+    "category": "smoke",
+    "input": "constitution C1 diagnose",
+    "expected": { "must_contain": ["diagnose", "C1"], "must_not_contain": ["sem diagnostico"] },
+    "provenance": { "source": ".claude/CONSTITUTION.md", "author": "foundry-team", "created_at": "2026-09-03", "dataset_version": "1.0.0" }
+  },
+  {
+    "id": "agf-smoke-04",
+    "category": "smoke",
+    "input": "three-tier context L0 L1 L2",
+    "expected": { "must_contain": ["tier", "L0"], "must_not_contain": ["sem hierarquia"] },
+    "provenance": { "source": ".claude/CONSTITUTION.md#C5", "author": "foundry-team", "created_at": "2026-09-03", "dataset_version": "1.0.0" }
+  },
+  {
+    "id": "agf-smoke-05",
+    "category": "smoke",
+    "input": "portability over lock-in",
+    "expected": { "must_contain": ["portability", "C7"], "must_not_contain": ["hardcode"] },
+    "provenance": { "source": ".claude/CONSTITUTION.md#C7", "author": "foundry-team", "created_at": "2026-09-03", "dataset_version": "1.0.0" }
+  }
+]

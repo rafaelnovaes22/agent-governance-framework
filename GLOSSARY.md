@@ -1,0 +1,356 @@
+# Glossary — Novais Digital Foundry
+
+> Vocabulário compartilhado entre humanos, devs e agentes autônomos. Em ordem alfabética.
+
+---
+
+## A
+
+### ADR (Architecture Decision Record)
+Documento que registra **decisões arquiteturais** com contexto, alternativas consideradas, decisão tomada e consequências. ADRs são **imutáveis após assinatura** — mudanças exigem nova ADR. Template em [`templates/adr.template.md`](./templates/adr.template.md).
+
+### Agent (do Foundry)
+Instância operacional que executa tarefas. Pode ser:
+- **Subagent Claude Code** (`.claude/agents/*.md`) — papel especialista invocado pelo Claude
+- **Agent de domínio** (no projeto consumidor) — orquestração LLM real (LangGraph, custom, etc.) que entrega outcome cobrável
+
+### AUTONOMOUS
+Modo de operação onde agente executa diretamente, humano audita amostra pós-execução. Billing variável ativo. Promoção exige passar por SHADOW e ASSISTED primeiro (princípio C4).
+
+### ASSISTED
+Modo intermediário onde agente propõe e humano aprova antes de executar/entregar. Sem billing variável. Mede taxa de aprovação sem edição.
+
+### Audit / Auditoria mensal
+Validação independente do projeto contra Constitution, executada pelo reviewer DeepAgent. Output: relatório markdown + JSON em `docs/foundry/audits/YYYY-MM-DD.md`. Cadência padrão: último dia útil do mês.
+
+---
+
+## B
+
+### Baseline (custo humano)
+Custo por outcome no método humano atual do cliente. Usado para validar pricing por outcome (princípio C3) e mostrar economia no dashboard cliente.
+
+### Beta (lifecycle stage)
+Stage de produto que opera com **usuários reais** mas com pricing subsidiado/gratuito, sem SLA contratual, e comunicação clara de "estamos em beta". Antes de GA.
+
+### Block
+Unidade reutilizável de processamento (no contexto Novais Digital, em `src/core/blocks/`). Composto em Agents via `AgentBlockComposition`. Permite reuso entre tenants do mesmo padrão.
+
+### Bypass
+Override emergencial de hooks/checks via `NOVAIS_FOUNDRY_BYPASS=incident`. Toda invocação fica registrada em `docs/foundry/bypass-log/` e é citada pelo reviewer no próximo relatório.
+
+---
+
+## C
+
+### analytics_provider
+Campo em `project.telemetry.analytics_provider` (introduzido em Foundry-21). Define o provedor de eventos de negócio/outcomes. Valores: `wirelog | posthog | segment | custom | null`. WireLog é o padrão recomendado. Distinto do `llm_trace_provider` (LangSmith — traces LLM) e do `audit_log_provider` (mutações críticas). Opcional por padrão; WARN em AUTONOMOUS se não declarado.
+
+### C1–C8
+Os 8 princípios da Constitution v0.3.0:
+- C1 Diagnose-before-build
+- C2 Outcome-first, never tech-first
+- C3 Economic viability (≤ 25%)
+- C4 SHADOW antes de cobrar (agentic) / Pilot-before-canonical (platform)
+- C5 Three-tier context
+- C6 Telemetry-by-default (bifurcado em v0.22.0: llm_trace_provider + analytics_provider)
+- C7 Portability over lock-in
+- C8 Anti-customização heroica
+
+### Cláusula de outcome
+Seção da spec que define **contratualmente** o que conta como "outcome entregue". Inclui definição em 1 frase + 3 exemplos positivos + 3 exemplos negativos + janela temporal de estabilidade + evento técnico que dispara `DELIVERED`.
+
+### Constitution
+Arquivo `.claude/CONSTITUTION.md` com 8 princípios versionados. Fonte canônica de regras do framework. Mudanças exigem ADR + bump SemVer.
+
+### Cost ratio (custo/preço)
+Razão `custo_inferência_por_outcome / preço_por_outcome`. Princípio C3 exige ≤ 25%. Em produtos com pricing fixo, traduz-se para `custo_mensal_por_usuário / ARPU_mensal`.
+
+---
+
+## D
+
+### Novais Digital Diagnóstico
+Categoria 1 do portfolio Novais Digital: porta de entrada paga (Fase 0, 5 dias úteis). Cliente paga R$ 5–10k para receber relatório com 3 candidatos a SKU automatizável. Não escala via produto.
+
+### Novais Digital Plataforma
+Categoria 2 do portfolio Novais Digital: SaaS² high-touch com SKUs verticais. Cliente não loga (entrega async via WhatsApp/email/webhook). Setup R$ 8–25k + plataforma R$ 1,5–4k/mês + variável por outcome.
+
+### Novais Digital Produtos
+Categoria 3 do portfolio Novais Digital: produtos self-serve. Cliente loga em UI dedicada. Pricing mensalidade fixa. Atualmente: Novais Digital Fin (beta), Novais Digital Educacional (discovery).
+
+### DeepAgent
+Reviewer externo independente que audita projetos Foundry mensalmente. Implementação default: GPT-5.5 via OpenAI SDK (Python `deepagents` ou Node/TS `@langchain/langgraph`).
+
+### Diagnostic
+Modelo de DB e processo da Fase 0. Cobrável (R$ 5–10k). Output: 3 candidatos qualificados + baseline + proposta de pricing.
+
+### Discovery (lifecycle stage)
+Primeiro stage de produto: hipótese, sem código de produção, sem usuários. Foco em validar problema vale a pena resolver.
+
+### Drift
+Degradação ao longo do tempo. Tipos:
+- **Drift de qualidade**: acurácia cai ≥ 5pp mês-a-mês
+- **Drift de custo**: custo médio outcome sobe ≥ 15% mês-a-mês
+- **Drift de volume**: volume oscila ≥ 30% mês-a-mês
+Reviewer detecta automaticamente e abre issue.
+
+### DRE (Demonstrativo de Resultados do Exercício)
+Relatório financeiro que decompõe receita em custos, despesas e resultado. Output principal do Novais Digital Fin.
+
+---
+
+## E
+
+### Eval Suite
+Conjunto de 30+ casos de teste com gabarito conhecido para cada SKU/produto. Roda em `npm run eval:{sku}`. Threshold mínimo definido em pré-contrato (princípio C4). Templates em [`templates/eval-case.template.md`](./templates/eval-case.template.md).
+
+---
+
+## F
+
+### Fase 0
+Diagnóstico cobrável de 5 dias úteis que precede oferta de Plataforma ou Produto. Princípio C1.
+
+### Foundry
+Curto para "Novais Digital Foundry". O framework em si.
+
+### Foundry-0 a Foundry-5
+Ondas de implementação do framework:
+- Foundry-0: Fundação (concluída)
+- Foundry-1: Skills L0/L1/L2
+- Foundry-2: Slash commands
+- Foundry-3: Subagents Guardian + reviewer
+- Foundry-4: Hooks runtime
+- Foundry-5: Playbooks verticais (pós primeiro caso real)
+
+### Frontmatter
+Bloco YAML no início de arquivos `.md` com metadata estruturada (versão, owner, status, etc.). Lido por scripts e pelo reviewer.
+
+---
+
+## G
+
+### GA (General Availability)
+Stage de produto vendável com pricing pleno, SLA contratual, comunicação comercial pública. Sucessor do Beta.
+
+### Gate
+Decisão (humana ou automática) entre nós do pipeline. Gates de promoção (SHADOW→ASSISTED→AUTONOMOUS) requerem critérios objetivos.
+
+### Guardian
+Subagent Claude Code com papel específico de validação/garantia. Ex: PO Guardian (valida outcome contratual), Unit Economist (valida C3), Security Guardian (valida C7/C8).
+
+---
+
+## H
+
+### Helper pattern
+Técnica de redução de tokens (origem: BMAD): contexto Tier 1 (DNA, ICP, ofertas) é referenciado como `{{l0.dna}}` em prompts em vez de duplicado, com `cache_control: ephemeral` no Anthropic. Reduz tokens em 70-85%.
+
+### Hooks
+Scripts disparados pelo Claude Code em eventos específicos (PreToolUse, PostToolUse, PreCommit, Stop). Configurados em `.claude/settings.json`. Foundry-4 entrega hooks runtime.
+
+---
+
+## I
+
+### ICP (Ideal Customer Profile)
+Perfil do cliente ideal. Cada categoria do portfolio Novais Digital pode ter ICP distinto.
+
+### Idempotente
+Operação que produz o mesmo resultado quando executada múltiplas vezes com os mesmos inputs. Aplicado a: scripts de bootstrap, seeds, e ao próprio reviewer.
+
+---
+
+## K
+
+### KnowledgeAsset
+Modelo de DB que representa substrato cognitivo do tenant. 4 tipos: BUSINESS_PROCESS, ONTOLOGY, BUSINESS_RULE, REFERENCE_DATA. Versionado.
+
+### Knowledge Layer
+Camada do projeto consumidor que carrega e cacheia KnowledgeAssets para uso em prompts (Tier 1).
+
+---
+
+## L
+
+### L0 / L1 / L2 (Sincra)
+Vocabulário Sincra para Three-tier context (princípio C5):
+- L0 = Tier 1 = Estratégico (DNA/ICP/ofertas)
+- L1 = Tier 2 = Tático (cliente/projeto/baseline)
+- L2 = Tier 3 = Operacional (outcome/run/eval)
+
+### LangSmith
+Provedor de observability LLM (open-source, self-hostable). Default do Foundry para princípio C6, mas substituível por Helicone, Phoenix, ou custom.
+
+### LangGraph
+Framework de orquestração de agentes (LangChain). Default do Foundry para pipelines de agentes — substituível por state machine custom, CrewAI, AutoGen.
+
+### Lifecycle
+Conjunto de stages de um produto: Discovery → MVP → Beta → GA → Maturity → Sunset. Detalhado em [`templates/lifecycle-stage.template.md`](./templates/lifecycle-stage.template.md).
+
+### Lock-in
+Acoplamento difícil de reverter (modelo, provedor, stack). Princípio C7 minimiza lock-in via camada de abstração.
+
+---
+
+## M
+
+### Manifest
+Arquivo `docs/foundry/manifest.json` com inventário machine-readable de todos os artefatos do framework no projeto consumidor. Lido pelo reviewer.
+
+### Maturity (lifecycle stage)
+Stage estável de produto, sem mudanças disruptivas. Foco em otimização e retenção.
+
+### MVP (Minimum Viable Product)
+Stage entre Discovery e Beta: código rodando mas não vendível.
+
+---
+
+## O
+
+### Onda
+Bloco discreto de trabalho. Dois usos:
+- **Onda Foundry** (Foundry-0, Foundry-1, ...): bloco de implementação do framework
+- **Onda Novais Digital** (Onda 0, Onda 1, ...): bloco de implementação do projeto consumidor `novais-digital-governanca-ia`
+- **Wave**: engagement comercial discreto sobre Subscription (Novais Digital Plataforma)
+
+### Outcome
+Unidade de entrega cobrável. Ex: lead-qualificado, ticket-resolvido, análise-financeira. Definido em §1 da spec.
+
+### OutcomeFlywheelData
+Modelo de DB que captura par (decisão humana, decisão agente) para alimentar **moat de dados** — quanto mais o agente roda no setor X, melhor ele fica para próximo cliente do mesmo setor.
+
+---
+
+## P
+
+### Pipeline
+Sequência de nodes (agentes/etapas) que processa input → outcome. Implementado em `src/core/pipeline/runner.ts` ou equivalente.
+
+### Plataforma
+Curto para Novais Digital Plataforma (Categoria 2 do portfolio).
+
+### Portfolio (Novais Digital)
+Conjunto das 3 categorias de oferta Novais Digital: Diagnóstico, Plataforma, Produtos.
+
+### Princípio (do Foundry)
+Regra fundadora da Constitution. Versionada. Mudança exige ADR.
+
+### Promoção (de modo)
+Transição entre modos de operação: SHADOW → ASSISTED → AUTONOMOUS. Exige gates passing.
+
+### Produto (Novais Digital)
+Curto para Novais Digital Produtos (Categoria 3 do portfolio).
+
+---
+
+## Q
+
+### Quality Gate
+Critério verificável de promoção entre stages ou modos. Detalhado em [`templates/lifecycle-stage.template.md`](./templates/lifecycle-stage.template.md).
+
+---
+
+## R
+
+### Reviewer
+Agente externo (DeepAgent / GPT-5.5) que audita projetos Foundry mensalmente. Detalhe em [`reviewer/`](./reviewer/) e [`DEEPAGENT_GUIDE.md`](./DEEPAGENT_GUIDE.md).
+
+### Rota A / B / C (Novais Digital)
+Modelos comerciais hipotéticos analisados pelo CEO Novais Digital:
+- Rota A: high-ticket B2B puro
+- Rota B: low-ticket cauda longa
+- Rota C: híbrido (low-ticket como entrada, high-ticket como upsell)
+
+CEO inclinou para C/A em áudio 2026-04-29. Aprovação formal pendente.
+
+---
+
+## S
+
+### SaaS² (Service-as-a-Software)
+Modelo onde se vende **outcome entregue** (lead, ticket, análise) em vez de licença de software. Cliente paga por resultado, não por seat. Origina o nome "Novais Digital SaaS²".
+
+### SHADOW
+Modo de operação inicial: agente roda mas output não é entregue/cobrado. Humano executa em paralelo. Mede concordância. Princípio C4.
+
+### Sincra
+Metodologia task-first com camadas L0/L1/L2 (origem: Affluence/Pedro Valério). Inspira princípio C5 (Three-tier context).
+
+### SKU
+Unidade vendável do catálogo. Em Novais Digital Plataforma, cada SKU é vertical/processo específico (ex: triagem-comercial-whatsapp).
+
+### SLA (Service Level Agreement)
+Threshold de qualidade contratual (ex: 85% de acurácia agregada). Breach mensal: cliente não paga variável daquele mês.
+
+### Spec
+Documento que descreve um agente/produto/SKU. Templates em `templates/`.
+
+### Subscription
+Modelo de DB representando assinatura de um Tenant a um SKU. Tem campos: `mode` (SHADOW/ASSISTED/AUTONOMOUS), `confidenceThreshold`, `slaThreshold`, pricing.
+
+### Subagent
+No Claude Code: agente especialista invocado dentro de uma sessão. Tem contexto isolado e tools restritos.
+
+### Sunset (lifecycle stage)
+Stage de descontinuação. Migração de usuários, encerramento de contratos, remoção de código legado.
+
+---
+
+## T
+
+### Telemetria
+Observação de chamadas LLM em runtime: input, output, custo, latência. Princípio C6. Provedor default: LangSmith.
+
+### TenantContext
+Modelo de DB representando Tier 1 (L0) da Sincra para um tenant: companyDna, icp, ofertas, glossario, toneOfVoice. Cacheado via helper pattern.
+
+### Three-tier context
+Hierarquia de contexto em 3 níveis (Estratégico/Tático/Operacional). Princípio C5.
+
+### Tier 1 / 2 / 3
+Vocabulário do Foundry para Three-tier (equivalente a L0/L1/L2 da Sincra). Ver C5 da Constitution.
+
+### Trace
+Registro de uma execução LLM em provedor de telemetria (LangSmith). Inclui input, output, custo, latência, metadata.
+
+### Two-track economics
+Princípio (extensão Novais Digital, C10) que separa estrutura de custo da Plataforma (CAC alto, ticket alto) da estrutura de Produtos (CAC baixo, ticket baixo, escala por volume).
+
+---
+
+## U
+
+### Unit economics
+Análise de custo unitário vs preço unitário. Documento canônico em `unit-economics.md` por SKU/produto. Princípio C3 exige razão custo/preço ≤ 25%.
+
+---
+
+## W
+
+### Wave (Novais Digital Plataforma)
+Engagement comercial discreto dentro de uma Subscription. Cada Wave entrega 1+ agente com pricing R$ 8–25k. Subscription Essential = 1 Wave; Subscription Full = N Waves.
+
+### WireLog
+`analytics_provider` canônico do Novais Digital Foundry (introduzido em Foundry-21 / v0.22.0). Rastreia **eventos de negócio/outcomes** — funis de lifecycle (created → delivered → billed), gates de promoção, erros de agente, evals e auditorias. Distinto do LangSmith (`llm_trace_provider` — traces LLM): os dois coexistem e se complementam. Nunca envia PII crua (guard automático no adapter). Schema de 14 eventos canônicos em `templates/telemetry/wirelog-event-schema.template.md`. Adapters portáveis em `templates/observability/`.
+
+---
+
+## Sigla rápida
+
+| Sigla | Significado |
+|---|---|
+| C1–C8 | Princípios da Constitution |
+| C9–C11 | Extensões Novais Digital da Constitution |
+| F1–F12 | Decisões fundadoras do Foundry |
+| L0/L1/L2 | Camadas Sincra (= Tier 1/2/3) |
+| GA | General Availability |
+| MVP | Minimum Viable Product |
+| ARPU | Average Revenue Per User |
+| ICP | Ideal Customer Profile |
+| LTV | Lifetime Value |
+| NRR | Net Revenue Retention |
+| ADR | Architecture Decision Record |
+| SLA | Service Level Agreement |
+| TTFO | Time To First Outcome |
